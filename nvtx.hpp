@@ -138,15 +138,20 @@ class EventAttributes {
  * When constructed, begins a nested NVTX range. Upon destruction, ends the NVTX
  * range.
  *
+ * NestedRange is not default constructible.
+ *
+ * A NestedRange object may be move constructed or move assigned, but may not be
+ * copy constructed nor copy assigned.
+ *
  * NestedRanges may be nested within other ranges.
  *
  * Example:
  * ```
  * {
- *    nvtx::NestedRange r0;
+ *    nvtx::NestedRange r0{"range 0"};
  *    some_function();
  *    {
- *       nvtx::NestedRange r1;
+ *       nvtx::NestedRange r1{"range 1"};
  *       other_function();
  *       // Range started in r1 ends when r1 goes out of scope
  *    }
@@ -203,11 +208,15 @@ class NestedRange {
 /**---------------------------------------------------------------------------*
  * @brief Marks an instantaneous event.
  *
+ * A Mark is not default constructible.
+ *
+ * A Mark cannot be copy/move constructed nor assigned.
+ *
  * Example:
  * ```
  * some_function(...){
  *    // A mark event will appear for every invocatin of `some_function`
- *    nvtx::Mark m;
+ *    nvtx::Mark m("some_function was called");
  * }
  * ```
  *---------------------------------------------------------------------------**/
