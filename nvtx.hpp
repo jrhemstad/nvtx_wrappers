@@ -138,14 +138,47 @@ class EventAttributes {
  * When constructed, begins a nested NVTX range. Upon destruction, ends the NVTX
  * range.
  *
+ * NestedRanges may be nested within other ranges.
+ *
+ * Example:
+ * ```
+ * {
+ *    nvtx::NestedRange r0;
+ *    some_function();
+ *    {
+ *       nvtx::NestedRange r1;
+ *       other_function();
+ *       // Range started in r1 ends when r1 goes out of scope
+ *    }
+ *    // Ranged started in r0 ends when r0 goes out of scope
+ * }
+ * ```
  *---------------------------------------------------------------------------**/
 class NestedRange {
+ public:
+  /**---------------------------------------------------------------------------*
+   * @brief Construct a NestedRange, beginning an NVTX range event.
+   *
+   * @throws std::runtime_error If beginning the range failed
+   *
+   * @param message Message associated with the range.
+   *---------------------------------------------------------------------------**/
   explicit NestedRange(std::string const& message) {
     if (nvtxRangePushA(message.c_str()) < 0) {
       throw std::runtime_error{"Failed to start NVTX range: " + message};
     }
   }
 
+  /**---------------------------------------------------------------------------*
+   * @brief Construct a NestedRange, beginning an NVTX range event with a custom
+   * color and optional category.
+   *
+   * @throws std::runtime_error If beginning the range failed
+   *
+   * @param message Messaged associated with the range.
+   * @param color Color used to visualize the range.
+   * @param category Optional, Category to group the range into.
+   *---------------------------------------------------------------------------**/
   NestedRange(std::string const& message, Color color, Category category = {}) {
     if (nvtxRangePushEx({message, color, category}) < 0) {
       throw std::runtime_error{"Failed to start NVTX range: " + message};
@@ -158,10 +191,59 @@ class NestedRange {
   NestedRange(NestedRange&&) = default;
   NestedRange& operator(NestedRange&&) = default;
 
+  /**---------------------------------------------------------------------------*
+   * @brief Destroy the NestedRange, ending the NVTX range event.
+   *---------------------------------------------------------------------------**/
   ~NestedRange() noexcept {
     auto result = nvtxRangePop();
     assert(result >= 0);
   }
+};
+
+/**---------------------------------------------------------------------------*
+ * @brief Marks an instantaneous event.
+ *
+ * Example:
+ * ```
+ * some_function(...){
+ *    // A mark event will appear for every invocatin of `some_function`
+ *    nvtx::Mark m;
+ * }
+ * ```
+ *---------------------------------------------------------------------------**/
+class Mark {
+  /**---------------------------------------------------------------------------*
+   * @brief Construct a Mark, indicating an instantaneous event in the
+   * application.
+   *
+   * @param message The message associated with the mark event.
+   *---------------------------------------------------------------------------**/
+  explicit Mark(std::string const& message) {
+    if (nvtxMarkA(message.c_str()) < 0) {
+      throw std::runtime_error{"Failed to create NVTX mark: " + message};
+    }
+  }
+
+  /**---------------------------------------------------------------------------*
+   * @brief Construct a Mark, indicating an instantaneous event in the
+   * application with a color and optional Category.
+   *
+   * @param message Messaged associated with the mark event.
+   * @param color Color used to visual the event.
+   * @param category Optional, Category to group the range into.
+   *---------------------------------------------------------------------------**/
+  Mark(std::string const& message, Color color, Category category = {}) {
+    if (nvtxMarkEx({message, color, category}) < 0) {
+      throw std::runtime_error{"Failed to create NVTX mark: " + message};
+    }
+  }
+
+  Mark() = delete;
+  ~Mark() = default;
+  Mark(Mark const&) = delete;
+  Mark& operator=(Mark const&) = delete;
+  Mark(Mark&&) = delete;
+  Mark& operator=(Mark&&) = delete;
 };
 
 }  // namespace nvtx
