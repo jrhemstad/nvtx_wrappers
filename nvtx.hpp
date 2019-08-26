@@ -237,7 +237,7 @@ class Mark {
    * @brief Construct a Mark, indicating an instantaneous event in the
    * application with a color and optional Category.
    *
-   * @param message Messaged associated with the mark event.
+   * @param message Message associated with the mark event.
    * @param color Color used to visual the event.
    * @param category Optional, Category to group the range into.
    *---------------------------------------------------------------------------**/
@@ -350,6 +350,7 @@ class NestedDomainRange {
    *
    * @throws std::runtime_error If beginning the range failed
    *
+   * @param domain The domain in which the range belongs
    * @param message Messaged associated with the range.
    * @param color Color used to visualize the range.
    * @param category Optional, Category to group the range into.
