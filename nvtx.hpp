@@ -358,7 +358,7 @@ class NestedDomainRange {
                     Color color, Category category = {})
       : _domain{domain} {
     if (nvtxDomainRangePushEx(domain, {message, color, category}) < 0) {
-      throw std::runtime_error{"Failed to start NVTX range: " + message};
+      throw std::runtime_error{"Failed to start NVTX domain range: " + message};
     }
   }
 
