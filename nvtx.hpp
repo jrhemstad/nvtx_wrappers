@@ -16,6 +16,8 @@
 
 #include <nvToolsExt.h>
 
+#include <cassert>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 
@@ -47,7 +49,7 @@ class Category {
   Category(std::string const& name) {
     auto found = _name_to_id.find(name);
     if (found == _name_to_id.end()) {
-      _id = ++next_id;
+      _id = ++_id_counter;
       _name_to_id.insert({name, _id});
       nvtxNameCategoryA(_id, name.c_str());
     } else {
@@ -83,7 +85,7 @@ class Category {
    * @brief Counter used to generate new unique ids for Categories with new
    *names.
    *---------------------------------------------------------------------------**/
-  static Id _id_counter{0};
+  static Id _id_counter;
 
   Id _id{0};  ///< The id of the Category
 };
@@ -111,7 +113,7 @@ class EventAttributes {
     _attributes.colorType = NVTX_COLOR_ARGB;
     _attributes.color = color;
     _attributes.messageType = NVTX_MESSAGE_TYPE_ASCII;
-    _attributes.message = message.c_str();
+    _attributes.message.ascii = message.c_str();
   }
   EventAttributes() = delete;
   ~EventAttributes() = default;
@@ -126,7 +128,15 @@ class EventAttributes {
    * Allows transparently passing an `EventAttributes` object into a function
    * expecting a `nvtxEventAttributes_t` argument.
    *---------------------------------------------------------------------------**/
-  operator nvtxEventAttributes_t() { return _attributes; }
+  operator nvtxEventAttributes_t() const noexcept { return _attributes; }
+
+  /**---------------------------------------------------------------------------*
+   * @brief Conversion operator to `nvtxEventAttributes_t*`.
+   *
+   * Allows transparently passing a `EventAttributes` object into a function
+   * expecting a pointer to `nvtxEventAttributes_t` argument.
+   *---------------------------------------------------------------------------**/
+  operator nvtxEventAttributes_t*() noexcept { return &_attributes; }
 
  private:
   nvtxEventAttributes_t _attributes{};
@@ -185,7 +195,8 @@ class NestedRange {
    * @param category Optional, Category to group the range into.
    *---------------------------------------------------------------------------**/
   NestedRange(std::string const& message, Color color, Category category = {}) {
-    if (nvtxRangePushEx({message, color, category}) < 0) {
+    EventAttributes attributes{message, color, category};
+    if (nvtxRangePushEx(attributes) < 0) {
       throw std::runtime_error{"Failed to start NVTX range: " + message};
     }
   }
@@ -194,7 +205,7 @@ class NestedRange {
   NestedRange(NestedRange const&) = delete;
   NestedRange& operator=(NestedRange const&) = delete;
   NestedRange(NestedRange&&) = default;
-  NestedRange& operator(NestedRange&&) = default;
+  NestedRange& operator=(NestedRange&&) = default;
 
   /**---------------------------------------------------------------------------*
    * @brief Destroy the NestedRange, ending the NVTX range event.
@@ -227,11 +238,7 @@ class Mark {
    *
    * @param message The message associated with the mark event.
    *---------------------------------------------------------------------------**/
-  explicit Mark(std::string const& message) {
-    if (nvtxMarkA(message.c_str()) < 0) {
-      throw std::runtime_error{"Failed to create NVTX mark: " + message};
-    }
-  }
+  explicit Mark(std::string const& message) { nvtxMarkA(message.c_str()); }
 
   /**---------------------------------------------------------------------------*
    * @brief Construct a Mark, indicating an instantaneous event in the
@@ -242,9 +249,8 @@ class Mark {
    * @param category Optional, Category to group the range into.
    *---------------------------------------------------------------------------**/
   Mark(std::string const& message, Color color, Category category = {}) {
-    if (nvtxMarkEx({message, color, category}) < 0) {
-      throw std::runtime_error{"Failed to create NVTX mark: " + message};
-    }
+    EventAttributes attributes{message, color, category};
+    nvtxMarkEx(attributes);
   }
 
   Mark() = delete;
@@ -308,7 +314,7 @@ class Domain {
    * Allows transparently passing a Domain object into an API expecting a native
    * `nvtxDomainHandle_t` object.
    *---------------------------------------------------------------------------**/
-  operator nvtxDomainHandle_t() { return _domain; }
+  operator nvtxDomainHandle_t() const noexcept { return _domain; }
 
  private:
   nvtxDomainHandle_t _domain;
@@ -358,7 +364,8 @@ class NestedDomainRange {
   NestedDomainRange(Domain const& domain, std::string const& message,
                     Color color, Category category = {})
       : _domain{domain} {
-    if (nvtxDomainRangePushEx(domain, {message, color, category}) < 0) {
+    EventAttributes attributes{message, color, category};
+    if (nvtxDomainRangePushEx(_domain, attributes) < 0) {
       throw std::runtime_error{"Failed to start NVTX domain range: " + message};
     }
   }
@@ -367,7 +374,7 @@ class NestedDomainRange {
   NestedDomainRange(NestedDomainRange const&) = delete;
   NestedDomainRange& operator=(NestedDomainRange const&) = delete;
   NestedDomainRange(NestedDomainRange&&) = default;
-  NestedDomainRange& operator(NestedDomainRange&&) = default;
+  NestedDomainRange& operator=(NestedDomainRange&&) = default;
 
   /**---------------------------------------------------------------------------*
    * @brief Destroy the NestedDomainRange, ending the NVTX range event.
