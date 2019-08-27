@@ -232,6 +232,7 @@ class NestedRange {
  * ```
  *---------------------------------------------------------------------------**/
 class Mark {
+ public:
   /**---------------------------------------------------------------------------*
    * @brief Construct a Mark, indicating an instantaneous event in the
    * application.
