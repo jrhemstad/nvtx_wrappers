@@ -143,6 +143,71 @@ class EventAttributes {
 };
 
 /**---------------------------------------------------------------------------*
+ * @brief An object for grouping events into a global scope.
+ *
+ * Domains are used to group events to a developer defined scope. Middleware
+ * vendors may also scope their own events to avoid collisions with the
+ * the application developer's events, so that the application developer may
+ * inspect both parts and easily differentiate or filter them.  By default
+ * all events are scoped to a global domain where NULL is provided or when
+ * using APIs provided b versions of NVTX below v2
+ *
+ * Domains are intended to be typically long lived objects with the intention
+ * of logically separating events of large modules from each other such as
+ * middleware libraries from each other and the main application.
+ *
+ * Domains are coarser-grained than `Category`s. It is common for a library to
+ * have only a single Domain, which may be further sub-divided into `Category`s.
+ *
+ *
+ *---------------------------------------------------------------------------**/
+class Domain {
+ public:
+  /**---------------------------------------------------------------------------*
+   * @brief Construct a new Domain.
+   *
+   * Domain's may be passed into `thread_range` or `mark` to  globally group
+   * those events.
+   *
+   * @param name A unique name identifying the domain
+   *---------------------------------------------------------------------------**/
+  Domain(const char* name) : _domain{nvtxDomainCreateA(name)} {}
+
+  /**---------------------------------------------------------------------------*
+   * @brief Construct a new Domain.
+   *
+   * Domain's may be passed into `thread_range` or `mark` to  globally group
+   * those events.
+   *
+   * @param name A unique name identifying the domain
+   *---------------------------------------------------------------------------**/
+  Domain(std::string const& name) : Domain{name.c_str()} {}
+
+  Domain() = default;
+  Domain(Domain const&) = default;
+  Domain& operator=(Domain const&) = default;
+  Domain(Domain&&) = default;
+  Domain& operator=(Domain&&) = default;
+
+  /**---------------------------------------------------------------------------*
+   * @brief Destroy the Domain object, unregistering and freeing all domain
+   * specific resources.
+   *---------------------------------------------------------------------------**/
+  ~Domain() { nvtxDomainDestroy(_domain); }
+
+  /**---------------------------------------------------------------------------*
+   * @brief Conversion operator to `nvtxDomainHandle_t`.
+   *
+   * Allows transparently passing a Domain object into an API expecting a native
+   * `nvtxDomainHandle_t` object.
+   *---------------------------------------------------------------------------**/
+  operator nvtxDomainHandle_t() const noexcept { return _domain; }
+
+ private:
+  nvtxDomainHandle_t _domain{};
+};
+
+/**---------------------------------------------------------------------------*
  * @brief A RAII object for creating a NVTX range local to a thread.
  *
  * When constructed, begins a nested NVTX range on the calling thread. Upon
@@ -179,20 +244,34 @@ class thread_range {
    * @param message Message associated with the range.
    *---------------------------------------------------------------------------**/
   explicit thread_range(std::string const& message) {
-    nvtxRangePushA(message.c_str()
+    nvtxRangePushA(message.c_str());
   }
 
   /**---------------------------------------------------------------------------*
-   * @brief Construct a thread_range, beginning an NVTX range event with a custom
-   * color and optional category.
+   * @brief Construct a thread_range, beginning an NVTX range event with a
+   *custom color and optional category.
    *
    * @param message Message associated with the range.
    * @param color Color used to visualize the range.
    * @param category Optional, Category to group the range into.
    *---------------------------------------------------------------------------**/
-  thread_range(std::string const& message, Color color, Category category = {}) {
-    EventAttributes attributes{message, color, category};
-    nvtxRangePushEx(attributes);
+  thread_range(std::string const& message, Color color, Category category = {},
+               Domain domain = {})
+      : _domain{domain} {
+    nvtxDomainRangePushEx(_domain, EventAttributes{message, color, category});
+  }
+
+  /**---------------------------------------------------------------------------*
+   * @brief Construct a thread_range, beginning an NVTX range event with a
+   * custom color and optional category.
+   *
+   * @param message Message associated with the range.
+   * @param color Color used to visualize the range.
+   * @param category Optional, Category to group the range into.
+   *---------------------------------------------------------------------------**/
+  thread_range(std::string const& message, Color color,
+               Category category = {}) {
+    nvtxRangePushEx(EventAttributes{message, color, category});
   }
 
   thread_range() = delete;
@@ -204,7 +283,10 @@ class thread_range {
   /**---------------------------------------------------------------------------*
    * @brief Destroy the thread_range, ending the NVTX range event.
    *---------------------------------------------------------------------------**/
-  ~thread_range() noexcept { nvtxRangePop(); }
+  ~thread_range() noexcept { nvtxDomainRangePop(_domain); }
+
+ private:
+  Domain _domain{};  ///< Optional domain in which the range lives
 };
 
 /**
@@ -231,132 +313,5 @@ void mark(std::string const& message) { nvtxMarkA(message.c_str()); }
 void mark(std::string const& message, Color color, Category category = {}) {
   nvtxMarkEx(EventAttributes{message, color, category});
 }
-
-/**---------------------------------------------------------------------------*
- * @brief An object for grouping events into a global scope.
- *
- * Domains are used to group events to a developer defined scope. Middleware
- * vendors may also scope their own events to avoid collisions with the
- * the application developer's events, so that the application developer may
- * inspect both parts and easily differentiate or filter them.  By default
- * all events are scoped to a global domain where NULL is provided or when
- * using APIs provided b versions of NVTX below v2
- *
- * Domains are intended to be typically long lived objects with the intention
- * of logically separating events of large modules from each other such as
- * middleware libraries from each other and the main application.
- *
- * Domains are coarser-grained than `Category`s. It is common for a library to
- * have only a single Domain, which may be further sub-divided into `Category`s.
- *
- * Domains are not default constructible.
- *
- * Domains are move constructible and move assignable, but may not be copy
- * constructed nor copy assigned.
- *
- *---------------------------------------------------------------------------**/
-class Domain {
- public:
-  /**---------------------------------------------------------------------------*
-   * @brief Construct a new Domain.
-   *
-   * Domain's may be passed into `NestedDomainRange`s or `DomainMark`s to
-   * globally group those events.
-   *
-   * @param name A unique name identifying the domain
-   *---------------------------------------------------------------------------**/
-  Domain(std::string const& name) : _domain{nvtxDomainCreateA(name.c_str())} {}
-
-  Domain() = delete;
-  Domain(Domain const&) = delete;
-  Domain& operator=(Domain const&) = delete;
-  Domain(Domain&&) = default;
-  Domain& operator=(Domain&&) = default;
-
-  /**---------------------------------------------------------------------------*
-   * @brief Destroy the Domain object, unregistering and freeing all domain
-   * specific resources.
-   *---------------------------------------------------------------------------**/
-  ~Domain() { nvtxDomainDestroy(_domain); }
-
-  /**---------------------------------------------------------------------------*
-   * @brief Conversion operator to `nvtxDomainHandle_t`.
-   *
-   * Allows transparently passing a Domain object into an API expecting a native
-   * `nvtxDomainHandle_t` object.
-   *---------------------------------------------------------------------------**/
-  operator nvtxDomainHandle_t() const noexcept { return _domain; }
-
- private:
-  nvtxDomainHandle_t _domain;
-};
-
-/**---------------------------------------------------------------------------*
- * @brief A RAII object for creating a nested NVTX range within a Domain.
- *
- * When constructed, begins a nested NVTX range in the specified Domain. Upon
- * destruction, ends the NVTX range.
- *
- * NestedDomainRange is not default constructible.
- *
- * A NestedDomainRange object may be move constructed or move assigned, but may
- *not be copy constructed nor copy assigned.
- *
- * NestedDomainRanges may be nested within other ranges.
- *
- * Example:
- * ```
- * nvtx::Domain D{"my domain"};
- * {
- *    nvtx::NestedDomainRange r0{D,"range 0"};
- *    some_function();
- *    {
- *       nvtx::NestedDomainRange r1{D,"range 1"};
- *       other_function();
- *       // Range started in r1 ends when r1 goes out of scope
- *    }
- *    // Ranged started in r0 ends when r0 goes out of scope
- * }
- * ```
- *---------------------------------------------------------------------------**/
-class NestedDomainRange {
- public:
-  /**---------------------------------------------------------------------------*
-   * @brief Construct a NestedDomainRange, beginning an NVTX range event in the
-   * specified domain with a custom color and optional category.
-   *
-   * @throws std::runtime_error If beginning the range failed
-   *
-   * @param domain The domain in which the range belongs
-   * @param message Messaged associated with the range.
-   * @param color Color used to visualize the range.
-   * @param category Optional, Category to group the range into.
-   *---------------------------------------------------------------------------**/
-  NestedDomainRange(Domain const& domain, std::string const& message,
-                    Color color, Category category = {})
-      : _domain{domain} {
-    EventAttributes attributes{message, color, category};
-    if (nvtxDomainRangePushEx(_domain, attributes) < 0) {
-      throw std::runtime_error{"Failed to start NVTX domain range: " + message};
-    }
-  }
-
-  NestedDomainRange() = delete;
-  NestedDomainRange(NestedDomainRange const&) = delete;
-  NestedDomainRange& operator=(NestedDomainRange const&) = delete;
-  NestedDomainRange(NestedDomainRange&&) = default;
-  NestedDomainRange& operator=(NestedDomainRange&&) = default;
-
-  /**---------------------------------------------------------------------------*
-   * @brief Destroy the NestedDomainRange, ending the NVTX range event.
-   *---------------------------------------------------------------------------**/
-  ~NestedDomainRange() noexcept {
-    auto result = nvtxDomainRangePop(_domain);
-    assert(result >= 0);
-  }
-
- private:
-  Domain const& _domain;
-};
 
 }  // namespace nvtx
