@@ -23,7 +23,15 @@
 
 namespace nvtx {
 
-using Color = uint32_t;
+struct argb_color {
+  using value_type = uint32_t;
+  explicit argb_color(value_type v) : _value{v} {}
+
+  value_type value() const noexcept { return _value; }
+
+ private:
+  value_type _value{};
+};
 
 /**---------------------------------------------------------------------------*
  * @brief Used for grouping NVTX events such as a `Mark` or `thread_range`.
@@ -104,14 +112,14 @@ class EventAttributes {
    * @param color The color used to visualize the event.
    * @param category Optional, Category to group the event into.
    *---------------------------------------------------------------------------**/
-  EventAttributes(std::string const& message, Color color,
+  EventAttributes(std::string const& message, argb_color color,
                   Category category = {}) noexcept
       : _attributes{0} {
     _attributes.version = NVTX_VERSION;
     _attributes.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
     _attributes.category = category.id();
     _attributes.colorType = NVTX_COLOR_ARGB;
-    _attributes.color = color;
+    _attributes.color = color.value();
     _attributes.messageType = NVTX_MESSAGE_TYPE_ASCII;
     _attributes.message.ascii = message.c_str();
   }
@@ -255,8 +263,8 @@ class thread_range {
    * @param color Color used to visualize the range.
    * @param category Optional, Category to group the range into.
    *---------------------------------------------------------------------------**/
-  thread_range(std::string const& message, Color color, Category category = {},
-               Domain domain = {})
+  thread_range(std::string const& message, argb_color color,
+               Category category = {}, Domain domain = {})
       : _domain{domain} {
     nvtxDomainRangePushEx(_domain, EventAttributes{message, color, category});
   }
@@ -294,10 +302,10 @@ void mark(std::string const& message) { nvtxMarkA(message.c_str()); }
  * @brief Indicates an instantaneous event.
  *
  * @param message Message associated with the `mark`
- * @param color Color used to visualize the `mark`
+ * @param color color used to visualize the `mark`
  * @param category Optional, Category to group the `mark` into.
  */
-void mark(std::string const& message, Color color, Category category = {},
+void mark(std::string const& message, argb_color color, Category category = {},
           Domain domain = {}) {
   nvtxDomainMarkEx(domain, EventAttributes{message, color, category});
 }
