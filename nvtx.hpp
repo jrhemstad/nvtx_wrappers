@@ -261,19 +261,6 @@ class thread_range {
     nvtxDomainRangePushEx(_domain, EventAttributes{message, color, category});
   }
 
-  /**---------------------------------------------------------------------------*
-   * @brief Construct a thread_range, beginning an NVTX range event with a
-   * custom color and optional category.
-   *
-   * @param message Message associated with the range.
-   * @param color Color used to visualize the range.
-   * @param category Optional, Category to group the range into.
-   *---------------------------------------------------------------------------**/
-  thread_range(std::string const& message, Color color,
-               Category category = {}) {
-    nvtxRangePushEx(EventAttributes{message, color, category});
-  }
-
   thread_range() = delete;
   thread_range(thread_range const&) = delete;
   thread_range& operator=(thread_range const&) = delete;
