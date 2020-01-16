@@ -143,7 +143,7 @@ class EventAttributes {
 };
 
 /**---------------------------------------------------------------------------*
- * @brief A RAII object for creating a thread-local NVTX range.
+ * @brief A RAII object for creating a NVTX range local to a thread.
  *
  * When constructed, begins a nested NVTX range on the calling thread. Upon
  * destruction, ends the NVTX range.
