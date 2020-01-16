@@ -216,51 +216,30 @@ class NestedRange {
   }
 };
 
-/**---------------------------------------------------------------------------*
- * @brief An object for marking an instantenous event.
- *
- * A Mark is not default constructible.
- *
- * A Mark cannot be copy/move constructed nor assigned.
+/**
+ * @brief Indicates an instantaneous event.
  *
  * Example:
- * ```
+ * ```c++
  * some_function(...){
- *    // A mark event will appear for every invocatin of `some_function`
- *    nvtx::Mark m("some_function was called");
+ *    // A mark event will appear for every invocation of `some_function`
+ *    nvtx::mark("some_function was called");
  * }
  * ```
- *---------------------------------------------------------------------------**/
-class Mark {
- public:
-  /**---------------------------------------------------------------------------*
-   * @brief Construct a Mark, indicating an instantaneous event in the
-   * application.
-   *
-   * @param message The message associated with the mark event.
-   *---------------------------------------------------------------------------**/
-  explicit Mark(std::string const& message) { nvtxMarkA(message.c_str()); }
+ * @param message Message associated with the range.
+ */
+void mark(std::string const& message) { nvtxMarkA(message.c_str()); }
 
-  /**---------------------------------------------------------------------------*
-   * @brief Construct a Mark, indicating an instantaneous event in the
-   * application with a color and optional Category.
+/**
+ * @brief Indicates an instantaneous event.
    *
-   * @param message Message associated with the mark event.
-   * @param color Color used to visual the event.
-   * @param category Optional, Category to group the range into.
-   *---------------------------------------------------------------------------**/
-  Mark(std::string const& message, Color color, Category category = {}) {
-    EventAttributes attributes{message, color, category};
-    nvtxMarkEx(attributes);
+ * @param message Message associated with the `mark`
+ * @param color Color used to visualize the `mark`
+ * @param category Optional, Category to group the `mark` into.
+ */
+void mark(std::string const& message, Color color, Category category = {}) {
+  nvtxMarkEx(EventAttributes{message, color, category});
   }
-
-  Mark() = delete;
-  ~Mark() = default;
-  Mark(Mark const&) = delete;
-  Mark& operator=(Mark const&) = delete;
-  Mark(Mark&&) = delete;
-  Mark& operator=(Mark&&) = delete;
-};
 
 /**---------------------------------------------------------------------------*
  * @brief An object for grouping events into a global scope.
