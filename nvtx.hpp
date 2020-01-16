@@ -297,8 +297,9 @@ void mark(std::string const& message) { nvtxMarkA(message.c_str()); }
  * @param color Color used to visualize the `mark`
  * @param category Optional, Category to group the `mark` into.
  */
-void mark(std::string const& message, Color color, Category category = {}) {
-  nvtxMarkEx(EventAttributes{message, color, category});
+void mark(std::string const& message, Color color, Category category = {},
+          Domain domain = {}) {
+  nvtxDomainMarkEx(domain, EventAttributes{message, color, category});
 }
 
 }  // namespace nvtx
