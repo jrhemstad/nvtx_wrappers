@@ -26,7 +26,7 @@ namespace nvtx {
 using Color = uint32_t;
 
 /**---------------------------------------------------------------------------*
- * @brief Used for grouping NVTX events such as a `Mark` or `NestedRange`.
+ * @brief Used for grouping NVTX events such as a `Mark` or `thread_range`.
  *---------------------------------------------------------------------------**/
 class Category {
  public:
@@ -143,25 +143,27 @@ class EventAttributes {
 };
 
 /**---------------------------------------------------------------------------*
- * @brief A RAII object for creating a nested NVTX range.
+ * @brief A RAII object for creating a thread-local NVTX range.
  *
- * When constructed, begins a nested NVTX range. Upon destruction, ends the NVTX
- * range.
+ * When constructed, begins a nested NVTX range on the calling thread. Upon
+ * destruction, ends the NVTX range.
  *
- * NestedRange is not default constructible.
+ * Behavior is undefined if a `thread_range` object is created/destroyed on
+ * different threads.
  *
- * A NestedRange object may be move constructed or move assigned, but may not be
- * copy constructed nor copy assigned.
+ * `thread_range` is not default constructible.
  *
- * NestedRanges may be nested within other ranges.
+ * `thread_range` is neither moveable nor copyable.
+ *
+ * `thread_range`s may be nested within other ranges.
  *
  * Example:
  * ```
  * {
- *    nvtx::NestedRange r0{"range 0"};
+ *    nvtx::thread_range r0{"range 0"};
  *    some_function();
  *    {
- *       nvtx::NestedRange r1{"range 1"};
+ *       nvtx::thread_range r1{"range 1"};
  *       other_function();
  *       // Range started in r1 ends when r1 goes out of scope
  *    }
@@ -169,51 +171,40 @@ class EventAttributes {
  * }
  * ```
  *---------------------------------------------------------------------------**/
-class NestedRange {
+class thread_range {
  public:
   /**---------------------------------------------------------------------------*
-   * @brief Construct a NestedRange, beginning an NVTX range event.
-   *
-   * @throws std::runtime_error If beginning the range failed
+   * @brief Construct a thread_range, beginning an NVTX range event.
    *
    * @param message Message associated with the range.
    *---------------------------------------------------------------------------**/
-  explicit NestedRange(std::string const& message) {
-    if (nvtxRangePushA(message.c_str()) < 0) {
-      throw std::runtime_error{"Failed to start NVTX range: " + message};
-    }
+  explicit thread_range(std::string const& message) {
+    nvtxRangePushA(message.c_str()
   }
 
   /**---------------------------------------------------------------------------*
-   * @brief Construct a NestedRange, beginning an NVTX range event with a custom
+   * @brief Construct a thread_range, beginning an NVTX range event with a custom
    * color and optional category.
    *
-   * @throws std::runtime_error If beginning the range failed
-   *
-   * @param message Messaged associated with the range.
+   * @param message Message associated with the range.
    * @param color Color used to visualize the range.
    * @param category Optional, Category to group the range into.
    *---------------------------------------------------------------------------**/
-  NestedRange(std::string const& message, Color color, Category category = {}) {
+  thread_range(std::string const& message, Color color, Category category = {}) {
     EventAttributes attributes{message, color, category};
-    if (nvtxRangePushEx(attributes) < 0) {
-      throw std::runtime_error{"Failed to start NVTX range: " + message};
-    }
+    nvtxRangePushEx(attributes);
   }
 
-  NestedRange() = delete;
-  NestedRange(NestedRange const&) = delete;
-  NestedRange& operator=(NestedRange const&) = delete;
-  NestedRange(NestedRange&&) = default;
-  NestedRange& operator=(NestedRange&&) = default;
+  thread_range() = delete;
+  thread_range(thread_range const&) = delete;
+  thread_range& operator=(thread_range const&) = delete;
+  thread_range(thread_range&&) = delete;
+  thread_range& operator=(thread_range&&) = delete;
 
   /**---------------------------------------------------------------------------*
-   * @brief Destroy the NestedRange, ending the NVTX range event.
+   * @brief Destroy the thread_range, ending the NVTX range event.
    *---------------------------------------------------------------------------**/
-  ~NestedRange() noexcept {
-    auto result = nvtxRangePop();
-    assert(result >= 0);
-  }
+  ~thread_range() noexcept { nvtxRangePop(); }
 };
 
 /**
@@ -232,14 +223,14 @@ void mark(std::string const& message) { nvtxMarkA(message.c_str()); }
 
 /**
  * @brief Indicates an instantaneous event.
-   *
+ *
  * @param message Message associated with the `mark`
  * @param color Color used to visualize the `mark`
  * @param category Optional, Category to group the `mark` into.
  */
 void mark(std::string const& message, Color color, Category category = {}) {
   nvtxMarkEx(EventAttributes{message, color, category});
-  }
+}
 
 /**---------------------------------------------------------------------------*
  * @brief An object for grouping events into a global scope.
