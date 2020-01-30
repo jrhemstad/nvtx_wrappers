@@ -179,7 +179,7 @@ class Domain {
    *
    * @param name A unique name identifying the domain
    *---------------------------------------------------------------------------**/
-  Domain(const char* name) : _domain{nvtxDomainCreateA(name)} {}
+  explicit Domain(const char* name) : _domain{nvtxDomainCreateA(name)} {}
 
   /**---------------------------------------------------------------------------*
    * @brief Construct a new Domain.
@@ -189,7 +189,7 @@ class Domain {
    *
    * @param name A unique name identifying the domain
    *---------------------------------------------------------------------------**/
-  Domain(std::string const& name) : Domain{name.c_str()} {}
+  explicit Domain(std::string const& name) : Domain{name.c_str()} {}
 
   Domain() = default;
   Domain(Domain const&) = default;
@@ -283,6 +283,18 @@ class thread_range {
  private:
   Domain _domain{};  ///< Optional domain in which the range lives
 };
+
+template <class D>
+class DomainSingleton {
+ public:
+  static Domain const& get_instance() {
+    static Domain instance{D::name};
+    return instance;
+  }
+  DomainSingleton() = delete;
+  DomainSingleton(DomainSingleton const&) = delete;
+};
+
 
 /**
  * @brief Indicates an instantaneous event.
