@@ -180,7 +180,7 @@ class Domain {
    *
    * @param name A unique name identifying the domain
    *---------------------------------------------------------------------------**/
-  explicit Domain(const char* name) noexcept
+  explicit constexpr Domain(const char* name) noexcept
       : _domain{nvtxDomainCreateA(name)} {}
 
   /**---------------------------------------------------------------------------*
@@ -191,7 +191,8 @@ class Domain {
    *
    * @param name A unique name identifying the domain
    *---------------------------------------------------------------------------**/
-  explicit Domain(std::string const& name) noexcept : Domain{name.c_str()} {}
+  explicit constexpr Domain(std::string const& name) noexcept
+      : Domain{name.c_str()} {}
 
   Domain() = default;
   Domain(Domain const&) = default;
@@ -220,8 +221,7 @@ class Domain {
 namespace detail {
 
 /**
- * @brief Tag type used to indicate that the "global" NVTX domain should be
- * used.
+ * @brief Tag type for the "global" NVTX domain.
  *
  */
 struct global_domain_tag {};
@@ -323,6 +323,12 @@ class domain_thread_range {
     nvtxDomainRangePop(detail::get_domain<D>());
   }
 };
+
+/**
+ * @brief Convenience alias for a `thread_range` in the global NVTX domain.
+ *
+ */
+using thread_range = domain_thread_range<>;
 
 /**
  * @brief Indicates an instantaneous event.
