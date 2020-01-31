@@ -263,12 +263,12 @@ Domain const& get_domain<global_domain_tag>() {
 }
 }  // namespace detail
 
-/**---------------------------------------------------------------------------*
+/**
  * @brief A RAII object for creating a NVTX range local to a thread within a
  * domain.
  *
- * When constructed, begins a nested NVTX range on the calling thread. Upon
- * destruction, ends the NVTX range.
+ * When constructed, begins a nested NVTX range on the calling thread in the
+ * specified domain. Upon destruction, ends the NVTX range.
  *
  * Behavior is undefined if a `domain_thread_range` object is created/destroyed
  * on different threads.
@@ -279,20 +279,34 @@ Domain const& get_domain<global_domain_tag>() {
  *
  * `domain_thread_range`s may be nested within other ranges.
  *
- * Example:
+ * The domain of the range is specified by the template type parameter `D`.
+ * By default, the `global_domain_tag` is used, which scopes the range to the
+ * global NVTX domain. The convenience alias `thread_range` is provided for
+ * ranges scoped to the global domain.
+ *
+ * If a custom domain is desired, a custom type may be specified. This type is
+ * required to contain a `static constexpr const char*` member called `name`.
+ * For example:
+ * ```c++
+ * struct my_domain{
+ *    static constexpr const char * name{"my domain"};
+ * };
  * ```
- * {
- *    nvtx::domain_thread_range r0{"range 0"};
- *    some_function();
- *    {
- *       nvtx::domain_thread_range r1{"range 1"};
- *       other_function();
- *       // Range started in r1 ends when r1 goes out of scope
- *    }
- *    // Ranged started in r0 ends when r0 goes out of scope
- * }
+ *
+ * Example usage:
+ * ```c++
+ * nvtx::domain_thread_range<> r0{"range 0"}; // Range in global domain
+ *
+ * nvtx::thread_range r1{"range 1"}; // Alias for range in global domain
+ *
+ * nvtx::domain_thread_range<my_domain> r2{"range 2"}; // Range in custom domain
+ *
+ * // specify an alias to a range that uses a custom domain
+ * using my_thread_range = nvtx::domain_thread_range<my_domain>;
+ *
+ * my_thread_range r3{"range 3"}; // Alias for range in custom domain
  * ```
- *---------------------------------------------------------------------------**/
+ */
 template <class D = detail::global_domain_tag>
 class domain_thread_range {
  public:
