@@ -34,7 +34,7 @@ struct argb_color {
 };
 
 /**---------------------------------------------------------------------------*
- * @brief Used for grouping NVTX events such as a `Mark` or `thread_range`.
+ * @brief Used for grouping NVTX events such as a `Mark` or `domain_thread_range`.
  *---------------------------------------------------------------------------**/
 class Category {
  public:
@@ -174,7 +174,7 @@ class Domain {
   /**---------------------------------------------------------------------------*
    * @brief Construct a new Domain.
    *
-   * Domain's may be passed into `thread_range` or `mark` to  globally group
+   * Domain's may be passed into `domain_thread_range` or `mark` to  globally group
    * those events.
    *
    * @param name A unique name identifying the domain
@@ -184,7 +184,7 @@ class Domain {
   /**---------------------------------------------------------------------------*
    * @brief Construct a new Domain.
    *
-   * Domain's may be passed into `thread_range` or `mark` to  globally group
+   * Domain's may be passed into `domain_thread_range` or `mark` to  globally group
    * those events.
    *
    * @param name A unique name identifying the domain
@@ -221,22 +221,22 @@ class Domain {
  * When constructed, begins a nested NVTX range on the calling thread. Upon
  * destruction, ends the NVTX range.
  *
- * Behavior is undefined if a `thread_range` object is created/destroyed on
+ * Behavior is undefined if a `domain_thread_range` object is created/destroyed on
  * different threads.
  *
- * `thread_range` is not default constructible.
+ * `domain_thread_range` is not default constructible.
  *
- * `thread_range` is neither moveable nor copyable.
+ * `domain_thread_range` is neither moveable nor copyable.
  *
- * `thread_range`s may be nested within other ranges.
+ * `domain_thread_range`s may be nested within other ranges.
  *
  * Example:
  * ```
  * {
- *    nvtx::thread_range r0{"range 0"};
+ *    nvtx::domain_thread_range r0{"range 0"};
  *    some_function();
  *    {
- *       nvtx::thread_range r1{"range 1"};
+ *       nvtx::domain_thread_range r1{"range 1"};
  *       other_function();
  *       // Range started in r1 ends when r1 goes out of scope
  *    }
@@ -244,41 +244,41 @@ class Domain {
  * }
  * ```
  *---------------------------------------------------------------------------**/
-class thread_range {
+class domain_thread_range {
  public:
   /**---------------------------------------------------------------------------*
-   * @brief Construct a thread_range, beginning an NVTX range event.
+   * @brief Construct a domain_thread_range, beginning an NVTX range event.
    *
    * @param message Message associated with the range.
    *---------------------------------------------------------------------------**/
-  explicit thread_range(std::string const& message) {
+  explicit domain_thread_range(std::string const& message) {
     nvtxRangePushA(message.c_str());
   }
 
   /**---------------------------------------------------------------------------*
-   * @brief Construct a thread_range, beginning an NVTX range event with a
+   * @brief Construct a domain_thread_range, beginning an NVTX range event with a
    *custom color and optional category.
    *
    * @param message Message associated with the range.
    * @param color Color used to visualize the range.
    * @param category Optional, Category to group the range into.
    *---------------------------------------------------------------------------**/
-  thread_range(std::string const& message, argb_color color,
+  domain_thread_range(std::string const& message, argb_color color,
                Category category = {}, Domain domain = {})
       : _domain{domain} {
     nvtxDomainRangePushEx(_domain, EventAttributes{message, color, category});
   }
 
-  thread_range() = delete;
-  thread_range(thread_range const&) = delete;
-  thread_range& operator=(thread_range const&) = delete;
-  thread_range(thread_range&&) = delete;
-  thread_range& operator=(thread_range&&) = delete;
+  domain_thread_range() = delete;
+  domain_thread_range(domain_thread_range const&) = delete;
+  domain_thread_range& operator=(domain_thread_range const&) = delete;
+  domain_thread_range(domain_thread_range&&) = delete;
+  domain_thread_range& operator=(domain_thread_range&&) = delete;
 
   /**---------------------------------------------------------------------------*
-   * @brief Destroy the thread_range, ending the NVTX range event.
+   * @brief Destroy the domain_thread_range, ending the NVTX range event.
    *---------------------------------------------------------------------------**/
-  ~thread_range() noexcept { nvtxDomainRangePop(_domain); }
+  ~domain_thread_range() noexcept { nvtxDomainRangePop(_domain); }
 
  private:
   Domain _domain{};  ///< Optional domain in which the range lives
