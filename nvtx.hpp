@@ -34,7 +34,8 @@ struct argb_color {
 };
 
 /**---------------------------------------------------------------------------*
- * @brief Used for grouping NVTX events such as a `Mark` or `domain_thread_range`.
+ * @brief Used for grouping NVTX events such as a `Mark` or
+ *`domain_thread_range`.
  *---------------------------------------------------------------------------**/
 class Category {
  public:
@@ -174,22 +175,23 @@ class Domain {
   /**---------------------------------------------------------------------------*
    * @brief Construct a new Domain.
    *
-   * Domain's may be passed into `domain_thread_range` or `mark` to  globally group
-   * those events.
+   * Domain's may be passed into `domain_thread_range` or `mark` to  globally
+   *group those events.
    *
    * @param name A unique name identifying the domain
    *---------------------------------------------------------------------------**/
-  explicit Domain(const char* name) : _domain{nvtxDomainCreateA(name)} {}
+  explicit Domain(const char* name) noexcept
+      : _domain{nvtxDomainCreateA(name)} {}
 
   /**---------------------------------------------------------------------------*
    * @brief Construct a new Domain.
    *
-   * Domain's may be passed into `domain_thread_range` or `mark` to  globally group
-   * those events.
+   * Domain's may be passed into `domain_thread_range` or `mark` to  globally
+   *group those events.
    *
    * @param name A unique name identifying the domain
    *---------------------------------------------------------------------------**/
-  explicit Domain(std::string const& name) : Domain{name.c_str()} {}
+  explicit Domain(std::string const& name) noexcept : Domain{name.c_str()} {}
 
   Domain() = default;
   Domain(Domain const&) = default;
@@ -215,14 +217,61 @@ class Domain {
   nvtxDomainHandle_t _domain{};
 };
 
+namespace detail {
+
+/**
+ * @brief Tag type used to indicate that the "global" NVTX domain should be
+ * used.
+ *
+ */
+struct global_domain_tag {};
+
+/**
+ * @brief Returns a reference to a `Domain` constructed using the specified
+ * name.
+ *
+ * Uses the "construct on first use" idiom to safely ensure the Domain object
+ * is initialized exactly once. See
+ * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
+ *
+ * The Domain's name is specified via template parameter `D`. `D` is required
+ * to be a type that contains a `static constexpr const char*` member named
+ * `name`.
+ *
+ * @tparam D Type that contains a `D::name` member of type `static constexpr
+ * const char*`
+ * @return Reference to the `Domain` created with the specified name.
+ */
+template <class D>
+Domain const& get_domain() {
+  static Domain d{D::name};
+  return d;
+}
+
+/**
+ * @brief Returns reference to a null `Domain`.
+ *
+ * This specialization for `global_domain_tag` returns a default constructed,
+ * null `Domain` object for use when the "global" (i.e., no domain) is desired.
+ *
+ * @return Reference to a default constructed, null `Domain` object.
+ */
+template <>
+Domain const& get_domain<global_domain_tag>() {
+  static Domain d{};
+  return d;
+}
+}  // namespace detail
+
 /**---------------------------------------------------------------------------*
- * @brief A RAII object for creating a NVTX range local to a thread.
+ * @brief A RAII object for creating a NVTX range local to a thread within a
+ * domain.
  *
  * When constructed, begins a nested NVTX range on the calling thread. Upon
  * destruction, ends the NVTX range.
  *
- * Behavior is undefined if a `domain_thread_range` object is created/destroyed on
- * different threads.
+ * Behavior is undefined if a `domain_thread_range` object is created/destroyed
+ * on different threads.
  *
  * `domain_thread_range` is not default constructible.
  *
@@ -244,29 +293,21 @@ class Domain {
  * }
  * ```
  *---------------------------------------------------------------------------**/
+template <class D = detail::global_domain_tag>
 class domain_thread_range {
  public:
   /**---------------------------------------------------------------------------*
-   * @brief Construct a domain_thread_range, beginning an NVTX range event.
-   *
-   * @param message Message associated with the range.
-   *---------------------------------------------------------------------------**/
-  explicit domain_thread_range(std::string const& message) {
-    nvtxRangePushA(message.c_str());
-  }
-
-  /**---------------------------------------------------------------------------*
-   * @brief Construct a domain_thread_range, beginning an NVTX range event with a
-   *custom color and optional category.
+   * @brief Construct a domain_thread_range, beginning an NVTX range event with
+   * a custom color and optional category.
    *
    * @param message Message associated with the range.
    * @param color Color used to visualize the range.
    * @param category Optional, Category to group the range into.
    *---------------------------------------------------------------------------**/
   domain_thread_range(std::string const& message, argb_color color,
-               Category category = {}, Domain domain = {})
-      : _domain{domain} {
-    nvtxDomainRangePushEx(_domain, EventAttributes{message, color, category});
+                      Category category = {}) {
+    nvtxDomainRangePushEx(detail::get_domain<D>(),
+                          EventAttributes{message, color, category});
   }
 
   domain_thread_range() = delete;
@@ -278,23 +319,10 @@ class domain_thread_range {
   /**---------------------------------------------------------------------------*
    * @brief Destroy the domain_thread_range, ending the NVTX range event.
    *---------------------------------------------------------------------------**/
-  ~domain_thread_range() noexcept { nvtxDomainRangePop(_domain); }
-
- private:
-  Domain _domain{};  ///< Optional domain in which the range lives
-};
-
-template <class D>
-class DomainSingleton {
- public:
-  static Domain const& get_instance() {
-    static Domain instance{D::name};
-    return instance;
+  ~domain_thread_range() noexcept {
+    nvtxDomainRangePop(detail::get_domain<D>());
   }
-  DomainSingleton() = delete;
-  DomainSingleton(DomainSingleton const&) = delete;
 };
-
 
 /**
  * @brief Indicates an instantaneous event.
