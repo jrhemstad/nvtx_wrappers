@@ -57,10 +57,7 @@ struct argb_color {
 class Domain {
  public:
   /**---------------------------------------------------------------------------*
-   * @brief Construct a new Domain.
-   *
-   * Domain's may be passed into `domain_thread_range` or `mark` to  globally
-   *group those events.
+   * @brief Construct a new Domain with the specified `name`.
    *
    * @param name A unique name identifying the domain
    *---------------------------------------------------------------------------**/
@@ -68,15 +65,19 @@ class Domain {
       : _domain{nvtxDomainCreateA(name)} {}
 
   /**---------------------------------------------------------------------------*
-   * @brief Construct a new Domain.
-   *
-   * Domain's may be passed into `domain_thread_range` or `mark` to  globally
-   *group those events.
+   * @brief Construct a new Domain with the specified `name`.
    *
    * @param name A unique name identifying the domain
    *---------------------------------------------------------------------------**/
-  explicit Domain(std::string const& name) noexcept
-      : Domain{name.c_str()} {}
+  explicit Domain(const wchar_t* name) noexcept
+      : _domain{nvtxDomainCreateW(name)} {}
+
+  /**---------------------------------------------------------------------------*
+   * @brief Construct a new Domain with the specified `name`.
+   *
+   * @param name A unique name identifying the domain
+   *---------------------------------------------------------------------------**/
+  explicit Domain(std::string const& name) noexcept : Domain{name.c_str()} {}
 
   Domain() = default;
   Domain(Domain const&) = delete;
