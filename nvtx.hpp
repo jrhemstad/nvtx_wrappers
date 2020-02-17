@@ -16,22 +16,120 @@
 
 #include <nvToolsExt.h>
 
-#include <cxxabi.h>
 #include <cassert>
-#include <iostream>
-#include <stdexcept>
+#include <limits>
 #include <string>
-#include <unordered_map>
 
 namespace nvtx {
 
-struct argb_color {
-  using value_type = uint32_t;
-  explicit argb_color(value_type v) : _value{v} {}
+/**
+ * @brief Indicates the values of the red, green, blue color channels for
+ * a RGB color code.
+ *
+ */
+struct RGB {
+  using component_type = uint8_t;
 
-  value_type value() const noexcept { return _value; }
+  /**
+   * @brief Construct a RGB with red, green, and blue channels
+   * specified by `red_`, `green_`, and `blue_`, respectively.
+   * 
+   * Valid values are in the range `[0,255]`.
+   *
+   */
+  constexpr RGB(component_type red_, component_type green_,
+                component_type blue_) noexcept
+      : red{red_}, green{green_}, blue{blue_} {}
+
+  component_type red{};    ///< Red channel value
+  component_type green{};  ///< Green channel value
+  component_type blue{};   ///< Blue channel value
+};
+
+/**
+ * @brief Indicates the value of the alpha, red, green, and blue color channels
+ * for an ARGB color code.
+ *
+ */
+struct ARGB : RGB {
+  using component_type = typename RGB::component_type;
+
+  /**
+   * @brief Construct an ARGB with red, green, and blue channels
+   * specified by `alpha_`, `red_`, `green_`, and `blue_`, respectively.
+   * 
+   * Valid values are in the range `[0,255]`.
+   *
+   */
+  constexpr ARGB(component_type alpha_, component_type red_,
+                 component_type green_, component_type blue_) noexcept
+      : RGB{red_, green_, blue_}, alpha{alpha_} {}
+
+  component_type alpha{};  ///< Alpha channel value
+};
+
+/**
+ * @brief Represents a color that can be used to color NVTX events.
+ *
+ */
+class Color {
+ public:
+  using value_type = uint32_t;
+
+  /**
+   * @brief Constructs a `Color` using the values provided by `hex_code`.
+   *
+   * `hex_code` is expected to be a 4 byte ARGB hex code.
+   *
+   * The most significant byte indicates the value of the alpha channel
+   * (opacity) (0-255)
+   *
+   * The next byte indicates the value of the red channel (0-255)
+   *
+   * The next byte indicates the value of the green channel (0-255)
+   *
+   * The least significant byte indicates the value of the blue channel (0-255)
+   *
+   * @param v The hex code used to construct the `Color`
+   */
+  constexpr explicit Color(value_type hex_code) noexcept : _value{hex_code} {}
+
+  /**
+   * @brief Construct a `Color` using the alpha, red, green, blue components in
+   * `argb`.
+   *
+   * @param argb The alpha, red, green, blue components of the desired `Color`
+   */
+  constexpr explicit Color(ARGB argb) noexcept
+      : Color{from_bytes_msb_to_lsb(argb.alpha, argb.red, argb.green,
+                                    argb.blue)} {}
+
+  /**
+   * @brief Construct a `Color` using the red, green, blue components in
+   * `rgb`.
+   *
+   * Uses maximum value for the alpha channel (opacity) of the `Color`.
+   *
+   * @param rgb The red, green, blue components of the desired `Color`
+   */
+  constexpr explicit Color(RGB rgb) noexcept
+      : Color{from_bytes_msb_to_lsb(0xFF, rgb.red, rgb.green, rgb.blue)} {}
+
+  /**
+   * @brief Returns the `Color`s ARGB hex code
+   *
+   */
+  constexpr value_type get_value() const noexcept { return _value; }
 
  private:
+  constexpr static value_type from_bytes_msb_to_lsb(uint8_t byte3,
+                                                    uint8_t byte2,
+                                                    uint8_t byte1,
+                                                    uint8_t byte0) {
+    return uint32_t{byte3} << 24 | uint32_t{byte2} << 16 |
+           uint32_t{byte1} << 8 | uint32_t{byte0};
+  }
+
   value_type _value{};
 };
 
@@ -292,14 +390,14 @@ class EventAttributes {
    *---------------------------------------------------------------------------**/
 
   template <class D = nvtx::global_domain_tag>
-  EventAttributes(std::string const& message, argb_color color,
+  EventAttributes(std::string const& message, Color color,
                   Category<D> category = {}) noexcept
       : _attributes{0} {
     _attributes.version = NVTX_VERSION;
     _attributes.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
     _attributes.category = category.id();
     _attributes.colorType = NVTX_COLOR_ARGB;
-    _attributes.color = color.value();
+    _attributes.color = color.get_value();
     _attributes.messageType = NVTX_MESSAGE_TYPE_ASCII;
     _attributes.message.ascii = message.c_str();
   }
@@ -386,7 +484,7 @@ class domain_thread_range {
    * @param color Color used to visualize the range.
    * @param category Optional, Category to group the range into.
    *---------------------------------------------------------------------------**/
-  domain_thread_range(std::string const& message, argb_color color) noexcept {
+  domain_thread_range(std::string const& message, Color color) noexcept {
     // nvtxDomainRangePushEx(detail::get_domain<D>(),
     //                       EventAttributes{message, color, category});
   }
