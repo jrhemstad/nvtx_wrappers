@@ -7,6 +7,10 @@ struct my_domain {
   static constexpr const char* name{"hello"};
 };
 
+struct my_message{
+    static constexpr const char* message{"my message"};
+};
+
 using my_thread_range = nvtx::domain_thread_range<my_domain>;
 
 int main(void){
@@ -15,4 +19,6 @@ int main(void){
     nvtx::thread_range r2{"msg", nvtx::Color{nvtx::ARGB{255,255,255,255}}};
 
     my_thread_range my_range{"msg", nvtx::Color{0}};
+
+    auto registered_msg = nvtx::get_registered_message<my_message, my_domain>();
 }

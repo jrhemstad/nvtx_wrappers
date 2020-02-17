@@ -423,6 +423,34 @@ class Message {
   nvtxMessageValue_t value_{};
 };
 
+class payload {
+ public:
+  explicit payload(int64_t value) noexcept : type_{NVTX_PAYLOAD_TYPE_INT64} {
+    value_.llValue = value;
+  }
+  explicit payload(int32_t value) noexcept : type_{NVTX_PAYLOAD_TYPE_INT32} {
+    value_.iValue = value;
+  }
+  explicit payload(uint64_t value) noexcept
+      : type_{NVTX_PAYLOAD_TYPE_UNSIGNED_INT64} {
+    value_.ullValue = value;
+  }
+  explicit payload(uint32_t value) noexcept
+      : type_{NVTX_PAYLOAD_TYPE_UNSIGNED_INT32} {
+    value_.uiValue = value;
+  }
+  explicit payload(float value) noexcept : type_{NVTX_PAYLOAD_TYPE_FLOAT} {
+    value_.fValue = value;
+  }
+  explicit payload(double value) noexcept : type_{NVTX_PAYLOAD_TYPE_DOUBLE} {
+    value_.dValue = value;
+  }
+
+ private:
+  nvtxPayloadType_t type_;
+  nvtxEventAttributes_v2::payload_t value_;
+};
+
 /**---------------------------------------------------------------------------*
  * @brief Describes the attributes of a NVTX event such as color and
  * identifying message.
