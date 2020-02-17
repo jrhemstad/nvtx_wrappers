@@ -16,7 +16,9 @@
 
 #include <nvToolsExt.h>
 
+#include <cxxabi.h>
 #include <cassert>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -34,70 +36,264 @@ struct argb_color {
 };
 
 /**---------------------------------------------------------------------------*
- * @brief Used for grouping NVTX events such as a `Mark` or
- *`domain_thread_range`.
+ * @brief An object for grouping events into a global scope.
+ *
+ * Domains are used to group events to a developer defined scope. Middleware
+ * vendors may also scope their own events to avoid collisions with the
+ * the application developer's events, so that the application developer may
+ * inspect both parts and easily differentiate or filter them.  By default
+ * all events are scoped to a global domain where NULL is provided or when
+ * using APIs provided b versions of NVTX below v2
+ *
+ * Domains are intended to be typically long lived objects with the intention
+ * of logically separating events of large modules from each other such as
+ * middleware libraries from each other and the main application.
+ *
+ * Domains are coarser-grained than `Category`s. It is common for a library to
+ * have only a single Domain, which may be further sub-divided into `Category`s.
+ *
+ *
  *---------------------------------------------------------------------------**/
-class Category {
+class Domain {
  public:
-  using Id = uint32_t;
   /**---------------------------------------------------------------------------*
-   * @brief Construct Category for grouping NVTX events.
+   * @brief Construct a new Domain.
    *
-   * Categories are used to group sets of events. Each Category is identified
-   * through a unique `name`. Categories with identical `name`s share a unique
-   *`id()`.
+   * Domain's may be passed into `domain_thread_range` or `mark` to  globally
+   *group those events.
    *
-   * A `Category` may be passed into any Marker/Range. Events that share a
-   * `Category` with an identical `name`s will be grouped together.
-   *
-   * @note This operation is not threadsafe. Attempting to create two `Category`
-   * objects concurrently across 2 or more threads yields undefined behavior.
-   *
-   * @param name The string used to uniquely identify the Category
+   * @param name A unique name identifying the domain
    *---------------------------------------------------------------------------**/
-  Category(std::string const& name) {
-    auto found = _name_to_id.find(name);
-    if (found == _name_to_id.end()) {
-      _id = ++_id_counter;
-      _name_to_id.insert({name, _id});
-      nvtxNameCategoryA(_id, name.c_str());
-    } else {
-      _id = found->second;
-    }
-  }
-
-  Category() = default;
-  ~Category() = default;
-  Category(Category const&) = default;
-  Category& operator=(Category const&) = default;
-  Category(Category&&) = default;
-  Category& operator=(Category&&) = default;
+  explicit Domain(const char* name) noexcept
+      : _domain{nvtxDomainCreateA(name)} {}
 
   /**---------------------------------------------------------------------------*
-   * @brief Returns the Category`s numerical id.
+   * @brief Construct a new Domain.
    *
-   * Categories created with identical `name`s share the same `id()`.
+   * Domain's may be passed into `domain_thread_range` or `mark` to  globally
+   *group those events.
    *
-   * @return Id The numerical id associated with the Category's `name`.
+   * @param name A unique name identifying the domain
    *---------------------------------------------------------------------------**/
-  Id id() const noexcept { return _id; }
+  explicit Domain(std::string const& name) noexcept
+      : Domain{name.c_str()} {}
+
+  Domain() = default;
+  Domain(Domain const&) = delete;
+  Domain& operator=(Domain const&) = delete;
+  Domain(Domain&&) = delete;
+  Domain& operator=(Domain&&) = delete;
+
+  /**---------------------------------------------------------------------------*
+   * @brief Destroy the Domain object, unregistering and freeing all domain
+   * specific resources.
+   *---------------------------------------------------------------------------**/
+  ~Domain() { nvtxDomainDestroy(_domain); }
+
+  /**---------------------------------------------------------------------------*
+   * @brief Conversion operator to `nvtxDomainHandle_t`.
+   *
+   * Allows transparently passing a Domain object into an API expecting a native
+   * `nvtxDomainHandle_t` object.
+   *---------------------------------------------------------------------------**/
+  operator nvtxDomainHandle_t() const noexcept { return _domain; }
 
  private:
-  /**---------------------------------------------------------------------------*
-   * @brief Maps `name`s to their corresponding unique IDs
-   *
-   * TODO: This should probably be threadsafe
-   *---------------------------------------------------------------------------**/
-  static std::unordered_map<std::string, Id> _name_to_id;
-
-  /**---------------------------------------------------------------------------*
-   * @brief Counter used to generate new unique ids for Categories with new
-   *names.
-   *---------------------------------------------------------------------------**/
-  static Id _id_counter;
-
-  Id _id{0};  ///< The id of the Category
+  nvtxDomainHandle_t _domain{};
 };
+
+/**
+ * @brief Tag type for the "global" NVTX domain.
+ *
+ * This type may be passed as a template argument to any function expecting a
+ * `Domain` argument to indicate that the global domain should be used.
+ *
+ * The global NVTX domain is the same as using no domain at all.
+ *
+ */
+struct global_domain_tag {};
+
+namespace detail {
+
+/**---------------------------------------------------------------------------*
+ * @brief Return a string of the demangled name of a type `T`
+ *
+ * This is useful for debugging Type list utilities.
+ *
+ * @tparam T The type whose name is returned as a string
+ * @return std::string The demangled name of `T`
+ *---------------------------------------------------------------------------**/
+template <typename T>
+std::string type_name() {
+  int status;
+  char* realname;
+  realname = abi::__cxa_demangle(typeid(T).name(), 0, 0, &status);
+  std::string name{realname};
+  free(realname);
+  return name;
+}
+
+/**
+ * @brief Verifies if a type `T` contains a member `T::name` of type `const
+ * char*` or `const wchar_t*`.
+ *
+ * @tparam T The type to verify
+ * @return True if `T` contains a member `T::name` of type `const char*` or
+ * `const wchar_t*`.
+ */
+template <typename T>
+constexpr auto has_name_member() -> decltype(T::name, bool()) {
+  std::cout << type_name<decltype(T::name)>() << std::endl;
+  return std::is_same<const char*, decltype(T::name)>::value or
+         std::is_same<const wchar_t*, decltype(T::name)>::value;
+}
+}  // namespace detail
+
+/**
+ * @brief Returns instance of a `Domain` constructed using the specified
+ * name created as a function local static.
+ *
+ * Uses the "construct on first use" idiom to safely ensure the Domain object
+ * is initialized exactly once. See
+ * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
+ *
+ * The Domain's name is specified via template parameter `D`. `D` is required
+ * to be a type that contains a `const char*` or `const wchar_t*` member named
+ * `name`.
+ *
+ * @tparam D Type that contains a `D::name` member of type `const char*` or
+ * `const whchar*`
+ * @return Reference to the `Domain` created with the specified name.
+ */
+template <class D>
+Domain const& get_domain() {
+  // static_assert(detail::has_name_member<D>(),
+  //              "Type used to identify a Domain must contain a name member of
+  //              " "type const char* or const wchar_t*");
+  static Domain d{D::name};
+  return d;
+}
+
+/**
+ * @brief Returns reference to the global `Domain`.
+ *
+ * This specialization for `global_domain_tag` returns a default constructed,
+ * null `Domain` object for use when the "global" (i.e., no domain) is desired.
+ *
+ * @return Reference to a default constructed, null `Domain` object.
+ */
+template <>
+Domain const& get_domain<global_domain_tag>() {
+  static Domain d{};
+  return d;
+}
+
+/**
+ * @brief Uniquely identifies a `Category` object.
+ *
+ */
+struct category_id {
+  using value_type = uint32_t;
+
+  /**
+   * @brief Construct a `category_id` with the specified `value`.
+   *
+   */
+  constexpr explicit category_id(value_type value) noexcept : value_{value} {}
+
+  constexpr explicit operator value_type() const noexcept {
+    return get_value();
+  }
+
+  /**
+   * @brief Returns the `category_id`'s value
+   */
+  constexpr value_type get_value() const noexcept { return value_; }
+
+ private:
+  value_type value_{};
+};
+
+/**---------------------------------------------------------------------------*
+ * @brief Used for grouping NVTX events such as a `Mark` or
+ * `domain_thread_range`.
+ *
+ * A `Category` allows for more fine-grain grouping of NVTX events than a
+ * `Domain`. While it is typical for a library to only have a single `Domain`,
+ * it may have several `Category`s. For example, one might have separate
+ * categories for IO, memory allocation, compute, etc.
+ *
+ * @tparam Domain Type containing `name` member used to identify the `Domain` to
+ * which the `Category` belongs. Else, `global_domain_tag` to  indicate that the
+ * global NVTX domain should be used.
+ *---------------------------------------------------------------------------**/
+template <typename Domain = nvtx::global_domain_tag>
+class Category {
+ public:
+  /**
+   * @brief Construct a `Category` with the specified `id`.
+   *
+   * The `Category` will be unnamed and identified only by it's `id` value.
+   *
+   */
+  constexpr explicit Category(category_id id) noexcept : id_{id} {}
+
+  /**
+   * @brief Construct a `Category` with the specified `id` and `name`.
+   *
+   * The name `name` will be registered with `id`.
+   *
+   */
+  constexpr Category(category_id id, const char* name) noexcept : id_{id} {
+    nvtxDomainNameCategoryA(get_domain<Domain>(), id_.get_value(), name);
+  };
+
+  /**
+   * @brief Construct a `Category` with the specified `id` and `name`.
+   *
+   * The name `name` will be registered with `id`.
+   *
+   */
+  constexpr Category(category_id id, const wchar_t* name) noexcept : id_{id} {
+    nvtxDomainNameCategoryW(get_domain<Domain>(), id_.get_value(), name);
+  };
+  Category() = delete;
+  ~Category() = default;
+  Category(Category const&) = delete;
+  Category& operator=(Category const&) = delete;
+  Category(Category&&) = delete;
+  Category& operator=(Category&&) = delete;
+
+ private:
+  category_id id_{};  ///< The Category's id
+};
+
+/**
+ * @brief Returns a global instance of a `Category` as a function-local static.
+ *
+ * Creates the `Category` with the name specified by `Name`, id specified by
+ * `Id`, and domain by `Domain`.
+ *
+ * Uses the "construct on first use" idiom to safely ensure the `Category`
+ * object is initialized exactly once. See
+ * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
+ *
+ * @tparam Name Type that containing a member `Name::name` of type `const char*`
+ * or `const wchar_t*` used to name the `Category`.
+ * @tparam Id Used to uniquely identify the `Category` and differentiate it from
+ * other `Category` objects.
+ * @tparam Domain Type containing `name` member used to identify the `Domain` to
+ * which the `Category` belongs. Else, `global_domain_tag` to  indicate that the
+ * global NVTX domain should be used.
+ */
+template <typename Name, uint32_t Id, typename Domain = nvtx::global_domain_tag>
+Category<Domain> const& get_category() noexcept {
+  static_assert(detail::has_name_member<Name>(),
+                "Type used to name a Category must contain a name member of "
+                "type const char* or const wchar_t*");
+  static Category<Domain> category{Name::name, category_id{Id}};
+  return category;
+}
 
 /**---------------------------------------------------------------------------*
  * @brief Describes the attributes of a NVTX event such as color and
@@ -113,8 +309,10 @@ class EventAttributes {
    * @param color The color used to visualize the event.
    * @param category Optional, Category to group the event into.
    *---------------------------------------------------------------------------**/
+
+  template <class D = nvtx::global_domain_tag>
   EventAttributes(std::string const& message, argb_color color,
-                  Category category = {}) noexcept
+                  Category<D> category = {}) noexcept
       : _attributes{0} {
     _attributes.version = NVTX_VERSION;
     _attributes.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
@@ -150,118 +348,6 @@ class EventAttributes {
  private:
   nvtxEventAttributes_t _attributes{};
 };
-
-/**---------------------------------------------------------------------------*
- * @brief An object for grouping events into a global scope.
- *
- * Domains are used to group events to a developer defined scope. Middleware
- * vendors may also scope their own events to avoid collisions with the
- * the application developer's events, so that the application developer may
- * inspect both parts and easily differentiate or filter them.  By default
- * all events are scoped to a global domain where NULL is provided or when
- * using APIs provided b versions of NVTX below v2
- *
- * Domains are intended to be typically long lived objects with the intention
- * of logically separating events of large modules from each other such as
- * middleware libraries from each other and the main application.
- *
- * Domains are coarser-grained than `Category`s. It is common for a library to
- * have only a single Domain, which may be further sub-divided into `Category`s.
- *
- *
- *---------------------------------------------------------------------------**/
-class Domain {
- public:
-  /**---------------------------------------------------------------------------*
-   * @brief Construct a new Domain.
-   *
-   * Domain's may be passed into `domain_thread_range` or `mark` to  globally
-   *group those events.
-   *
-   * @param name A unique name identifying the domain
-   *---------------------------------------------------------------------------**/
-  explicit constexpr Domain(const char* name) noexcept
-      : _domain{nvtxDomainCreateA(name)} {}
-
-  /**---------------------------------------------------------------------------*
-   * @brief Construct a new Domain.
-   *
-   * Domain's may be passed into `domain_thread_range` or `mark` to  globally
-   *group those events.
-   *
-   * @param name A unique name identifying the domain
-   *---------------------------------------------------------------------------**/
-  explicit constexpr Domain(std::string const& name) noexcept
-      : Domain{name.c_str()} {}
-
-  Domain() = default;
-  Domain(Domain const&) = default;
-  Domain& operator=(Domain const&) = default;
-  Domain(Domain&&) = default;
-  Domain& operator=(Domain&&) = default;
-
-  /**---------------------------------------------------------------------------*
-   * @brief Destroy the Domain object, unregistering and freeing all domain
-   * specific resources.
-   *---------------------------------------------------------------------------**/
-  ~Domain() { nvtxDomainDestroy(_domain); }
-
-  /**---------------------------------------------------------------------------*
-   * @brief Conversion operator to `nvtxDomainHandle_t`.
-   *
-   * Allows transparently passing a Domain object into an API expecting a native
-   * `nvtxDomainHandle_t` object.
-   *---------------------------------------------------------------------------**/
-  operator nvtxDomainHandle_t() const noexcept { return _domain; }
-
- private:
-  nvtxDomainHandle_t _domain{};
-};
-
-namespace detail {
-
-/**
- * @brief Tag type for the "global" NVTX domain.
- *
- */
-struct global_domain_tag {};
-
-/**
- * @brief Returns a reference to a `Domain` constructed using the specified
- * name.
- *
- * Uses the "construct on first use" idiom to safely ensure the Domain object
- * is initialized exactly once. See
- * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
- *
- * The Domain's name is specified via template parameter `D`. `D` is required
- * to be a type that contains a `static constexpr const char*` member named
- * `name`.
- *
- * @tparam D Type that contains a `D::name` member of type `static constexpr
- * const char*`
- * @return Reference to the `Domain` created with the specified name.
- */
-template <class D>
-Domain const& get_domain() {
-  static Domain d{D::name};
-  return d;
-}
-
-/**
- * @brief Returns reference to a null `Domain`.
- *
- * This specialization for `global_domain_tag` returns a default constructed,
- * null `Domain` object for use when the "global" (i.e., no domain) is desired.
- *
- * @return Reference to a default constructed, null `Domain` object.
- */
-template <>
-Domain const& get_domain<global_domain_tag>() {
-  static Domain d{};
-  return d;
-}
-}  // namespace detail
 
 /**
  * @brief A RAII object for creating a NVTX range local to a thread within a
@@ -307,7 +393,7 @@ Domain const& get_domain<global_domain_tag>() {
  * my_thread_range r3{"range 3"}; // Alias for range in custom domain
  * ```
  */
-template <class D = detail::global_domain_tag>
+template <class D = nvtx::global_domain_tag>
 class domain_thread_range {
  public:
   /**---------------------------------------------------------------------------*
@@ -318,10 +404,9 @@ class domain_thread_range {
    * @param color Color used to visualize the range.
    * @param category Optional, Category to group the range into.
    *---------------------------------------------------------------------------**/
-  domain_thread_range(std::string const& message, argb_color color,
-                      Category category = {}) {
-    nvtxDomainRangePushEx(detail::get_domain<D>(),
-                          EventAttributes{message, color, category});
+  domain_thread_range(std::string const& message, argb_color color) {
+    // nvtxDomainRangePushEx(detail::get_domain<D>(),
+    //                       EventAttributes{message, color, category});
   }
 
   domain_thread_range() = delete;
@@ -333,9 +418,7 @@ class domain_thread_range {
   /**---------------------------------------------------------------------------*
    * @brief Destroy the domain_thread_range, ending the NVTX range event.
    *---------------------------------------------------------------------------**/
-  ~domain_thread_range() noexcept {
-    nvtxDomainRangePop(detail::get_domain<D>());
-  }
+  ~domain_thread_range() noexcept { nvtxDomainRangePop(get_domain<D>()); }
 };
 
 /**
@@ -343,31 +426,5 @@ class domain_thread_range {
  *
  */
 using thread_range = domain_thread_range<>;
-
-/**
- * @brief Indicates an instantaneous event.
- *
- * Example:
- * ```c++
- * some_function(...){
- *    // A mark event will appear for every invocation of `some_function`
- *    nvtx::mark("some_function was called");
- * }
- * ```
- * @param message Message associated with the range.
- */
-void mark(std::string const& message) { nvtxMarkA(message.c_str()); }
-
-/**
- * @brief Indicates an instantaneous event.
- *
- * @param message Message associated with the `mark`
- * @param color color used to visualize the `mark`
- * @param category Optional, Category to group the `mark` into.
- */
-void mark(std::string const& message, argb_color color, Category category = {},
-          Domain domain = {}) {
-  nvtxDomainMarkEx(domain, EventAttributes{message, color, category});
-}
 
 }  // namespace nvtx
