@@ -185,7 +185,7 @@ Domain const& get_domain() noexcept {
  * @return Reference to a default constructed, null `Domain` object.
  */
 template <>
-Domain const& get_domain<global_domain_tag>() {
+Domain const& get_domain<global_domain_tag>() noexcept {
   static Domain d{};
   return d;
 }
