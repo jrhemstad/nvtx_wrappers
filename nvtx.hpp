@@ -143,10 +143,11 @@ std::string type_name() {
  * `const wchar_t*`.
  */
 template <typename T>
-constexpr auto has_name_member() -> decltype(T::name, bool()) {
-  std::cout << type_name<decltype(T::name)>() << std::endl;
-  return std::is_same<const char*, decltype(T::name)>::value or
-         std::is_same<const wchar_t*, decltype(T::name)>::value;
+constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
+  return (std::is_same<char const*,
+                       typename std::decay<decltype(T::name)>::type>::value or
+          std::is_same<wchar_t const*,
+                       typename std::decay<decltype(T::name)>::type>::value);
 }
 }  // namespace detail
 
