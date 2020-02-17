@@ -115,25 +115,6 @@ class Domain {
 struct global_domain_tag {};
 
 namespace detail {
-
-/**---------------------------------------------------------------------------*
- * @brief Return a string of the demangled name of a type `T`
- *
- * This is useful for debugging Type list utilities.
- *
- * @tparam T The type whose name is returned as a string
- * @return std::string The demangled name of `T`
- *---------------------------------------------------------------------------**/
-template <typename T>
-std::string type_name() {
-  int status;
-  char* realname;
-  realname = abi::__cxa_demangle(typeid(T).name(), 0, 0, &status);
-  std::string name{realname};
-  free(realname);
-  return name;
-}
-
 /**
  * @brief Verifies if a type `T` contains a member `T::name` of type `const
  * char*` or `const wchar_t*`.
