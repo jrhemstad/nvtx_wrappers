@@ -148,7 +148,7 @@ class Color {
  * Domains are used to group events to a developer defined scope. Middleware
  * vendors may also scope their own events to avoid collisions with the
  * the application developer's events, so that the application developer may
- * inspect both parts and easily differentiate or filter them.  
+ * inspect both parts and easily differentiate or filter them.
  *
  * Domains are intended to be typically long lived objects with the intention
  * of logically separating events of large modules from each other such as
@@ -380,6 +380,49 @@ Category<Domain> const& get_category() noexcept {
   return category;
 }
 
+template <typename Domain = nvtx::global_domain_tag>
+class RegisteredMessage {
+ public:
+  constexpr explicit RegisteredMessage(char const* msg) noexcept
+      : value_{nvtxDomainRegisterStringA(get_domain<Domain>(), msg)} {}
+
+  constexpr explicit RegisteredMessage(wchar_t const* msg) noexcept
+      : value_{nvtxDomainRegisterStringW(get_domain<Domain>(), msg)} {}
+
+  constexpr nvtxStringHandle_t get_handle() const noexcept { return value_; }
+
+ private:
+  nvtxStringHandle_t value_{};
+};
+
+template <typename Message, typename Domain = nvtx::global_domain_tag>
+RegisteredMessage<Domain> const& get_registered_message() noexcept {
+  static RegisteredMessage<Domain> const registered_message{Message::message};
+  return registered_message;
+}
+
+class Message {
+ public:
+  constexpr Message(char const* msg) noexcept : type_{NVTX_MESSAGE_TYPE_ASCII} {
+    value_.ascii = msg;
+  }
+
+  constexpr Message(wchar_t const* msg) noexcept
+      : type_{NVTX_MESSAGE_TYPE_UNICODE} {
+    value_.unicode = msg;
+  }
+
+  template <typename Domain>
+  constexpr Message(RegisteredMessage<Domain> msg) noexcept
+      : type_{NVTX_MESSAGE_TYPE_REGISTERED} {
+    value_.registered = msg.get_handle();
+  }
+
+ private:
+  nvtxMessageType_t type_{};
+  nvtxMessageValue_t value_{};
+};
+
 /**---------------------------------------------------------------------------*
  * @brief Describes the attributes of a NVTX event such as color and
  * identifying message.
@@ -422,14 +465,6 @@ class EventAttributes {
    * expecting a `nvtxEventAttributes_t` argument.
    *---------------------------------------------------------------------------**/
   operator nvtxEventAttributes_t() const noexcept { return _attributes; }
-
-  /**---------------------------------------------------------------------------*
-   * @brief Conversion operator to `nvtxEventAttributes_t*`.
-   *
-   * Allows transparently passing a `EventAttributes` object into a function
-   * expecting a pointer to `nvtxEventAttributes_t` argument.
-   *---------------------------------------------------------------------------**/
-  operator nvtxEventAttributes_t*() noexcept { return &_attributes; }
 
  private:
   nvtxEventAttributes_t _attributes{};
