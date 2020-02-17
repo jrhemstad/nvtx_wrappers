@@ -168,10 +168,10 @@ constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
  * @return Reference to the `Domain` created with the specified name.
  */
 template <class D>
-Domain const& get_domain() {
-  // static_assert(detail::has_name_member<D>(),
-  //              "Type used to identify a Domain must contain a name member of
-  //              " "type const char* or const wchar_t*");
+Domain const& get_domain() noexcept {
+  static_assert(detail::has_name_member<D>(),
+                "Type used to identify a Domain must contain a name member of"
+                "type const char* or const wchar_t*");
   static Domain d{D::name};
   return d;
 }
