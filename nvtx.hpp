@@ -20,6 +20,15 @@
 #include <limits>
 #include <string>
 
+// Initializing a legacy-C (i.e., no constructor) union member requires
+// initializing in the constructor body. Non-empty constexpr constructors
+// require C++14 relaxed constexpr.
+#if __cpp_constexpr >= 201304L
+#define NVTX_RELAXED_CONSTEXPR constexpr
+#else
+#define NVTX_RELAXED_CONSTEXPR
+#endif
+
 namespace nvtx {
 
 /**
