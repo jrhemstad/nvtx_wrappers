@@ -412,17 +412,18 @@ RegisteredMessage<Domain> const& get_registered_message() noexcept {
 
 class Message {
  public:
-  constexpr Message(char const* msg) noexcept : type_{NVTX_MESSAGE_TYPE_ASCII} {
+  NVTX_RELAXED_CONSTEXPR Message(char const* msg) noexcept
+      : type_{NVTX_MESSAGE_TYPE_ASCII} {
     value_.ascii = msg;
   }
 
-  constexpr Message(wchar_t const* msg) noexcept
+  NVTX_RELAXED_CONSTEXPR Message(wchar_t const* msg) noexcept
       : type_{NVTX_MESSAGE_TYPE_UNICODE} {
     value_.unicode = msg;
   }
 
   template <typename Domain>
-  constexpr Message(RegisteredMessage<Domain> msg) noexcept
+  NVTX_RELAXED_CONSTEXPR Message(RegisteredMessage<Domain> msg) noexcept
       : type_{NVTX_MESSAGE_TYPE_REGISTERED} {
     value_.registered = msg.get_handle();
   }
