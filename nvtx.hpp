@@ -209,7 +209,7 @@ struct category_id {
   constexpr value_type get_value() const noexcept { return value_; }
 
  private:
-  value_type value_{};
+  value_type const value_{};
 };
 
 /**---------------------------------------------------------------------------*
@@ -263,7 +263,7 @@ class Category {
   Category& operator=(Category&&) = delete;
 
  private:
-  category_id id_{};  ///< The Category's id
+  category_id const id_{};  ///< Category's unique identifier
 };
 
 /**
