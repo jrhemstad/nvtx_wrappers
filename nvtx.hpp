@@ -69,7 +69,7 @@ struct ARGB : RGB {
 };
 
 /**
- * @brief Represents a color that can be used to color NVTX events.
+ * @brief Represents a color that can be associated with NVTX events.
  *
  */
 class Color {
@@ -98,6 +98,8 @@ class Color {
    * @brief Construct a `Color` using the alpha, red, green, blue components in
    * `argb`.
    *
+   * TODO: Make implicit?
+   *
    * @param argb The alpha, red, green, blue components of the desired `Color`
    */
   constexpr explicit Color(ARGB argb) noexcept
@@ -109,6 +111,8 @@ class Color {
    * `rgb`.
    *
    * Uses maximum value for the alpha channel (opacity) of the `Color`.
+   *
+   * TODO: Make implicit?
    *
    * @param rgb The red, green, blue components of the desired `Color`
    */
@@ -123,7 +127,8 @@ class Color {
 
  private:
   /**
-   * @brief Constructs an unsigned, 4B integer from the component bytes[0-3].
+   * @brief Constructs an unsigned, 4B integer from the component bytes in most
+   * to least significant byte order.
    *
    */
   constexpr static value_type from_bytes_msb_to_lsb(uint8_t byte3,
@@ -134,7 +139,7 @@ class Color {
            uint32_t{byte1} << 8 | uint32_t{byte0};
   }
 
-  value_type _value{}; ///< Color's ARGB color code
+  value_type _value{};  ///< Color's ARGB color code
 };
 
 /**---------------------------------------------------------------------------*
