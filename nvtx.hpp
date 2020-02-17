@@ -433,30 +433,30 @@ class Message {
   nvtxMessageValue_t value_{};
 };
 
-class payload {
+class Payload {
  public:
-  NVTX_RELAXED_CONSTEXPR kexplicit payload(int64_t value) noexcept
-      : type_{NVTX_PAYLOAD_TYPE_INT64} {
+  NVTX_RELAXED_CONSTEXPR explicit Payload(int64_t value) noexcept
+      : type_{NVTX_PAYLOAD_TYPE_INT64}, value_{} {
     value_.llValue = value;
   }
-  NVTX_RELAXED_CONSTEXPR kexplicit payload(int32_t value) noexcept
-      : type_{NVTX_PAYLOAD_TYPE_INT32} {
+  NVTX_RELAXED_CONSTEXPR explicit Payload(int32_t value) noexcept
+      : type_{NVTX_PAYLOAD_TYPE_INT32}, value_{} {
     value_.iValue = value;
   }
-  NVTX_RELAXED_CONSTEXPR kexplicit payload(uint64_t value) noexcept
-      : type_{NVTX_PAYLOAD_TYPE_UNSIGNED_INT64} {
+  NVTX_RELAXED_CONSTEXPR explicit Payload(uint64_t value) noexcept
+      : type_{NVTX_PAYLOAD_TYPE_UNSIGNED_INT64}, value_{} {
     value_.ullValue = value;
   }
-  NVTX_RELAXED_CONSTEXPR explicit payload(uint32_t value) noexcept
-      : type_{NVTX_PAYLOAD_TYPE_UNSIGNED_INT32} {
+  NVTX_RELAXED_CONSTEXPR explicit Payload(uint32_t value) noexcept
+      : type_{NVTX_PAYLOAD_TYPE_UNSIGNED_INT32}, value_{} {
     value_.uiValue = value;
   }
-  NVTX_RELAXED_CONSTEXPR explicit payload(float value) noexcept
-      : type_{NVTX_PAYLOAD_TYPE_FLOAT} {
+  NVTX_RELAXED_CONSTEXPR explicit Payload(float value) noexcept
+      : type_{NVTX_PAYLOAD_TYPE_FLOAT}, value_{} {
     value_.fValue = value;
   }
-  NVTX_RELAXED_CONSTEXPR explicit payload(double value) noexcept
-      : type_{NVTX_PAYLOAD_TYPE_DOUBLE} {
+  NVTX_RELAXED_CONSTEXPR explicit Payload(double value) noexcept
+      : type_{NVTX_PAYLOAD_TYPE_DOUBLE}, value_{} {
     value_.dValue = value;
   }
 
