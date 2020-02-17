@@ -153,7 +153,7 @@ Domain const& get_domain() noexcept {
   static_assert(detail::has_name_member<D>(),
                 "Type used to identify a Domain must contain a name member of"
                 "type const char* or const wchar_t*");
-  static Domain d{D::name};
+  static Domain const d{D::name};
   return d;
 }
 
@@ -167,7 +167,7 @@ Domain const& get_domain() noexcept {
  */
 template <>
 Domain const& get_domain<global_domain_tag>() noexcept {
-  static Domain d{};
+  static Domain const d{};
   return d;
 }
 
@@ -270,7 +270,7 @@ Category<Domain> const& get_category() noexcept {
   static_assert(detail::has_name_member<Name>(),
                 "Type used to name a Category must contain a name member of "
                 "type const char* or const wchar_t*");
-  static Category<Domain> category{Name::name, category_id{Id}};
+  static Category<Domain> const category{Name::name, category_id{Id}};
   return category;
 }
 
@@ -301,6 +301,7 @@ class EventAttributes {
     _attributes.messageType = NVTX_MESSAGE_TYPE_ASCII;
     _attributes.message.ascii = message.c_str();
   }
+
   EventAttributes() = delete;
   ~EventAttributes() = default;
   EventAttributes(EventAttributes const&) = default;
@@ -383,7 +384,7 @@ class domain_thread_range {
    * @param color Color used to visualize the range.
    * @param category Optional, Category to group the range into.
    *---------------------------------------------------------------------------**/
-  domain_thread_range(std::string const& message, argb_color color) {
+  domain_thread_range(std::string const& message, argb_color color) noexcept {
     // nvtxDomainRangePushEx(detail::get_domain<D>(),
     //                       EventAttributes{message, color, category});
   }
