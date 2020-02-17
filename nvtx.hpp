@@ -55,7 +55,7 @@ struct ARGB : RGB {
   using component_type = typename RGB::component_type;
 
   /**
-   * @brief Construct an ARGB with red, green, and blue channels
+   * @brief Construct an ARGB with alpha, red, green, and blue channels
    * specified by `alpha_`, `red_`, `green_`, and `blue_`, respectively.
    *
    * Valid values are in the range `[0,255]`.
