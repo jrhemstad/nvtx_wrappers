@@ -251,7 +251,9 @@ class Category {
  * @brief Returns a global instance of a `Category` as a function-local static.
  *
  * Creates the `Category` with the name specified by `Name`, id specified by
- * `Id`, and domain by `Domain`.
+ * `Id`, and domain by `Domain`. This function is useful for constructing a
+ * named `Category` exactly once and reusing the same instance throughout an
+ * application.
  *
  * Uses the "construct on first use" idiom to safely ensure the `Category`
  * object is initialized exactly once. See
