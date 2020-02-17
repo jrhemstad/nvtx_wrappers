@@ -203,10 +203,6 @@ struct category_id {
    */
   constexpr explicit category_id(value_type value) noexcept : value_{value} {}
 
-  constexpr explicit operator value_type() const noexcept {
-    return get_value();
-  }
-
   /**
    * @brief Returns the `category_id`'s value
    */
