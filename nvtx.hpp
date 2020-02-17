@@ -33,7 +33,7 @@ struct RGB {
   /**
    * @brief Construct a RGB with red, green, and blue channels
    * specified by `red_`, `green_`, and `blue_`, respectively.
-   * 
+   *
    * Valid values are in the range `[0,255]`.
    *
    */
@@ -57,7 +57,7 @@ struct ARGB : RGB {
   /**
    * @brief Construct an ARGB with red, green, and blue channels
    * specified by `alpha_`, `red_`, `green_`, and `blue_`, respectively.
-   * 
+   *
    * Valid values are in the range `[0,255]`.
    *
    */
@@ -122,6 +122,10 @@ class Color {
   constexpr value_type get_value() const noexcept { return _value; }
 
  private:
+  /**
+   * @brief Constructs an unsigned, 4B integer from the component bytes[0-3].
+   *
+   */
   constexpr static value_type from_bytes_msb_to_lsb(uint8_t byte3,
                                                     uint8_t byte2,
                                                     uint8_t byte1,
@@ -130,7 +134,7 @@ class Color {
            uint32_t{byte1} << 8 | uint32_t{byte0};
   }
 
-  value_type _value{};
+  value_type _value{}; ///< Color's ARGB color code
 };
 
 /**---------------------------------------------------------------------------*
