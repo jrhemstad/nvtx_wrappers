@@ -148,17 +148,14 @@ class Color {
  * Domains are used to group events to a developer defined scope. Middleware
  * vendors may also scope their own events to avoid collisions with the
  * the application developer's events, so that the application developer may
- * inspect both parts and easily differentiate or filter them.  By default
- * all events are scoped to a global domain where NULL is provided or when
- * using APIs provided b versions of NVTX below v2
+ * inspect both parts and easily differentiate or filter them.  
  *
  * Domains are intended to be typically long lived objects with the intention
  * of logically separating events of large modules from each other such as
  * middleware libraries from each other and the main application.
  *
- * Domains are coarser-grained than `Category`s. It is common for a library to
+ * Domains are coarser-grained than `Category`s. It is typical for a library to
  * have only a single Domain, which may be further sub-divided into `Category`s.
- *
  *
  *---------------------------------------------------------------------------**/
 class Domain {
