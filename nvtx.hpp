@@ -389,6 +389,19 @@ Category<Domain> const& get_category() noexcept {
   return category;
 }
 
+/**
+ * @brief Represents a message registered with NVTX.
+ *
+ * Message registration is an optimization to lower the overhead of associating
+ * a message with an NVTX event by avoiding copying the contents of the message
+ * for each event.
+ *
+ * Registering a message yields a handle that may be used with any NVTX event.
+ *
+ * @tparam Domain Type containing `name` member used to identify the `Domain` to
+ * which the `RegisteredMessage` belongs. Else, `global_domain_tag` to  indicate
+ * that the global NVTX domain should be used.
+ */
 template <typename Domain = nvtx::global_domain_tag>
 class RegisteredMessage {
  public:
@@ -404,24 +417,65 @@ class RegisteredMessage {
   nvtxStringHandle_t value_{};
 };
 
+/**
+ * @brief Returns a global instance of a `RegisteredMessage` as a function local
+ * static.
+ *
+ * Upon first invocation, constructs a `RegisteredMessage` whose contents are
+ * specified by `Message::message` in the domain `Domain`.
+ *
+ * All future invocations will return a reference to the object constructed in
+ * the first invocation.
+ *
+ * This function is meant to provide a convenient way to register a message with
+ * NVTX without having to explicitly register the message.
+ *
+ * @tparam Message Type containing `message` member used as the message's
+ * contents.
+ * @tparam Domain Type containing `name` member used to identify the `Domain` to
+ * which the `RegisteredMessage` belongs. Else, `global_domain_tag` to  indicate
+ * that the global NVTX domain should be used.
+ */
 template <typename Message, typename Domain = nvtx::global_domain_tag>
 RegisteredMessage<Domain> const& get_registered_message() noexcept {
   static RegisteredMessage<Domain> const registered_message{Message::message};
   return registered_message;
 }
 
+/**
+ * @brief Allows associating a message string with an NVTX event.
+ *
+ */
 class Message {
  public:
+  /**
+   * @brief Construct a `Message` whose contents are specified by `msg`.
+   *
+   * @param msg The contents of the message
+   */
   NVTX_RELAXED_CONSTEXPR Message(char const* msg) noexcept
       : type_{NVTX_MESSAGE_TYPE_ASCII} {
     value_.ascii = msg;
   }
 
+  /**
+   * @brief Construct a `Message` whose contents are specified by `msg`.
+   *
+   * @param msg The contents of the message
+   */
   NVTX_RELAXED_CONSTEXPR Message(wchar_t const* msg) noexcept
       : type_{NVTX_MESSAGE_TYPE_UNICODE} {
     value_.unicode = msg;
   }
 
+  /**
+   * @brief Construct a `Message` from a `RegisteredMessage`.
+   *
+   * @tparam Domain Type containing `name` member used to identify the `Domain`
+   * to which the `RegisteredMessage` belongs. Else, `global_domain_tag` to
+   * indicate that the global NVTX domain should be used.
+   * @param msg The message that has already been registered with NVTX.
+   */
   template <typename Domain>
   NVTX_RELAXED_CONSTEXPR Message(RegisteredMessage<Domain> msg) noexcept
       : type_{NVTX_MESSAGE_TYPE_REGISTERED} {
@@ -429,10 +483,15 @@ class Message {
   }
 
  private:
-  nvtxMessageType_t type_{};
-  nvtxMessageValue_t value_{};
+  nvtxMessageType_t type_{};    ///< Message type
+  nvtxMessageValue_t value_{};  ///< Message contents
 };
 
+/**
+ * @brief A user-defined numerical value that can be associated with an NVTX
+ * event.
+ *
+ */
 class Payload {
  public:
   NVTX_RELAXED_CONSTEXPR explicit Payload(int64_t value) noexcept
@@ -461,8 +520,9 @@ class Payload {
   }
 
  private:
-  nvtxPayloadType_t type_;
-  nvtxEventAttributes_v2::payload_t value_;
+  nvtxPayloadType_t type_;  ///< Type of the payload value
+  nvtxEventAttributes_v2::payload_t
+      value_;  ///< Union holding the payload value
 };
 
 /**---------------------------------------------------------------------------*
