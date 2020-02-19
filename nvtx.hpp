@@ -50,9 +50,9 @@ struct RGB {
                 component_type blue_) noexcept
       : red{red_}, green{green_}, blue{blue_} {}
 
-  component_type red{};    ///< Red channel value
-  component_type green{};  ///< Green channel value
-  component_type blue{};   ///< Blue channel value
+  component_type const red{};    ///< Red channel value
+  component_type const green{};  ///< Green channel value
+  component_type const blue{};   ///< Blue channel value
 };
 
 /**
@@ -74,7 +74,7 @@ struct ARGB : RGB {
                  component_type green_, component_type blue_) noexcept
       : RGB{red_, green_, blue_}, alpha{alpha_} {}
 
-  component_type alpha{};  ///< Alpha channel value
+  component_type const alpha{};  ///< Alpha channel value
 };
 
 /**
