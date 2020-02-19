@@ -462,6 +462,8 @@ RegisteredMessage<Domain> const& get_registered_message() noexcept {
  */
 class Message {
  public:
+  using value_type = nvtxMessageValue_t;
+
   /**
    * @brief Construct a `Message` whose contents are specified by `msg`.
    *
@@ -496,9 +498,21 @@ class Message {
     value_.registered = msg.get_handle();
   }
 
+  /**
+   * @brief Return the union holding the value of the message.
+   *
+   */
+  constexpr value_type get_value() const noexcept { return value_; }
+
+  /**
+   * @brief Return the type information about the value the union holds.
+   *
+   */
+  constexpr nvtxMessageType_t get_type() const noexcept { return type_; }
+
  private:
-  nvtxMessageType_t type_{};    ///< Message type
-  nvtxMessageValue_t value_{};  ///< Message contents
+  nvtxMessageType_t const type_{};  ///< Message type
+  nvtxMessageValue_t value_{};      ///< Message contents
 };
 
 /**
