@@ -682,9 +682,13 @@ class EventAttributes {
  * my_thread_range r3{"range 3"}; // Alias for range in custom domain
  * ```
  */
+
 template <class D = nvtx::global_domain_tag>
 class domain_thread_range {
  public:
+  domain_thread_range(EventAttributes const& attr) noexcept {
+    nvtxDomainRangePushEx(get_domain<D>(), attr.get());
+  }
 
   template <typename... Args>
   domain_thread_range(Args&&... args) noexcept {
@@ -711,3 +715,11 @@ class domain_thread_range {
 using thread_range = domain_thread_range<>;
 
 }  // namespace nvtx
+
+#define NVTX_TRACE_FUNCTION()                                            \
+  static nvtx::RegisteredMessage<> const nvtx_function_name__{__func__}; \
+  nvtx::thread_range const r__{nvtx_function_name__};
+
+#define NVTX_TRACE_FUNCTION_D(Domain)                                          \
+  static nvtx::RegisteredMessage<Domain> const nvtx_function_name__{__func__}; \
+  nvtx::thread_range const r__{nvtx_function_name__};
