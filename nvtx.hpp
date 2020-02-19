@@ -356,6 +356,13 @@ class Category {
   constexpr Category(category_id id, const wchar_t* name) noexcept : id_{id} {
     nvtxDomainNameCategoryW(get_domain<Domain>(), id_.get_value(), name);
   };
+
+  /**
+   * @brief Returns the id of the Category.
+   *
+   */
+  constexpr category_id get_id() const noexcept { return id_; }
+
   Category() = delete;
   ~Category() = default;
   Category(Category const&) = delete;
