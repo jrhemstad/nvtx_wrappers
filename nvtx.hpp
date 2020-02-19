@@ -220,7 +220,7 @@ class Domain {
   operator nvtxDomainHandle_t() const noexcept { return _domain; }
 
  private:
-  nvtxDomainHandle_t _domain{};
+  nvtxDomainHandle_t const _domain{};
 };
 
 /**
