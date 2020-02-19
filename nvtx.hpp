@@ -428,7 +428,7 @@ class RegisteredMessage {
   constexpr nvtxStringHandle_t get_handle() const noexcept { return value_; }
 
  private:
-  nvtxStringHandle_t value_{};
+  nvtxStringHandle_t const value_{};
 };
 
 /**
