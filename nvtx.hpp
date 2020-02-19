@@ -685,17 +685,11 @@ class EventAttributes {
 template <class D = nvtx::global_domain_tag>
 class domain_thread_range {
  public:
-  /**---------------------------------------------------------------------------*
-   * @brief Construct a domain_thread_range, beginning an NVTX range event with
-   * a custom color and optional category.
-   *
-   * @param message Message associated with the range.
-   * @param color Color used to visualize the range.
-   * @param category Optional, Category to group the range into.
-   *---------------------------------------------------------------------------**/
-  domain_thread_range(std::string const& message, Color color) noexcept {
-    // nvtxDomainRangePushEx(detail::get_domain<D>(),
-    //                       EventAttributes{message, color, category});
+
+  template <typename... Args>
+  domain_thread_range(Args&&... args) noexcept {
+    EventAttributes const attr{std::forward<Args>(args)...};
+    nvtxDomainRangePushEx(get_domain<D>(), attr.get());
   }
 
   domain_thread_range() = delete;
