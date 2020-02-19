@@ -620,7 +620,6 @@ class EventAttributes {
     _attributes.messageType = m.get_type();
   }
 
-  EventAttributes() = delete;
   ~EventAttributes() = default;
   EventAttributes(EventAttributes const&) = default;
   EventAttributes& operator=(EventAttributes const&) = default;
