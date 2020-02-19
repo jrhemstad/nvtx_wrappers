@@ -572,6 +572,8 @@ class Payload {
  *---------------------------------------------------------------------------**/
 class EventAttributes {
  public:
+  using value_type = nvtxEventAttributes_t;
+
   /**---------------------------------------------------------------------------*
    * @brief Default constructor creates an `EventAttributes` with no category,
    * color, payload, nor message.
@@ -626,16 +628,14 @@ class EventAttributes {
   EventAttributes(EventAttributes&&) = default;
   EventAttributes& operator=(EventAttributes&&) = default;
 
-  /**---------------------------------------------------------------------------*
-   * @brief Conversion operator to `nvtxEventAttributes_t`.
+  /**
+   * @brief Get raw pointer to underlying NVTX attributes object.
    *
-   * Allows transparently passing an `EventAttributes` object into a function
-   * expecting a `nvtxEventAttributes_t` argument.
-   *---------------------------------------------------------------------------**/
-  operator nvtxEventAttributes_t() const noexcept { return _attributes; }
+   */
+  constexpr value_type const* get() const noexcept { return &_attributes; }
 
  private:
-  nvtxEventAttributes_t _attributes{};
+  value_type _attributes{};
 };
 
 /**
