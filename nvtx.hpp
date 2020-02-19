@@ -134,6 +134,12 @@ class Color {
    */
   constexpr value_type get_value() const noexcept { return _value; }
 
+  /**
+   * @brief Return the NVTX color type of the Color.
+   *
+   */
+  constexpr nvtxColorType_t get_type() const noexcept { return _type; }
+
  private:
   /**
    * @brief Constructs an unsigned, 4B integer from the component bytes in most
@@ -148,7 +154,8 @@ class Color {
            uint32_t{byte1} << 8 | uint32_t{byte0};
   }
 
-  value_type _value{};  ///< Color's ARGB color code
+  value_type const _value{};                     ///< Color's ARGB color code
+  nvtxColorType_t const _type{NVTX_COLOR_ARGB};  ///< NVTX color type code
 };
 
 /**---------------------------------------------------------------------------*
