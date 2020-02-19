@@ -573,25 +573,51 @@ class Payload {
 class EventAttributes {
  public:
   /**---------------------------------------------------------------------------*
-   * @brief Construct an EventAttributes to provide additional description of a
-   * NVTX event.
-   *
-   * @param message The message attached to the event.
-   * @param color The color used to visualize the event.
-   * @param category Optional, Category to group the event into.
+   * @brief Default constructor creates an `EventAttributes` with no category,
+   * color, payload, nor message.
    *---------------------------------------------------------------------------**/
+  constexpr EventAttributes() noexcept
+      : _attributes{
+            NVTX_VERSION,                   // version
+            sizeof(nvtxEventAttributes_t),  // size
+            0,                              // category
+            NVTX_COLOR_UNKNOWN,             // color type
+            0,                              // color value
+            NVTX_PAYLOAD_UNKNOWN,           // payload type
+            {},                             // payload value (union)
+            NVTX_MESSAGE_UNKNOWN,           // message type
+            {}                              // message value (union)
+        } {}
 
-  template <class D = nvtx::global_domain_tag>
-  EventAttributes(std::string const& message, Color color,
-                  Category<D> category = {}) noexcept
-      : _attributes{0} {
-    _attributes.version = NVTX_VERSION;
-    _attributes.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
-    _attributes.category = category.id();
-    _attributes.colorType = NVTX_COLOR_ARGB;
-    _attributes.color = color.get_value();
-    _attributes.messageType = NVTX_MESSAGE_TYPE_ASCII;
-    _attributes.message.ascii = message.c_str();
+  template <typename Domain, typename... Args>
+  NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Category<Domain> const& c,
+                                                  Args&&... args) noexcept
+      : EventAttributes(args...) {
+    _attributes.category = c.get_id().get_value();
+  }
+
+  template <typename... Args>
+  NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Color const& c,
+                                                  Args&&... args) noexcept
+      : EventAttributes(args...) {
+    _attributes.color = c.get_value();
+    _attributes.colorType = c.get_type();
+  }
+
+  template <typename... Args>
+  NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Payload const& p,
+                                                  Args&&... args) noexcept
+      : EventAttributes(args...) {
+    _attributes.payload = p.get_value();
+    _attributes.payloadType = p.get_type();
+  }
+
+  template <typename... Args>
+  NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Message const& m,
+                                                  Args&&... args) noexcept
+      : EventAttributes(args...) {
+    _attributes.message = m.get_value();
+    _attributes.messageType = m.get_type();
   }
 
   EventAttributes() = delete;
