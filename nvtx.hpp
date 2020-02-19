@@ -522,6 +522,8 @@ class Message {
  */
 class Payload {
  public:
+  using value_type = typename nvtxEventAttributes_v2::payload_t;
+
   NVTX_RELAXED_CONSTEXPR explicit Payload(int64_t value) noexcept
       : type_{NVTX_PAYLOAD_TYPE_INT64}, value_{} {
     value_.llValue = value;
@@ -547,10 +549,21 @@ class Payload {
     value_.dValue = value;
   }
 
+  /**
+   * @brief Return the union holding the value of the payload
+   *
+   */
+  constexpr value_type get_value() const noexcept { return value_; }
+
+  /**
+   * @brief Return the information about the type the union holds.
+   *
+   */
+  constexpr nvtxPayloadType_t get_type() const noexcept { return type_; }
+
  private:
-  nvtxPayloadType_t type_;  ///< Type of the payload value
-  nvtxEventAttributes_v2::payload_t
-      value_;  ///< Union holding the payload value
+  nvtxPayloadType_t const type_;  ///< Type of the payload value
+  value_type value_;              ///< Union holding the payload value
 };
 
 /**---------------------------------------------------------------------------*
