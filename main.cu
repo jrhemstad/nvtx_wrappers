@@ -14,6 +14,7 @@ struct my_message{
 using my_thread_range = nvtx::domain_thread_range<my_domain>;
 
 int main(void){
+    NVTX_FUNC_RANGE();
 
     /*
     nvtx::domain_thread_range<my_domain> r{"msg", nvtx::Color{nvtx::RGB{255,255,255}}};
@@ -30,8 +31,5 @@ int main(void){
     nvtx::domain_thread_range<my_domain> r2{attr};
 
     nvtx::domain_thread_range<my_domain>{"msg", nvtx::Color{0}};
-
-
-    NVTX_TRACE_FUNCTION();
 
 }

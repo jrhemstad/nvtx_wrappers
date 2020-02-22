@@ -372,12 +372,12 @@ class Category {
  * which the `Category` belongs. Else, `Domain::global` to  indicate that the
  * global NVTX domain should be used.
  */
-template <typename Name, uint32_t Id, typename Domain = nvtx::Domain::global>
-Category<Domain> const& get_category() noexcept {
+template <typename Name, uint32_t Id, typename D = nvtx::Domain::global>
+Category<D> const& get_category() noexcept {
   static_assert(detail::has_name_member<Name>(),
                 "Type used to name a Category must contain a name member of "
                 "type const char* or const wchar_t*");
-  static Category<Domain> const category{Id, Name::name};
+  static Category<D> const category{Id, Name::name};
   return category;
 }
 
@@ -810,9 +810,9 @@ using thread_range = domain_thread_range<>;
  * `Domain` to which the `RegisteredMessage` belongs. Else,
  * `Domain::global` to  indicate that the global NVTX domain should be used.
  */
-#define NVTX_FUNC_RANGE_IN(Domain)                                             \
-  static nvtx::RegisteredMessage<Domain> const nvtx_function_name__{__func__}; \
-  nvtx::domain_thread_range<Domain> const nvtx_range__{nvtx_function_name__};
+#define NVTX_FUNC_RANGE_IN(D)                                             \
+  static nvtx::RegisteredMessage<D> const nvtx_function_name__{__func__}; \
+  nvtx::domain_thread_range<D> const nvtx_range__{nvtx_function_name__};
 
 /**
  * @brief Convenience macro for generating a range in the global domain from the
