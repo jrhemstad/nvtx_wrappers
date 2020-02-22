@@ -809,7 +809,7 @@ using thread_range = domain_thread_range<>;
  * } // Range ends on return from foo()
  * ```
  *
- * @param[in] Domain  Type containing `name` member used to identify the
+ * @param[in] D Type containing `name` member used to identify the
  * `Domain` to which the `RegisteredMessage` belongs. Else,
  * `Domain::global` to  indicate that the global NVTX domain should be used.
  */
