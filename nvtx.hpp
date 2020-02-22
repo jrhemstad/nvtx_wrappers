@@ -406,7 +406,7 @@ Category<Domain> const& get_category() noexcept {
 }
 
 /**
- * @brief Represents a message registered with NVTX.
+ * @brief A message registered with NVTX.
  *
  * Message registration is an optimization to lower the overhead of associating
  * a message with an NVTX event by avoiding copying the contents of the message
