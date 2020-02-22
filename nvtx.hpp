@@ -51,14 +51,49 @@ constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
  * @brief `Domain`s allow for grouping NVTX events into a single scope to
  * differentiate them from events in other `Domain`s.
  *
- * It is typical for a library to have only a single long-lived `Domain` object
- * used in association with all of it's NVTX events in order to differentiate it
- * from other libraries and applications that use NVTX events.
+ * By default, all NVTX constructs are placed in the "global" NVTX domain.
  *
- * Because `Domain`s are expected to be long-lived and unique to a library, it
- * is assumed a Domain's name is known at compile time. Therefore, all NVTX
- * constructs that can be associated with a `Domain` require the `Domain` to be
- * specified via a type passed as an explicit template parameter.
+ * A custom `Domain` may be used in order to differentiate a library's or
+ * application's NVTX events from other events.
+ *
+ * `Domain`s are expected to be long-lived and unique to a library or
+ * application. As such, it is assumed a Domain's name is known at compile time.
+ * Therefore, all NVTX constructs that can be associated with a domain require
+ * the domain to be specified via a *type* `DomainName` passed as an explicit
+ * template parameter.
+ *
+ * The type `Domain::global` may be used to indicate that the global NVTX domain
+ * should be used.
+ *
+ * If a custom domain is desired, the user is expected to define a type
+ * `DomainName` that contains a member `DomainName::name` which resolves to
+ * either a `char const*` or `wchar_t const*`. The value of `DomainName::name`
+ * is used to name and uniquely identify the custom `Domain` object.
+ *
+ * Upon the first use of an NVTX construct associated with the type
+ * `DomainName`, the "construct on first use" pattern is used to construct a
+ * function local static `Domain` object. All future NVTX constructs associated
+ * with `DomainType` will use a reference to the previously constructed `Domain`
+ * object. See `Domain::get`.
+ *
+ * Example:
+ * ```c++
+ * // The type `my_domain` defines a `name` member used to name and identify the
+ * // `Domain` object identified by `my_domain`.
+ * struct my_domain{ static constexpr char const* name{"my_domain"}; };
+ *
+ * // The NVTX range `r` will be grouped with all other NVTX constructs
+ * // associated with  `my_domain`.
+ * nvtx::domain_thread_range<my_domain> r{};
+ *
+ *
+ * // `Domain::global` indicates that the global NVTX domain is used
+ * nvtx::domain_thread_range<Domain::global> r2{};
+ *
+ * // For convenience, `nvtx::thread_range` is an alias for a range in the
+ * // global domain 
+ * nvtx::thread_range r3{};
+ * ```
  *---------------------------------------------------------------------------**/
 class Domain {
  public:
@@ -71,16 +106,37 @@ class Domain {
    * @brief Returns reference to an instance of a `Domain` constructed using the
    * specified name created as a function local static.
    *
-   * Uses the "construct on first use" idiom to safely ensure the Domain object
-   * is initialized exactly once. See
+   * Uses the "construct on first use" idiom to safely ensure the `Domain`
+   * object is initialized exactly once upon first invocation of
+   * `Domain::get<DomainName>()`. All following invocations will return a
+   * reference to the previously constructed `Domain` object. See
    * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
    *
-   * The Domain's name is specified via template parameter `DomainName`.
-   * `DomainName` is required to be a type that contains a `const char*` or
-   * `const wchar_t*` member named `name`.
+   * This function is threadsafe as of C++11. If two or more threads call
+   * `Domain::get<DomainName>` concurrently, exactly one of them is guaranteed
+   * to construct the `Domain` object and the other(s) will receive a reference
+   * to the object after it is fully constructed.
    *
-   * @tparam DomainName Type that contains a `D::name` member of type `const
-   * char*` or `const whchar*`
+   * The Domain's name is specified via template parameter `DomainName`.
+   * The type `DomainName` is required to contain a member `DomainName::name`
+   * that resolves to either a `char const*` or `wchar_t const*`. The value of
+   * `DomainName::name` is used to name and uniquely identify the `Domain`.
+   *
+   * Example:
+   * ```c++
+   * // The type `my_domain` defines a `name` member used to name and identify
+   * // the `Domain` object identified by `my_domain`.
+   * struct my_domain{ static constexpr char const* name{"my domain"}; };
+   *
+   * auto D = Domain::get<my_domain>(); // First invocation constructs a
+   *                                    // `Domain` with the name "my domain"
+   *
+   * auto D1 = Domain::get<my_domain>(); // Simply returns reference to
+   *                                     // previously constructed `Domain`.
+   * ```
+   *
+   * @tparam DomainName Type that contains a `DomainName::name` member used to
+   * name the `Domain` object.
    * @return Reference to the `Domain` created with the specified name.
    */
   template <typename DomainName>
