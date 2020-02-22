@@ -519,8 +519,13 @@ class Message {
 
 /**
  * @brief A user-defined numerical value that can be associated with an NVTX
- * event.
+ * event via `EventAttributes`.
  *
+ * Example:
+ * ```c++
+ * nvtx:: EventAttributes attr{nvtx::Payload{42}}; // Constructs a Payload from
+ *                                                 // the `int32_t` value 42
+ * ```
  */
 class Payload {
  public:
