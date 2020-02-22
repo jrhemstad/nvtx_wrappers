@@ -109,11 +109,9 @@ class Color {
    * @brief Construct a `Color` using the alpha, red, green, blue components in
    * `argb`.
    *
-   * TODO: Make implicit?
-   *
    * @param argb The alpha, red, green, blue components of the desired `Color`
    */
-  constexpr explicit Color(ARGB argb) noexcept
+  constexpr Color(ARGB argb) noexcept
       : Color{from_bytes_msb_to_lsb(argb.alpha, argb.red, argb.green,
                                     argb.blue)} {}
 
@@ -123,11 +121,9 @@ class Color {
    *
    * Uses maximum value for the alpha channel (opacity) of the `Color`.
    *
-   * TODO: Make implicit?
-   *
    * @param rgb The red, green, blue components of the desired `Color`
    */
-  constexpr explicit Color(RGB rgb) noexcept
+  constexpr Color(RGB rgb) noexcept
       : Color{from_bytes_msb_to_lsb(0xFF, rgb.red, rgb.green, rgb.blue)} {}
 
   /**
