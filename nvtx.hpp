@@ -593,14 +593,14 @@ class EventAttributes {
 
   template <typename Domain, typename... Args>
   NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Category<Domain> const& c,
-                                                  Args&&... args) noexcept
+                                                  Args const&... args) noexcept
       : EventAttributes(args...) {
     _attributes.category = c.get_id().get_value();
   }
 
   template <typename... Args>
   NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Color const& c,
-                                                  Args&&... args) noexcept
+                                                  Args const&... args) noexcept
       : EventAttributes(args...) {
     _attributes.color = c.get_value();
     _attributes.colorType = c.get_type();
@@ -608,7 +608,7 @@ class EventAttributes {
 
   template <typename... Args>
   NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Payload const& p,
-                                                  Args&&... args) noexcept
+                                                  Args const&... args) noexcept
       : EventAttributes(args...) {
     _attributes.payload = p.get_value();
     _attributes.payloadType = p.get_type();
@@ -616,7 +616,7 @@ class EventAttributes {
 
   template <typename... Args>
   NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Message const& m,
-                                                  Args&&... args) noexcept
+                                                  Args const&... args) noexcept
       : EventAttributes(args...) {
     _attributes.message = m.get_value();
     _attributes.messageType = m.get_type();
@@ -690,9 +690,9 @@ class domain_thread_range {
     nvtxDomainRangePushEx(get_domain<D>(), attr.get());
   }
 
-  template <typename... Args>
-  domain_thread_range(Args&&... args) noexcept {
-    EventAttributes const attr{std::forward<Args>(args)...};
+  template <typename First, typename... Args>
+  domain_thread_range(First const& first, Args const&... args) noexcept {
+    EventAttributes const attr{args...};
     nvtxDomainRangePushEx(get_domain<D>(), attr.get());
   }
 
