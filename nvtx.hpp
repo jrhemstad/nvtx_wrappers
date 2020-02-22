@@ -57,7 +57,7 @@ constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
  * application's NVTX events from other events.
  *
  * `Domain`s are expected to be long-lived and unique to a library or
- * application. As such, it is assumed a Domain's name is known at compile time.
+ * application. As such, it is assumed a domain's name is known at compile time.
  * Therefore, all NVTX constructs that can be associated with a domain require
  * the domain to be specified via a *type* `DomainName` passed as an explicit
  * template parameter.
@@ -85,7 +85,10 @@ constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
  * // The NVTX range `r` will be grouped with all other NVTX constructs
  * // associated with  `my_domain`.
  * nvtx::domain_thread_range<my_domain> r{};
- *
+ * 
+ * // An alias can be created for a `domain_thread_range` in the custom domain
+ * using my_thread_range = nvtx::domain_thread_range<my_domain>;
+ * my_thread_range my_range{};
  *
  * // `Domain::global` indicates that the global NVTX domain is used
  * nvtx::domain_thread_range<Domain::global> r2{};
