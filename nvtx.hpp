@@ -459,8 +459,33 @@ RegisteredMessage<Domain> const& get_registered_message() noexcept {
 }
 
 /**
- * @brief Allows associating a message string with an NVTX event.
+ * @brief Allows associating a message string with an NVTX event via
+ * it's `EventAttribute`s.
  *
+ * Example:
+ * ```c++
+ * // Creates an `EventAttributes` with message "message 0"
+ * nvtx::EventAttributes attr0{nvtx::Message{"message 0"}};
+ *
+ * // `range0` contains message "message 0"
+ * nvtx::thread_range range0{attr0};
+ *
+ * // `std::string` and string literals are implicitly assumed to be
+ * // the contents of an `nvtx::Message`
+ * // Creates an `EventAttributes` with message "message 1"
+ * nvtx::EventAttributes attr1{"message 1"};
+ *
+ * // `range1` contains message "message 1"
+ * nvtx::thread_range range1{attr1};
+ *
+ * // `range2` contains message "message 2"
+ * nvtx::thread_range range2{nvtx::Mesage{"message 2"}};
+ *
+ * // `std::string` and string literals are implicitly assumed to be
+ * // the contents of an `nvtx::Message`
+ * // `range3` contains message "message 3"
+ * nvtx::thread_range range3{"message 3"};
+ * ```
  */
 class Message {
  public:
@@ -730,7 +755,6 @@ class EventAttributes {
  * my_thread_range r3{"range 3"}; // Alias for range in custom domain
  * ```
  */
-
 template <class D = nvtx::global_domain_tag>
 class domain_thread_range {
  public:
