@@ -29,6 +29,145 @@
 
 namespace nvtx {
 
+/**---------------------------------------------------------------------------*
+ * @brief `Domain`s allow for grouping NVTX events into a single scope to
+ * differentiate them from events in other `Domain`s.
+ *
+ * It is typical for a library to have only a single long-lived `Domain` object
+ * used in association with all of it's NVTX events in order to differentiate it
+ * from other libraries and applications that use NVTX events.
+ *
+ * Because `Domain`s are expected to be long-lived and unique to a library, all
+ * NVTX constructs that can be associated with a `Domain` 
+ *
+ *
+ *---------------------------------------------------------------------------**/
+class Domain {
+ public:
+  /**---------------------------------------------------------------------------*
+   * @brief Construct a new Domain with the specified `name`.
+   *
+   * @param name A unique name identifying the domain
+   *---------------------------------------------------------------------------**/
+  explicit Domain(const char* name) noexcept
+      : _domain{nvtxDomainCreateA(name)} {}
+
+  /**---------------------------------------------------------------------------*
+   * @brief Construct a new Domain with the specified `name`.
+   *
+   * @param name A unique name identifying the domain
+   *---------------------------------------------------------------------------**/
+  explicit Domain(const wchar_t* name) noexcept
+      : _domain{nvtxDomainCreateW(name)} {}
+
+  /**---------------------------------------------------------------------------*
+   * @brief Construct a new Domain with the specified `name`.
+   *
+   * @param name A unique name identifying the domain
+   *---------------------------------------------------------------------------**/
+  explicit Domain(std::string const& name) noexcept : Domain{name.c_str()} {}
+
+  /**
+   * @brief Default constructor creates a `Domain` representing the
+   * "global" NVTX domain.
+   *
+   * All events not associated with a custom `Domain` are grouped in the
+   * "global" NVTX domain.
+   *
+   */
+  Domain() = default;
+
+  Domain(Domain const&) = delete;
+  Domain& operator=(Domain const&) = delete;
+  Domain(Domain&&) = delete;
+  Domain& operator=(Domain&&) = delete;
+
+  /**---------------------------------------------------------------------------*
+   * @brief Destroy the Domain object, unregistering and freeing all domain
+   * specific resources.
+   *---------------------------------------------------------------------------**/
+  ~Domain() noexcept { nvtxDomainDestroy(_domain); }
+
+  /**---------------------------------------------------------------------------*
+   * @brief Conversion operator to `nvtxDomainHandle_t`.
+   *
+   * Allows transparently passing a Domain object into an API expecting a native
+   * `nvtxDomainHandle_t` object.
+   *---------------------------------------------------------------------------**/
+  operator nvtxDomainHandle_t() const noexcept { return _domain; }
+
+ private:
+  nvtxDomainHandle_t const _domain{};  ///< The `Domain`s NVTX handle
+};
+
+/**
+ * @brief Tag type for the "global" NVTX domain.
+ *
+ * This type may be passed as a template argument to any function expecting a
+ * `Domain` argument to indicate that the global domain should be used.
+ *
+ * The global NVTX domain is the same as using no domain at all.
+ *
+ */
+struct global_domain_tag {};
+
+namespace detail {
+/**
+ * @brief Verifies if a type `T` contains a member `T::name` of type `const
+ * char*` or `const wchar_t*`.
+ *
+ * @tparam T The type to verify
+ * @return True if `T` contains a member `T::name` of type `const char*` or
+ * `const wchar_t*`.
+ */
+template <typename T>
+constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
+  return (std::is_same<char const*,
+                       typename std::decay<decltype(T::name)>::type>::value or
+          std::is_same<wchar_t const*,
+                       typename std::decay<decltype(T::name)>::type>::value);
+}
+}  // namespace detail
+
+/**
+ * @brief Returns instance of a `Domain` constructed using the specified
+ * name created as a function local static.
+ *
+ * Uses the "construct on first use" idiom to safely ensure the Domain object
+ * is initialized exactly once. See
+ * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
+ *
+ * The Domain's name is specified via template parameter `D`. `D` is required
+ * to be a type that contains a `const char*` or `const wchar_t*` member named
+ * `name`.
+ *
+ * @tparam D Type that contains a `D::name` member of type `const char*` or
+ * `const whchar*`
+ * @return Reference to the `Domain` created with the specified name.
+ */
+template <class D>
+Domain const& get_domain() noexcept {
+  static_assert(detail::has_name_member<D>(),
+                "Type used to identify a Domain must contain a name member of"
+                "type const char* or const wchar_t*");
+  static Domain const d{D::name};
+  return d;
+}
+
+/**
+ * @brief Returns reference to the global `Domain`.
+ *
+ * This specialization for `global_domain_tag` returns a default constructed,
+ * null `Domain` object for use when the "global" (i.e., no domain) is desired.
+ *
+ * @return Reference to a default constructed, null `Domain` object.
+ */
+template <>
+Domain const& get_domain<global_domain_tag>() noexcept {
+  static Domain const d{};
+  return d;
+}
+
 /**
  * @brief Indicates the values of the red, green, blue color channels for
  * a RGB color code.
@@ -59,8 +198,6 @@ struct RGB {
  *
  */
 struct ARGB : RGB {
-  using component_type = typename RGB::component_type;
-
   /**
    * @brief Construct an ARGB with alpha, red, green, and blue channels
    * specified by `alpha_`, `red_`, `green_`, and `blue_`, respectively.
@@ -151,139 +288,6 @@ class Color {
   value_type const _value{};                     ///< Color's ARGB color code
   nvtxColorType_t const _type{NVTX_COLOR_ARGB};  ///< NVTX color type code
 };
-
-/**---------------------------------------------------------------------------*
- * @brief An object for grouping events into a global scope.
- *
- * Domains are used to group events to a developer defined scope. Middleware
- * vendors may also scope their own events to avoid collisions with the
- * the application developer's events, so that the application developer may
- * inspect both parts and easily differentiate or filter them.
- *
- * Domains are intended to be typically long lived objects with the intention
- * of logically separating events of large modules from each other such as
- * middleware libraries from each other and the main application.
- *
- * Domains are coarser-grained than `Category`s. It is typical for a library to
- * have only a single Domain, which may be further sub-divided into `Category`s.
- *
- *---------------------------------------------------------------------------**/
-class Domain {
- public:
-  /**---------------------------------------------------------------------------*
-   * @brief Construct a new Domain with the specified `name`.
-   *
-   * @param name A unique name identifying the domain
-   *---------------------------------------------------------------------------**/
-  explicit Domain(const char* name) noexcept
-      : _domain{nvtxDomainCreateA(name)} {}
-
-  /**---------------------------------------------------------------------------*
-   * @brief Construct a new Domain with the specified `name`.
-   *
-   * @param name A unique name identifying the domain
-   *---------------------------------------------------------------------------**/
-  explicit Domain(const wchar_t* name) noexcept
-      : _domain{nvtxDomainCreateW(name)} {}
-
-  /**---------------------------------------------------------------------------*
-   * @brief Construct a new Domain with the specified `name`.
-   *
-   * @param name A unique name identifying the domain
-   *---------------------------------------------------------------------------**/
-  explicit Domain(std::string const& name) noexcept : Domain{name.c_str()} {}
-
-  Domain() = default;
-  Domain(Domain const&) = delete;
-  Domain& operator=(Domain const&) = delete;
-  Domain(Domain&&) = delete;
-  Domain& operator=(Domain&&) = delete;
-
-  /**---------------------------------------------------------------------------*
-   * @brief Destroy the Domain object, unregistering and freeing all domain
-   * specific resources.
-   *---------------------------------------------------------------------------**/
-  ~Domain() { nvtxDomainDestroy(_domain); }
-
-  /**---------------------------------------------------------------------------*
-   * @brief Conversion operator to `nvtxDomainHandle_t`.
-   *
-   * Allows transparently passing a Domain object into an API expecting a native
-   * `nvtxDomainHandle_t` object.
-   *---------------------------------------------------------------------------**/
-  operator nvtxDomainHandle_t() const noexcept { return _domain; }
-
- private:
-  nvtxDomainHandle_t const _domain{};
-};
-
-/**
- * @brief Tag type for the "global" NVTX domain.
- *
- * This type may be passed as a template argument to any function expecting a
- * `Domain` argument to indicate that the global domain should be used.
- *
- * The global NVTX domain is the same as using no domain at all.
- *
- */
-struct global_domain_tag {};
-
-namespace detail {
-/**
- * @brief Verifies if a type `T` contains a member `T::name` of type `const
- * char*` or `const wchar_t*`.
- *
- * @tparam T The type to verify
- * @return True if `T` contains a member `T::name` of type `const char*` or
- * `const wchar_t*`.
- */
-template <typename T>
-constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
-  return (std::is_same<char const*,
-                       typename std::decay<decltype(T::name)>::type>::value or
-          std::is_same<wchar_t const*,
-                       typename std::decay<decltype(T::name)>::type>::value);
-}
-}  // namespace detail
-
-/**
- * @brief Returns instance of a `Domain` constructed using the specified
- * name created as a function local static.
- *
- * Uses the "construct on first use" idiom to safely ensure the Domain object
- * is initialized exactly once. See
- * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
- *
- * The Domain's name is specified via template parameter `D`. `D` is required
- * to be a type that contains a `const char*` or `const wchar_t*` member named
- * `name`.
- *
- * @tparam D Type that contains a `D::name` member of type `const char*` or
- * `const whchar*`
- * @return Reference to the `Domain` created with the specified name.
- */
-template <class D>
-Domain const& get_domain() noexcept {
-  static_assert(detail::has_name_member<D>(),
-                "Type used to identify a Domain must contain a name member of"
-                "type const char* or const wchar_t*");
-  static Domain const d{D::name};
-  return d;
-}
-
-/**
- * @brief Returns reference to the global `Domain`.
- *
- * This specialization for `global_domain_tag` returns a default constructed,
- * null `Domain` object for use when the "global" (i.e., no domain) is desired.
- *
- * @return Reference to a default constructed, null `Domain` object.
- */
-template <>
-Domain const& get_domain<global_domain_tag>() noexcept {
-  static Domain const d{};
-  return d;
-}
 
 /**---------------------------------------------------------------------------*
  * @brief Construct for intra-domain grouping of NVTX events.
