@@ -688,10 +688,28 @@ class EventAttributes {
 template <class D = nvtx::global_domain_tag>
 class domain_thread_range {
  public:
+  /**
+   * @brief Construct a `domain_thread_range` from the specified
+   * `EventAttributes`
+   *
+   * Exmaple:
+   * ```c++
+   * EventAttributes attr{"msg", nvtx::RGB{127,255,0}};
+   * domain_thread_range<> range{attr}; // Creates a range with message contents
+   *                                    // "msg" and green color
+   * ```
+   *
+   * @param attr `EventAttributes` that describes the desired attributes of the
+   * range.
+   */
   domain_thread_range(EventAttributes const& attr) noexcept {
     nvtxDomainRangePushEx(get_domain<D>(), attr.get());
   }
 
+  /**
+   * @brief Construct a `domain_thread_range`
+   *
+   */
   template <typename First, typename... Args,
             typename = typename std::enable_if<std::is_same<
                 EventAttributes, typename std::decay<First>>::value>>
