@@ -518,13 +518,19 @@ class Message {
 };
 
 /**
- * @brief A user-defined numerical value that can be associated with an NVTX
- * event via `EventAttributes`.
+ * @brief A numerical value that can be associated with an NVTX event via
+ * its `EventAttributes`.
  *
  * Example:
  * ```c++
  * nvtx:: EventAttributes attr{nvtx::Payload{42}}; // Constructs a Payload from
  *                                                 // the `int32_t` value 42
+ *
+ * // `range0` will have an int32_t payload of 42
+ * nvtx::thread_range range0{attr};
+ *
+ * // range1 has double payload of 3.14
+ * nvtx::thread_range range1{ nvtx::Payload{3.14} };
  * ```
  */
 class Payload {
