@@ -39,7 +39,7 @@ namespace detail {
  * `const wchar_t*`.
  */
 template <typename T>
-static constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
+constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
   return (std::is_same<char const*,
                        typename std::decay<decltype(T::name)>::type>::value or
           std::is_same<wchar_t const*,
