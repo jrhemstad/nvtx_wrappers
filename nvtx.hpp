@@ -306,7 +306,7 @@ class Color {
  * which the `Category` belongs. Else, `Domain::global` to  indicate that the
  * global NVTX domain should be used.
  *---------------------------------------------------------------------------**/
-template <typename D = nvtx::Domain::global>
+template <typename D = Domain::global>
 class Category {
  public:
   using id_type = uint32_t;
@@ -375,7 +375,7 @@ class Category {
  * which the `Category` belongs. Else, `Domain::global` to  indicate that the
  * global NVTX domain should be used.
  */
-template <typename Name, uint32_t Id, typename D = nvtx::Domain::global>
+template <typename Name, uint32_t Id, typename D = Domain::global>
 Category<D> const& get_category() noexcept {
   static_assert(detail::has_name_member<Name>(),
                 "Type used to name a Category must contain a name member of "
@@ -397,7 +397,7 @@ Category<D> const& get_category() noexcept {
  * which the `RegisteredMessage` belongs. Else, `Domain::global` to  indicate
  * that the global NVTX domain should be used.
  */
-template <typename D = nvtx::Domain::global>
+template <typename D = Domain::global>
 class RegisteredMessage {
  public:
   constexpr explicit RegisteredMessage(char const* msg) noexcept
@@ -431,7 +431,7 @@ class RegisteredMessage {
  * which the `RegisteredMessage` belongs. Else, `Domain::global` to  indicate
  * that the global NVTX domain should be used.
  */
-template <typename Message, typename D = nvtx::Domain::global>
+template <typename Message, typename D = Domain::global>
 RegisteredMessage<D> const& get_registered_message() noexcept {
   static RegisteredMessage<D> const registered_message{Message::message};
   return registered_message;
@@ -734,7 +734,7 @@ class EventAttributes {
  * my_thread_range r3{"range 3"}; // Alias for range in custom domain
  * ```
  */
-template <class D = nvtx::Domain::global>
+template <class D = Domain::global>
 class domain_thread_range {
  public:
   /**
@@ -814,8 +814,8 @@ using thread_range = domain_thread_range<>;
  * `Domain::global` to  indicate that the global NVTX domain should be used.
  */
 #define NVTX_FUNC_RANGE_IN(D)                                             \
-  static nvtx::RegisteredMessage<D> const nvtx_function_name__{__func__}; \
-  nvtx::domain_thread_range<D> const nvtx_range__{nvtx_function_name__};
+  static ::nvtx::RegisteredMessage<D> const nvtx_function_name__{__func__}; \
+  ::nvtx::domain_thread_range<D> const nvtx_range__{nvtx_function_name__};
 
 /**
  * @brief Convenience macro for generating a range in the global domain from the
@@ -839,4 +839,4 @@ using thread_range = domain_thread_range<>;
  * } // Range ends on return from foo()
  * ```
  */
-#define NVTX_FUNC_RANGE() NVTX_FUNC_RANGE_IN(nvtx::Domain::global)
+#define NVTX_FUNC_RANGE() NVTX_FUNC_RANGE_IN(::nvtx::Domain::global)
