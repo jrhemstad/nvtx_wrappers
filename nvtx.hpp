@@ -66,6 +66,22 @@ class Domain {
   Domain(Domain&&) = delete;
   Domain& operator=(Domain&&) = delete;
 
+  /**
+   * @brief Returns instance of a `Domain` constructed using the specified
+   * name created as a function local static.
+   *
+   * Uses the "construct on first use" idiom to safely ensure the Domain object
+   * is initialized exactly once. See
+   * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
+   *
+   * The Domain's name is specified via template parameter `D`. `D` is required
+   * to be a type that contains a `const char*` or `const wchar_t*` member named
+   * `name`.
+   *
+   * @tparam D Type that contains a `D::name` member of type `const char*` or
+   * `const whchar*`
+   * @return Reference to the `Domain` created with the specified name.
+   */
   template <typename DomainName>
   static Domain const& get() {
     static_assert(detail::has_name_member<DomainName>(),
@@ -82,6 +98,19 @@ class Domain {
    * `nvtxDomainHandle_t` object.
    *---------------------------------------------------------------------------**/
   operator nvtxDomainHandle_t() const noexcept { return _domain; }
+
+  /**
+   * @brief Tag type for the "global" NVTX domain.
+   *
+   * This type may be passed as a template argument to any function/class
+   * expecting a `Domain` argument to indicate that the global domain should be
+   * used.
+   *
+   * All NVTX events in the global domain across all libraries and applications
+   * will be grouped together.
+   *
+   */
+  struct global {};
 
  private:
   /**---------------------------------------------------------------------------*
@@ -128,66 +157,18 @@ class Domain {
 };
 
 /**
- * @brief Tag type for the "global" NVTX domain.
+ * @brief Returns reference to the `Domain` object that represents the global
+ * NVTX domain.
  *
- * This type may be passed as a template argument to any function expecting a
- * `Domain` argument to indicate that the global domain should be used.
- *
- * The global NVTX domain is the same as using no domain at all.
+ * This specialization for `Domain::global` returns a default constructed,
+ * `Domain` object for use when the "global" is desired.
  *
  */
-struct global_domain_tag {};
-
 template <>
-Domain const& Domain::get<global_domain_tag>() {
+Domain const& Domain::get<Domain::global>() {
   static Domain const d{};
   return d;
 }
-
-namespace detail {}  // namespace detail
-
-/**
- * @brief Returns instance of a `Domain` constructed using the specified
- * name created as a function local static.
- *
- * Uses the "construct on first use" idiom to safely ensure the Domain object
- * is initialized exactly once. See
- * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
- *
- * The Domain's name is specified via template parameter `D`. `D` is required
- * to be a type that contains a `const char*` or `const wchar_t*` member named
- * `name`.
- *
- * @tparam D Type that contains a `D::name` member of type `const char*` or
- * `const whchar*`
- * @return Reference to the `Domain` created with the specified name.
- */
-
-/*
-template <class D>
-Domain const& Domain::get() noexcept {
-  static_assert(detail::has_name_member<D>(),
-                "Type used to identify a Domain must contain a name member of"
-                "type const char* or const wchar_t*");
-  return Domain::get<D>();
-}
-*/
-
-/**
- * @brief Returns reference to the global `Domain`.
- *
- * This specialization for `global_domain_tag` returns a default constructed,
- * null `Domain` object for use when the "global" (i.e., no domain) is desired.
- *
- * @return Reference to a default constructed, null `Domain` object.
- */
-/*
-template <>
-Domain const& Domain::get<global_domain_tag>() noexcept {
-  static Domain const d{};
-  return d;
-}
-/*
 
 /**
  * @brief Indicates the values of the red, green, blue color channels for
@@ -319,10 +300,10 @@ class Color {
  * categories for IO, memory allocation, compute, etc.
  *
  * @tparam Domain Type containing `name` member used to identify the `Domain` to
- * which the `Category` belongs. Else, `global_domain_tag` to  indicate that the
+ * which the `Category` belongs. Else, `Domain::global` to  indicate that the
  * global NVTX domain should be used.
  *---------------------------------------------------------------------------**/
-template <typename D = nvtx::global_domain_tag>
+template <typename D = nvtx::Domain::global>
 class Category {
  public:
   using id_type = uint32_t;
@@ -388,10 +369,10 @@ class Category {
  * @tparam Id Used to uniquely identify the `Category` and differentiate it from
  * other `Category` objects.
  * @tparam Domain Type containing `name` member used to identify the `Domain` to
- * which the `Category` belongs. Else, `global_domain_tag` to  indicate that the
+ * which the `Category` belongs. Else, `Domain::global` to  indicate that the
  * global NVTX domain should be used.
  */
-template <typename Name, uint32_t Id, typename Domain = nvtx::global_domain_tag>
+template <typename Name, uint32_t Id, typename Domain = nvtx::Domain::global>
 Category<Domain> const& get_category() noexcept {
   static_assert(detail::has_name_member<Name>(),
                 "Type used to name a Category must contain a name member of "
@@ -410,10 +391,10 @@ Category<Domain> const& get_category() noexcept {
  * Registering a message yields a handle that may be used with any NVTX event.
  *
  * @tparam Domain Type containing `name` member used to identify the `Domain` to
- * which the `RegisteredMessage` belongs. Else, `global_domain_tag` to  indicate
+ * which the `RegisteredMessage` belongs. Else, `Domain::global` to  indicate
  * that the global NVTX domain should be used.
  */
-template <typename D = nvtx::global_domain_tag>
+template <typename D = nvtx::Domain::global>
 class RegisteredMessage {
  public:
   constexpr explicit RegisteredMessage(char const* msg) noexcept
@@ -444,10 +425,10 @@ class RegisteredMessage {
  * @tparam Message Type containing `message` member used as the message's
  * contents.
  * @tparam Domain Type containing `name` member used to identify the `Domain` to
- * which the `RegisteredMessage` belongs. Else, `global_domain_tag` to  indicate
+ * which the `RegisteredMessage` belongs. Else, `Domain::global` to  indicate
  * that the global NVTX domain should be used.
  */
-template <typename Message, typename D = nvtx::global_domain_tag>
+template <typename Message, typename D = nvtx::Domain::global>
 RegisteredMessage<D> const& get_registered_message() noexcept {
   static RegisteredMessage<D> const registered_message{Message::message};
   return registered_message;
@@ -510,7 +491,7 @@ class Message {
    * @brief Construct a `Message` from a `RegisteredMessage`.
    *
    * @tparam Domain Type containing `name` member used to identify the `Domain`
-   * to which the `RegisteredMessage` belongs. Else, `global_domain_tag` to
+   * to which the `RegisteredMessage` belongs. Else, `Domain::global` to
    * indicate that the global NVTX domain should be used.
    * @param msg The message that has already been registered with NVTX.
    */
@@ -723,7 +704,7 @@ class EventAttributes {
  * `domain_thread_range`s may be nested within other ranges.
  *
  * The domain of the range is specified by the template type parameter `D`.
- * By default, the `global_domain_tag` is used, which scopes the range to the
+ * By default, the `Domain::global` is used, which scopes the range to the
  * global NVTX domain. The convenience alias `thread_range` is provided for
  * ranges scoped to the global domain.
  *
@@ -750,7 +731,7 @@ class EventAttributes {
  * my_thread_range r3{"range 3"}; // Alias for range in custom domain
  * ```
  */
-template <class D = nvtx::global_domain_tag>
+template <class D = nvtx::Domain::global>
 class domain_thread_range {
  public:
   /**
@@ -827,7 +808,7 @@ using thread_range = domain_thread_range<>;
  *
  * @param[in] Domain  Type containing `name` member used to identify the
  * `Domain` to which the `RegisteredMessage` belongs. Else,
- * `global_domain_tag` to  indicate that the global NVTX domain should be used.
+ * `Domain::global` to  indicate that the global NVTX domain should be used.
  */
 #define NVTX_FUNC_RANGE_IN(Domain)                                             \
   static nvtx::RegisteredMessage<Domain> const nvtx_function_name__{__func__}; \
@@ -855,4 +836,4 @@ using thread_range = domain_thread_range<>;
  * } // Range ends on return from foo()
  * ```
  */
-#define NVTX_FUNC_RANGE() NVTX_FUNC_RANGE_IN(nvtx::global_domain_tag)
+#define NVTX_FUNC_RANGE() NVTX_FUNC_RANGE_IN(nvtx::Domain::global)
