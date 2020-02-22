@@ -293,31 +293,8 @@ Domain const& get_domain<global_domain_tag>() noexcept {
   return d;
 }
 
-/**
- * @brief Uniquely identifies a `Category` object.
- *
- */
-struct category_id {
-  using value_type = uint32_t;
-
-  /**
-   * @brief Construct a `category_id` with the specified `value`.
-   *
-   */
-  constexpr explicit category_id(value_type value) noexcept : value_{value} {}
-
-  /**
-   * @brief Returns the `category_id`'s value
-   */
-  constexpr value_type get_value() const noexcept { return value_; }
-
- private:
-  value_type const value_{};
-};
-
 /**---------------------------------------------------------------------------*
- * @brief Used for grouping NVTX events such as a `Mark` or
- * `domain_thread_range`.
+ * @brief Construct for intra-domain grouping of NVTX events.
  *
  * A `Category` allows for more fine-grain grouping of NVTX events than a
  * `Domain`. While it is typical for a library to only have a single `Domain`,
@@ -331,13 +308,14 @@ struct category_id {
 template <typename Domain = nvtx::global_domain_tag>
 class Category {
  public:
+  using id_type = uint32_t;
   /**
    * @brief Construct a `Category` with the specified `id`.
    *
    * The `Category` will be unnamed and identified only by it's `id` value.
    *
    */
-  constexpr explicit Category(category_id id) noexcept : id_{id} {}
+  constexpr explicit Category(id_type id) noexcept : id_{id} {}
 
   /**
    * @brief Construct a `Category` with the specified `id` and `name`.
@@ -345,8 +323,8 @@ class Category {
    * The name `name` will be registered with `id`.
    *
    */
-  constexpr Category(category_id id, const char* name) noexcept : id_{id} {
-    nvtxDomainNameCategoryA(get_domain<Domain>(), id_.get_value(), name);
+  constexpr Category(id_type id, const char* name) noexcept : id_{id} {
+    nvtxDomainNameCategoryA(get_domain<Domain>(), get_id(), name);
   };
 
   /**
@@ -355,15 +333,15 @@ class Category {
    * The name `name` will be registered with `id`.
    *
    */
-  constexpr Category(category_id id, const wchar_t* name) noexcept : id_{id} {
-    nvtxDomainNameCategoryW(get_domain<Domain>(), id_.get_value(), name);
+  constexpr Category(id_type id, const wchar_t* name) noexcept : id_{id} {
+    nvtxDomainNameCategoryW(get_domain<Domain>(), get_id(), name);
   };
 
   /**
    * @brief Returns the id of the Category.
    *
    */
-  constexpr category_id get_id() const noexcept { return id_; }
+  constexpr id_type get_id() const noexcept { return id_; }
 
   Category() = delete;
   ~Category() = default;
@@ -373,7 +351,7 @@ class Category {
   Category& operator=(Category&&) = delete;
 
  private:
-  category_id const id_{};  ///< Category's unique identifier
+  id_type const id_{};  ///< Category's unique identifier
 };
 
 /**
@@ -401,7 +379,7 @@ Category<Domain> const& get_category() noexcept {
   static_assert(detail::has_name_member<Name>(),
                 "Type used to name a Category must contain a name member of "
                 "type const char* or const wchar_t*");
-  static Category<Domain> const category{Name::name, category_id{Id}};
+  static Category<Domain> const category{Id, Name::name};
   return category;
 }
 
