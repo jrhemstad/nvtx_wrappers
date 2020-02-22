@@ -67,19 +67,19 @@ class Domain {
   Domain& operator=(Domain&&) = delete;
 
   /**
-   * @brief Returns instance of a `Domain` constructed using the specified
-   * name created as a function local static.
+   * @brief Returns reference to an instance of a `Domain` constructed using the
+   * specified name created as a function local static.
    *
    * Uses the "construct on first use" idiom to safely ensure the Domain object
    * is initialized exactly once. See
    * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
    *
-   * The Domain's name is specified via template parameter `D`. `D` is required
-   * to be a type that contains a `const char*` or `const wchar_t*` member named
-   * `name`.
+   * The Domain's name is specified via template parameter `DomainName`.
+   * `DomainName` is required to be a type that contains a `const char*` or
+   * `const wchar_t*` member named `name`.
    *
-   * @tparam D Type that contains a `D::name` member of type `const char*` or
-   * `const whchar*`
+   * @tparam DomainName Type that contains a `D::name` member of type `const
+   * char*` or `const whchar*`
    * @return Reference to the `Domain` created with the specified name.
    */
   template <typename DomainName>
@@ -161,7 +161,10 @@ class Domain {
  * NVTX domain.
  *
  * This specialization for `Domain::global` returns a default constructed,
- * `Domain` object for use when the "global" is desired.
+ * `Domain` object for use when the "global" domain is desired.
+ *
+ * All NVTX events in the global domain across all libraries and applications
+ * will be grouped together.
  *
  */
 template <>
