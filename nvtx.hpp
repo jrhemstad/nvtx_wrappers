@@ -55,9 +55,10 @@ constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
  * used in association with all of it's NVTX events in order to differentiate it
  * from other libraries and applications that use NVTX events.
  *
- * Because `Domain`s are expected to be long-lived and unique to a library, all
- * NVTX constructs that can be associated with a `Domain` require the `Domain`
- * to be specified via a non-type template parameter.
+ * Because `Domain`s are expected to be long-lived and unique to a library, it
+ * is assumed a Domain's name is known at compile time. Therefore, all NVTX
+ * constructs that can be associated with a `Domain` require the `Domain` to be
+ * specified via a type passed as an explicit template parameter.
  *---------------------------------------------------------------------------**/
 class Domain {
  public:
@@ -813,7 +814,7 @@ using thread_range = domain_thread_range<>;
  * `Domain` to which the `RegisteredMessage` belongs. Else,
  * `Domain::global` to  indicate that the global NVTX domain should be used.
  */
-#define NVTX_FUNC_RANGE_IN(D)                                             \
+#define NVTX_FUNC_RANGE_IN(D)                                               \
   static ::nvtx::RegisteredMessage<D> const nvtx_function_name__{__func__}; \
   ::nvtx::domain_thread_range<D> const nvtx_range__{nvtx_function_name__};
 
