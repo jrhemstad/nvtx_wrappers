@@ -692,7 +692,7 @@ class domain_thread_range {
    * @brief Construct a `domain_thread_range` from the specified
    * `EventAttributes`
    *
-   * Exmaple:
+   * Example:
    * ```c++
    * EventAttributes attr{"msg", nvtx::RGB{127,255,0}};
    * domain_thread_range<> range{attr}; // Creates a range with message contents
