@@ -716,10 +716,58 @@ using thread_range = domain_thread_range<>;
 
 }  // namespace nvtx
 
-#define NVTX_TRACE_FUNCTION()                                            \
-  static nvtx::RegisteredMessage<> const nvtx_function_name__{__func__}; \
-  nvtx::thread_range const r__{nvtx_function_name__};
-
-#define NVTX_TRACE_FUNCTION_D(Domain)                                          \
+/**
+ * @brief Convenience macro for generating a range in the specified `Domain`
+ * from the lifetime of a function
+ *
+ * This macro is useful for generating an NVTX range in `Domain` from
+ * the entry point of a function to its exit. It is intended to be the first
+ * line of the function.
+ *
+ * Constructs a static `RegisteredMessage` using the name of the immediately
+ * enclosing function returned by `__func__` and constructs a
+ * `nvtx::thread_range` using the registered function name as the range's
+ * message.
+ *
+ * Example:
+ * ```c++
+ * struct my_domain{static constexpr char const* name{"my_domain"};};
+ *
+ * void foo(...){
+ *    NVTX_FUNC_RANGE_IN(my_domain); // Range begins on entry to foo()
+ *    // do stuff
+ *    ...
+ * } // Range ends on return from foo()
+ * ```
+ *
+ * @param[in] Domain  Type containing `name` member used to identify the
+ * `Domain` to which the `RegisteredMessage` belongs. Else,
+ * `global_domain_tag` to  indicate that the global NVTX domain should be used.
+ */
+#define NVTX_FUNC_RANGE_IN(Domain)                                             \
   static nvtx::RegisteredMessage<Domain> const nvtx_function_name__{__func__}; \
-  nvtx::thread_range const r__{nvtx_function_name__};
+  nvtx::domain_thread_range<Domain> const nvtx_range__{nvtx_function_name__};
+
+/**
+ * @brief Convenience macro for generating a range in the global domain from the
+ * lifetime of a function.
+ *
+ * This macro is useful for generating an NVTX range in the global domain from
+ * the entry point of a function to its exit. It is intended to be the first
+ * line of the function.
+ *
+ * Constructs a static `RegisteredMessage` using the name of the immediately
+ * enclosing function returned by `__func__` and constructs a
+ * `nvtx::thread_range` using the registered function name as the range's
+ * message.
+ *
+ * Example:
+ * ```c++
+ * void foo(...){
+ *    NVTX_FUNC_RANGE(); // Range begins on entry to foo()
+ *    // do stuff
+ *    ...
+ * } // Range ends on return from foo()
+ * ```
+ */
+#define NVTX_FUNC_RANGE() NVTX_FUNC_RANGE_IN(nvtx::global_domain_tag)
