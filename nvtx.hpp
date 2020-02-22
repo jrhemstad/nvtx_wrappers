@@ -28,6 +28,24 @@
 #endif
 
 namespace nvtx {
+namespace detail {
+
+/**
+ * @brief Verifies if a type `T` contains a member `T::name` of type `const
+ * char*` or `const wchar_t*`.
+ *
+ * @tparam T The type to verify
+ * @return True if `T` contains a member `T::name` of type `const char*` or
+ * `const wchar_t*`.
+ */
+template <typename T>
+static constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
+  return (std::is_same<char const*,
+                       typename std::decay<decltype(T::name)>::type>::value or
+          std::is_same<wchar_t const*,
+                       typename std::decay<decltype(T::name)>::type>::value);
+}
+}  // namespace detail
 
 /**---------------------------------------------------------------------------*
  * @brief `Domain`s allow for grouping NVTX events into a single scope to
@@ -38,12 +56,34 @@ namespace nvtx {
  * from other libraries and applications that use NVTX events.
  *
  * Because `Domain`s are expected to be long-lived and unique to a library, all
- * NVTX constructs that can be associated with a `Domain` 
- *
- *
+ * NVTX constructs that can be associated with a `Domain` require the `Domain`
+ * to be specified via a non-type template parameter.
  *---------------------------------------------------------------------------**/
 class Domain {
  public:
+  Domain(Domain const&) = delete;
+  Domain& operator=(Domain const&) = delete;
+  Domain(Domain&&) = delete;
+  Domain& operator=(Domain&&) = delete;
+
+  template <typename DomainName>
+  static Domain const& get() {
+    static_assert(detail::has_name_member<DomainName>(),
+                  "Type used to identify a Domain must contain a name member of"
+                  "type const char* or const wchar_t*");
+    static Domain const d{DomainName::name};
+    return d;
+  }
+
+  /**---------------------------------------------------------------------------*
+   * @brief Conversion operator to `nvtxDomainHandle_t`.
+   *
+   * Allows transparently passing a Domain object into an API expecting a native
+   * `nvtxDomainHandle_t` object.
+   *---------------------------------------------------------------------------**/
+  operator nvtxDomainHandle_t() const noexcept { return _domain; }
+
+ private:
   /**---------------------------------------------------------------------------*
    * @brief Construct a new Domain with the specified `name`.
    *
@@ -77,24 +117,11 @@ class Domain {
    */
   Domain() = default;
 
-  Domain(Domain const&) = delete;
-  Domain& operator=(Domain const&) = delete;
-  Domain(Domain&&) = delete;
-  Domain& operator=(Domain&&) = delete;
-
   /**---------------------------------------------------------------------------*
    * @brief Destroy the Domain object, unregistering and freeing all domain
    * specific resources.
    *---------------------------------------------------------------------------**/
   ~Domain() noexcept { nvtxDomainDestroy(_domain); }
-
-  /**---------------------------------------------------------------------------*
-   * @brief Conversion operator to `nvtxDomainHandle_t`.
-   *
-   * Allows transparently passing a Domain object into an API expecting a native
-   * `nvtxDomainHandle_t` object.
-   *---------------------------------------------------------------------------**/
-  operator nvtxDomainHandle_t() const noexcept { return _domain; }
 
  private:
   nvtxDomainHandle_t const _domain{};  ///< The `Domain`s NVTX handle
@@ -111,23 +138,13 @@ class Domain {
  */
 struct global_domain_tag {};
 
-namespace detail {
-/**
- * @brief Verifies if a type `T` contains a member `T::name` of type `const
- * char*` or `const wchar_t*`.
- *
- * @tparam T The type to verify
- * @return True if `T` contains a member `T::name` of type `const char*` or
- * `const wchar_t*`.
- */
-template <typename T>
-constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
-  return (std::is_same<char const*,
-                       typename std::decay<decltype(T::name)>::type>::value or
-          std::is_same<wchar_t const*,
-                       typename std::decay<decltype(T::name)>::type>::value);
+template <>
+Domain const& Domain::get<global_domain_tag>() {
+  static Domain const d{};
+  return d;
 }
-}  // namespace detail
+
+namespace detail {}  // namespace detail
 
 /**
  * @brief Returns instance of a `Domain` constructed using the specified
@@ -145,14 +162,16 @@ constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
  * `const whchar*`
  * @return Reference to the `Domain` created with the specified name.
  */
+
+/*
 template <class D>
-Domain const& get_domain() noexcept {
+Domain const& Domain::get() noexcept {
   static_assert(detail::has_name_member<D>(),
                 "Type used to identify a Domain must contain a name member of"
                 "type const char* or const wchar_t*");
-  static Domain const d{D::name};
-  return d;
+  return Domain::get<D>();
 }
+*/
 
 /**
  * @brief Returns reference to the global `Domain`.
@@ -162,11 +181,13 @@ Domain const& get_domain() noexcept {
  *
  * @return Reference to a default constructed, null `Domain` object.
  */
+/*
 template <>
-Domain const& get_domain<global_domain_tag>() noexcept {
+Domain const& Domain::get<global_domain_tag>() noexcept {
   static Domain const d{};
   return d;
 }
+/*
 
 /**
  * @brief Indicates the values of the red, green, blue color channels for
@@ -301,7 +322,7 @@ class Color {
  * which the `Category` belongs. Else, `global_domain_tag` to  indicate that the
  * global NVTX domain should be used.
  *---------------------------------------------------------------------------**/
-template <typename Domain = nvtx::global_domain_tag>
+template <typename D = nvtx::global_domain_tag>
 class Category {
  public:
   using id_type = uint32_t;
@@ -320,7 +341,7 @@ class Category {
    *
    */
   constexpr Category(id_type id, const char* name) noexcept : id_{id} {
-    nvtxDomainNameCategoryA(get_domain<Domain>(), get_id(), name);
+    nvtxDomainNameCategoryA(Domain::get<D>(), get_id(), name);
   };
 
   /**
@@ -330,7 +351,7 @@ class Category {
    *
    */
   constexpr Category(id_type id, const wchar_t* name) noexcept : id_{id} {
-    nvtxDomainNameCategoryW(get_domain<Domain>(), get_id(), name);
+    nvtxDomainNameCategoryW(Domain::get<D>(), get_id(), name);
   };
 
   /**
@@ -392,14 +413,14 @@ Category<Domain> const& get_category() noexcept {
  * which the `RegisteredMessage` belongs. Else, `global_domain_tag` to  indicate
  * that the global NVTX domain should be used.
  */
-template <typename Domain = nvtx::global_domain_tag>
+template <typename D = nvtx::global_domain_tag>
 class RegisteredMessage {
  public:
   constexpr explicit RegisteredMessage(char const* msg) noexcept
-      : value_{nvtxDomainRegisterStringA(get_domain<Domain>(), msg)} {}
+      : value_{nvtxDomainRegisterStringA(Domain::get<D>(), msg)} {}
 
   constexpr explicit RegisteredMessage(wchar_t const* msg) noexcept
-      : value_{nvtxDomainRegisterStringW(get_domain<Domain>(), msg)} {}
+      : value_{nvtxDomainRegisterStringW(Domain::get<D>(), msg)} {}
 
   constexpr nvtxStringHandle_t get_handle() const noexcept { return value_; }
 
@@ -426,9 +447,9 @@ class RegisteredMessage {
  * which the `RegisteredMessage` belongs. Else, `global_domain_tag` to  indicate
  * that the global NVTX domain should be used.
  */
-template <typename Message, typename Domain = nvtx::global_domain_tag>
-RegisteredMessage<Domain> const& get_registered_message() noexcept {
-  static RegisteredMessage<Domain> const registered_message{Message::message};
+template <typename Message, typename D = nvtx::global_domain_tag>
+RegisteredMessage<D> const& get_registered_message() noexcept {
+  static RegisteredMessage<D> const registered_message{Message::message};
   return registered_message;
 }
 
@@ -493,8 +514,8 @@ class Message {
    * indicate that the global NVTX domain should be used.
    * @param msg The message that has already been registered with NVTX.
    */
-  template <typename Domain>
-  NVTX_RELAXED_CONSTEXPR Message(RegisteredMessage<Domain> msg) noexcept
+  template <typename D>
+  NVTX_RELAXED_CONSTEXPR Message(RegisteredMessage<D> msg) noexcept
       : type_{NVTX_MESSAGE_TYPE_REGISTERED} {
     value_.registered = msg.get_handle();
   }
@@ -638,8 +659,8 @@ class EventAttributes {
             {}                              // message value (union)
         } {}
 
-  template <typename Domain, typename... Args>
-  NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Category<Domain> const& c,
+  template <typename D, typename... Args>
+  NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Category<D> const& c,
                                                   Args const&... args) noexcept
       : EventAttributes(args...) {
     _attributes.category = c.get_id().get_value();
@@ -747,7 +768,7 @@ class domain_thread_range {
    * range.
    */
   domain_thread_range(EventAttributes const& attr) noexcept {
-    nvtxDomainRangePushEx(get_domain<D>(), attr.get());
+    nvtxDomainRangePushEx(Domain::get<D>(), attr.get());
   }
 
   /**
@@ -769,7 +790,7 @@ class domain_thread_range {
   /**---------------------------------------------------------------------------*
    * @brief Destroy the domain_thread_range, ending the NVTX range event.
    *---------------------------------------------------------------------------**/
-  ~domain_thread_range() noexcept { nvtxDomainRangePop(get_domain<D>()); }
+  ~domain_thread_range() noexcept { nvtxDomainRangePop(Domain::get<D>()); }
 };
 
 /**
