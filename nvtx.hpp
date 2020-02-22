@@ -20,6 +20,8 @@
 #include <limits>
 #include <string>
 
+#include <iostream>
+
 // Initializing a legacy-C (i.e., no constructor) union member requires
 // initializing in the constructor body. Non-empty constexpr constructors
 // require C++14 relaxed constexpr.
@@ -690,11 +692,11 @@ class domain_thread_range {
     nvtxDomainRangePushEx(get_domain<D>(), attr.get());
   }
 
-  template <typename First, typename... Args>
-  domain_thread_range(First const& first, Args const&... args) noexcept {
-    EventAttributes const attr{args...};
-    nvtxDomainRangePushEx(get_domain<D>(), attr.get());
-  }
+  template <typename First, typename... Args,
+            typename = typename std::enable_if<std::is_same<
+                EventAttributes, typename std::decay<First>>::value>>
+  domain_thread_range(First const& first, Args const&... args) noexcept
+      : domain_thread_range{EventAttributes{first, args...}} {}
 
   domain_thread_range() = delete;
   domain_thread_range(domain_thread_range const&) = delete;
