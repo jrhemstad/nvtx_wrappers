@@ -612,6 +612,13 @@ class RegisteredMessage {
    */
   constexpr nvtxStringHandle_t get_handle() const noexcept { return handle_; }
 
+  RegisteredMessage() = delete;
+  ~RegisteredMessage() = default;
+  RegisteredMessage(RegisteredMessage const&) = default;
+  RegisteredMessage& operator=(RegisteredMessage const&) = default;
+  RegisteredMessage(RegisteredMessage&&) = default;
+  RegisteredMessage& operator=(RegisteredMessage&&) = default;
+
  private:
   nvtxStringHandle_t const handle_{};  ///< The handle returned from
                                        ///< registering the message with NVTX
