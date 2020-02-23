@@ -15,5 +15,3 @@
  */
 
 #include <cupti.h>
-
-#define CUPTI_PATH "/usr/local/cuda/extras/CUPTI/lib64/libcupti.so"
