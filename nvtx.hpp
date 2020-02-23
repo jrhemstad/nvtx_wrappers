@@ -561,42 +561,61 @@ class Category {
 template <typename D = Domain::global>
 class RegisteredMessage {
  public:
+  /**
+   * @brief Returns a global instance of a `RegisteredMessage` as a function
+   * local static.
+   *
+   * Provides a convenient way to register a message with NVTX without having to
+   * explicitly register the message.
+   *
+   * Upon first invocation, constructs a `RegisteredMessage` whose contents are
+   * specified by `Message::message`.
+   *
+   * All future invocations will return a reference to the object constructed in
+   * the first invocation.
+   *
+   * @tparam Message Type required to contain a member `Message::message` that
+   * resolves to either a `char const*` or `wchar_t const*` used as the
+   * registered message's contents.
+   */
+  template <typename Message>
+  static RegisteredMessage<D> const& get() noexcept {
+    static RegisteredMessage<D> const registered_message{Message::message};
+    return registered_message;
+  }
+
+  /**
+   * @brief Constructs a `RegisteredMessage` from the specified `msg` string.
+   *
+   * Registers `msg` with NVTX and associates a handle with the registered
+   * message.
+   *
+   * @param msg The contents of the message
+   */
   constexpr explicit RegisteredMessage(char const* msg) noexcept
-      : value_{nvtxDomainRegisterStringA(Domain::get<D>(), msg)} {}
+      : handle_{nvtxDomainRegisterStringA(Domain::get<D>(), msg)} {}
 
+  /**
+   * @brief Constructs a `RegisteredMessage` from the specified `msg` string.
+   *
+   * Registers `msg` with NVTX and associates a handle with the registered
+   * message.
+   *
+   * @param msg The contents of the message
+   */
   constexpr explicit RegisteredMessage(wchar_t const* msg) noexcept
-      : value_{nvtxDomainRegisterStringW(Domain::get<D>(), msg)} {}
+      : handle_{nvtxDomainRegisterStringW(Domain::get<D>(), msg)} {}
 
-  constexpr nvtxStringHandle_t get_handle() const noexcept { return value_; }
+  /**
+   * @brief Returns the registered message's handle
+   *
+   */
+  constexpr nvtxStringHandle_t get_handle() const noexcept { return handle_; }
 
  private:
-  nvtxStringHandle_t const value_{};
+  nvtxStringHandle_t const handle_{};  ///< The handle returned from
+                                       ///< registering the message with NVTX
 };
-
-/**
- * @brief Returns a global instance of a `RegisteredMessage` as a function local
- * static.
- *
- * Upon first invocation, constructs a `RegisteredMessage` whose contents are
- * specified by `Message::message` in the domain `Domain`.
- *
- * All future invocations will return a reference to the object constructed in
- * the first invocation.
- *
- * This function is meant to provide a convenient way to register a message with
- * NVTX without having to explicitly register the message.
- *
- * @tparam Message Type containing `message` member used as the message's
- * contents.
- * @tparam Domain Type containing `name` member used to identify the `Domain` to
- * which the `RegisteredMessage` belongs. Else, `Domain::global` to  indicate
- * that the global NVTX domain should be used.
- */
-template <typename Message, typename D = Domain::global>
-RegisteredMessage<D> const& get_registered_message() noexcept {
-  static RegisteredMessage<D> const registered_message{Message::message};
-  return registered_message;
-}
 
 /**
  * @brief Allows associating a message string with an NVTX event via
@@ -660,7 +679,7 @@ class Message {
    * @param msg The message that has already been registered with NVTX.
    */
   template <typename D>
-  NVTX_RELAXED_CONSTEXPR Message(RegisteredMessage<D> msg) noexcept
+  NVTX_RELAXED_CONSTEXPR Message(RegisteredMessage<D> const& msg) noexcept
       : type_{NVTX_MESSAGE_TYPE_REGISTERED} {
     value_.registered = msg.get_handle();
   }
