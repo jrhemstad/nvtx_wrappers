@@ -14,20 +14,6 @@
  * limitations under the License.
  */
 
-#include "cupti_nvtx_injection.hpp"
+#include <cupti.h>
 
-#include <gtest/gtest.h>
-
-#include <nvtx.hpp>
-
-#include <iostream>
-
-
-
-TEST(First, first){
-    setenv("NVTX_INJECTION64_PATH", CUPTI_PATH, 1);
-
-    nvtxRangePushA("test");
-    nvtxRangePop();
-    std::cout << "First\n";
-}
+#define CUPTI_PATH "/usr/local/cuda/extras/CUPTI/lib64/libcupti.so"
