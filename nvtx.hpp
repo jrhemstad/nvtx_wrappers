@@ -429,6 +429,7 @@ class Color {
   constexpr nvtxColorType_t get_type() const noexcept { return _type; }
 
   Color() = delete;
+  ~Color() = default;
   Color(Color const&) = default;
   Color& operator=(Color const&) = default;
   Color(Color&&) = default;
@@ -472,6 +473,36 @@ template <typename D = Domain::global>
 class Category {
  public:
   using id_type = uint32_t;
+
+  /**
+   * @brief Returns a global instance of a `Category` as a function-local
+   * static.
+   *
+   * Creates the `Category` with the name specified by the contents of
+   * `Name::name`, id specified by `Id`, and domain by `Domain`. This function
+   * is useful for constructing a named `Category` exactly once and reusing the
+   * same instance throughout an application.
+   *
+   * Uses the "construct on first use" idiom to safely ensure the `Category`
+   * object is initialized exactly once. See
+   * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
+   *
+   * @tparam Name Type required to contain a member `Name::name` that resolves
+   * to either a `char const*` or `wchar_t const*` used to register a name with
+   * the `Category. the `Category`.
+   * @tparam Id Uniquely identifies the `Category`
+   * @tparam Domain Type containing `name` member used to identify the `Domain`
+   * to which the `Category` belongs. Else, `Domain::global` to  indicate that
+   * the global NVTX domain should be used.
+   */
+  template <typename Name, uint32_t Id, typename D = Domain::global>
+  static Category<D> const& get() noexcept {
+    static_assert(detail::has_name_member<Name>(),
+                  "Type used to name a Category must contain a name member.");
+    static Category<D> const category{Id, Name::name};
+    return category;
+  }
+
   /**
    * @brief Construct a `Category` with the specified `id`.
    *
@@ -516,35 +547,6 @@ class Category {
  private:
   id_type const id_{};  ///< Category's unique identifier
 };
-
-/**
- * @brief Returns a global instance of a `Category` as a function-local static.
- *
- * Creates the `Category` with the name specified by `Name`, id specified by
- * `Id`, and domain by `Domain`. This function is useful for constructing a
- * named `Category` exactly once and reusing the same instance throughout an
- * application.
- *
- * Uses the "construct on first use" idiom to safely ensure the `Category`
- * object is initialized exactly once. See
- * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
- *
- * @tparam Name Type that containing a member `Name::name` of type `const char*`
- * or `const wchar_t*` used to name the `Category`.
- * @tparam Id Used to uniquely identify the `Category` and differentiate it from
- * other `Category` objects.
- * @tparam Domain Type containing `name` member used to identify the `Domain` to
- * which the `Category` belongs. Else, `Domain::global` to  indicate that the
- * global NVTX domain should be used.
- */
-template <typename Name, uint32_t Id, typename D = Domain::global>
-Category<D> const& get_category() noexcept {
-  static_assert(detail::has_name_member<Name>(),
-                "Type used to name a Category must contain a name member of "
-                "type const char* or const wchar_t*");
-  static Category<D> const category{Id, Name::name};
-  return category;
-}
 
 /**
  * @brief A message registered with NVTX.
