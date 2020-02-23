@@ -755,13 +755,17 @@ class Message {
    * @brief Return the union holding the value of the message.
    *
    */
-  NVTX_RELAXED_CONSTEXPR value_type get_value() const noexcept { return value_; }
+  NVTX_RELAXED_CONSTEXPR value_type get_value() const noexcept {
+    return value_;
+  }
 
   /**
    * @brief Return the type information about the value the union holds.
    *
    */
-  NVTX_RELAXED_CONSTEXPR nvtxMessageType_t get_type() const noexcept { return type_; }
+  NVTX_RELAXED_CONSTEXPR nvtxMessageType_t get_type() const noexcept {
+    return type_;
+  }
 
  private:
   nvtxMessageType_t const type_{};  ///< Message type
@@ -852,13 +856,17 @@ class Payload {
    * @brief Return the union holding the value of the payload
    *
    */
-  NVTX_RELAXED_CONSTEXPR value_type get_value() const noexcept { return value_; }
+  NVTX_RELAXED_CONSTEXPR value_type get_value() const noexcept {
+    return value_;
+  }
 
   /**
    * @brief Return the information about the type the union holds.
    *
    */
-  NVTX_RELAXED_CONSTEXPR nvtxPayloadType_t get_type() const noexcept { return type_; }
+  NVTX_RELAXED_CONSTEXPR nvtxPayloadType_t get_type() const noexcept {
+    return type_;
+  }
 
  private:
   nvtxPayloadType_t const type_;  ///< Type of the payload value
@@ -934,7 +942,7 @@ class EventAttributes {
   constexpr value_type const* get() const noexcept { return &_attributes; }
 
  private:
-  value_type _attributes{};
+  value_type _attributes{};  ///< The NVTX attributes structure
 };
 
 /**
