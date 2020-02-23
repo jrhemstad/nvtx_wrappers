@@ -16,6 +16,8 @@
 
 #include <gtest/gtest.h>
 
+#include <nvtx.hpp>
+
 #include <iostream>
 
 TEST(First, first){
