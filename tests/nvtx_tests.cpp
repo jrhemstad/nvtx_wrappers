@@ -27,159 +27,72 @@
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
-template <typename F, typename... Args>
-auto dispatch_nvtx_callback_id(CUpti_CallbackId cbid, F f, Args&&... args) {
+#define NVTX_DISPATCH_CASE(call_back_id) \
+  case call_back_id:                     \
+    return f.template operator()<call_back_id>();
+
+/**
+ * @brief Dispatches a CUPTI callback ID from the NVTX domain as a non-type
+ * template argument to a callable `f`.
+ *
+ * @tparam F Type of the callable
+ * @param cbid The callback ID to dispatch
+ * @param f The callable to invoke with `cbid` as the non-type template argument
+ * @return Whatever `f` returns
+ */
+template <typename F>
+auto dispatch_nvtx_callback_id(CUpti_CallbackId cbid, F f) {
   switch (cbid) {
-    case CUPTI_CBID_NVTX_nvtxMarkA:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxMarkA>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxMarkW:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxMarkW>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxMarkEx:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxMarkEx>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxRangeStartA:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxRangeStartA>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxRangeStartW:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxRangeStartW>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxRangeStartEx:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxRangeStartEx>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxRangeEnd:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxRangeEnd>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxRangePushA:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxRangePushA>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxRangePushW:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxRangePushW>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxRangePushEx:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxRangePushEx>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxRangePop:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxRangePop>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameCategoryA:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameCategoryA>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameCategoryW:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameCategoryW>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameOsThreadA:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameOsThreadA>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameOsThreadW:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameOsThreadW>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameCuDeviceA:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameCuDeviceA>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameCuDeviceW:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameCuDeviceW>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameCuContextA:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameCuContextA>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameCuContextW:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameCuContextW>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameCuStreamA:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameCuStreamA>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameCuStreamW:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameCuStreamW>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameCuEventA:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameCuEventA>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameCuEventW:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameCuEventW>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameCudaDeviceA:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameCudaDeviceA>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameCudaDeviceW:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameCudaDeviceW>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameCudaStreamA:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameCudaStreamA>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameCudaStreamW:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameCudaStreamW>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameCudaEventA:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameCudaEventA>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxNameCudaEventW:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxNameCudaEventW>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainMarkEx:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainMarkEx>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainRangeStartEx:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainRangeStartEx>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainRangeEnd:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainRangeEnd>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainRangePushEx:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainRangePushEx>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainRangePop:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainRangePop>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainResourceCreate:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainResourceCreate>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainResourceDestroy:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainResourceDestroy>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainNameCategoryA:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainNameCategoryA>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainNameCategoryW:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainNameCategoryW>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainRegisterStringA:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainRegisterStringA>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainRegisterStringW:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainRegisterStringW>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainCreateA:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainCreateA>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainCreateW:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainCreateW>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainDestroy:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainDestroy>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainSyncUserCreate:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainSyncUserCreate>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainSyncUserDestroy:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainSyncUserDestroy>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainSyncUserAcquireStart:
-      return f
-          .template operator()<CUPTI_CBID_NVTX_nvtxDomainSyncUserAcquireStart>(
-              std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainSyncUserAcquireFailed:
-      return f
-          .template operator()<CUPTI_CBID_NVTX_nvtxDomainSyncUserAcquireFailed>(
-              std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainSyncUserAcquireSuccess:
-      return f.template
-      operator()<CUPTI_CBID_NVTX_nvtxDomainSyncUserAcquireSuccess>(
-          std::forward<Args>(args)...);
-    case CUPTI_CBID_NVTX_nvtxDomainSyncUserReleasing:
-      return f.template operator()<CUPTI_CBID_NVTX_nvtxDomainSyncUserReleasing>(
-          std::forward<Args>(args)...);
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_INVALID)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxMarkA)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxMarkW)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxMarkEx)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxRangeStartA)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxRangeStartW)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxRangeStartEx)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxRangeEnd)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxRangePushA)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxRangePushW)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxRangePushEx)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxRangePop)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameCategoryA)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameCategoryW)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameOsThreadA)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameOsThreadW)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameCuDeviceA)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameCuDeviceW)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameCuContextA)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameCuContextW)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameCuStreamA)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameCuStreamW)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameCuEventA)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameCuEventW)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameCudaDeviceA)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameCudaDeviceW)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameCudaStreamA)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameCudaStreamW)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameCudaEventA)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxNameCudaEventW)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainMarkEx)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainRangeStartEx)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainRangeEnd)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainRangePushEx)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainRangePop)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainResourceCreate)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainResourceDestroy)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainNameCategoryA)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainNameCategoryW)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainRegisterStringA)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainRegisterStringW)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainCreateA)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainCreateW)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainDestroy)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainSyncUserCreate)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainSyncUserDestroy)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainSyncUserAcquireStart)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainSyncUserAcquireFailed)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainSyncUserAcquireSuccess)
+    NVTX_DISPATCH_CASE(CUPTI_CBID_NVTX_nvtxDomainSyncUserReleasing)
   }
 }
 
@@ -190,12 +103,12 @@ struct print_id {
   }
 };
 
-void CUPTIAPI my_callback(void *userdata, CUpti_CallbackDomain domain,
-                          CUpti_CallbackId cbid, const void *cbdata) {
+void CUPTIAPI nvtx_callback(void *userdata, CUpti_CallbackDomain domain,
+                            CUpti_CallbackId cbid, const void *cbdata) {
   std::cout << "my callback\n";
-  const CUpti_NvtxData *nvtxInfo = (CUpti_NvtxData *)cbdata;
 
-  if ((domain == CUPTI_CB_DOMAIN_NVTX)) {
+  if (domain == CUPTI_CB_DOMAIN_NVTX) {
+    const CUpti_NvtxData *nvtxInfo = (CUpti_NvtxData *)cbdata;
     dispatch_nvtx_callback_id(cbid, print_id{});
   }
 }
@@ -209,9 +122,9 @@ struct NVTX_Test : public ::testing::Test {
     // Inject CUPTI into NVTX
     setenv("NVTX_INJECTION64_PATH", cupti_path, 1);
 
-    // Register `my_callback` to be invoked for all NVTX APIs
+    // Register `nvtx_callback` to be invoked for all NVTX APIs
     CUpti_SubscriberHandle subscriber;
-    cuptiSubscribe(&subscriber, (CUpti_CallbackFunc)my_callback, nullptr);
+    cuptiSubscribe(&subscriber, (CUpti_CallbackFunc)nvtx_callback, nullptr);
     cuptiEnableDomain(1, subscriber, CUPTI_CB_DOMAIN_NVTX);
   }
 };
