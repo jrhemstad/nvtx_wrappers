@@ -48,7 +48,7 @@
  * One of the challenges with using the NVTX C API is that it requires manually
  * terminating the end of the range with `nvtxRangePop`. This can be challenging
  * if `my_function()` has multiple returns or can throw exceptions as it
- * requires calling `nvtxRangePop()` in all of those situations.
+ * requires calling `nvtxRangePop()` before all possible return points.
  *
  * The C++ wrappers in this header solve this inconvenience (and others) by
  * providing a `thread_range` class using the "RAII" pattern. In short, upon
@@ -65,8 +65,8 @@
  * ```
  *
  * No matter when or where `my_function` returns, through the rules of object
- * lifetime, `r` is guaranteed to be destroyed and end the NVTX range without
- * manual intervention.
+ * lifetime, `r` is guaranteed to be destroyed before `my_function` returns and
+ * end the NVTX range without manual intervention.
  *
  * Additionally, the NVTX C API has several constructs where the user is
  * expected to initialize an object at the beggining of an application and reuse
