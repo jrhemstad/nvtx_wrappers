@@ -25,6 +25,10 @@ set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
 find_library(NVTX_LIBRARY nvToolsExt PATH ${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES})
 
+# TODO: Find a more portable way to do this
+set(CUPTI_PATH "/usr/local/cuda/extras/CUPTI")
+find_library(CUPTI_LIBRARY cupti ${CUPTI_PATH}/lib64)
+
 ###################################################################################################
 # - compiler function -----------------------------------------------------------------------------
 
@@ -32,7 +36,8 @@ find_library(NVTX_LIBRARY nvToolsExt PATH ${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES
 function(ConfigureTest CMAKE_TEST_NAME CMAKE_TEST_SRC)
     add_executable(${CMAKE_TEST_NAME} ${CMAKE_TEST_SRC})
     set_target_properties(${CMAKE_TEST_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
-    target_link_libraries(${CMAKE_TEST_NAME} gmock gtest gmock_main gtest_main pthread ${NVTX_LIBRARY})
+    target_link_libraries(${CMAKE_TEST_NAME} gmock gtest gmock_main 
+                          gtest_main pthread ${NVTX_LIBRARY} ${CUPTI_LIBRARY})
     set_target_properties(${CMAKE_TEST_NAME} PROPERTIES
                             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/gtests")
     add_test(NAME ${CMAKE_TEST_NAME} COMMAND ${CMAKE_TEST_NAME})
@@ -43,7 +48,8 @@ endfunction(ConfigureTest)
 
 include_directories("${GTEST_INCLUDE_DIR}"
                     "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
-                    "${CMAKE_SOURCE_DIR}")
+                    "${CMAKE_SOURCE_DIR}"
+                    "${CUPTI_PATH}/include")
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
