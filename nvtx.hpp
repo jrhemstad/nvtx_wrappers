@@ -68,7 +68,6 @@
  * lifetime, `r` is guaranteed to be destroyed and end the NVTX range without
  * manual intervention.
  *
- *
  * For more information about NVTX and how it can be used, see
  * https://docs.nvidia.com/cuda/profiler-users-guide/index.html#nvtx and
  * https://devblogs.nvidia.com/cuda-pro-tip-generate-custom-application-profile-timelines-nvtx/
@@ -168,6 +167,12 @@ class Domain {
   /**
    * @brief Returns reference to an instance of a `Domain` constructed using the
    * specified name created as a function local static.
+   *
+   * None of the constructs in this header require the user to directly invoke
+   * `Domain::get`. It is automatically invoked when constructing objects like a
+   * `thread_range` or `Category`. Advanced users may wish to use `Domain::get`
+   * for the convenience of the "construct on first use" idiom when using
+   * domains with their own use of the NVTX C API.
    *
    * Uses the "construct on first use" idiom to safely ensure the `Domain`
    * object is initialized exactly once upon first invocation of
