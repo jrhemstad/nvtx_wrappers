@@ -68,11 +68,33 @@
  * lifetime, `r` is guaranteed to be destroyed and end the NVTX range without
  * manual intervention.
  *
+ * Additionally, the NVTX C API has several constructs where the user is
+ * expected to initialize an object at the beggining of an application and reuse
+ * that object throughout the lifetime of the application. For example: domains,
+ * categories, and registered messages.
+ *
+ * Example:
+ * ```c++
+ * nvtxDomainHandle_t D = nvtxDomainCreateA("my domain");
+ *
+ * // Reuse `D` throughout the rest of the application
+ * ```
+ *
+ * This can be problematic if the user application or library does not have an
+ * explicit initialization function called before all other functions to
+ * ensure that these long-lived objects are initialized before being used.
+ *
+ * This header makes use of the "construct on first use" idiom to alleviate this
+ * inconvenience. In short, it makes use of a function local static object that
+ * safely constructs the object upon the first invocation of the function and
+ * returns a reference to that object on all future invocations.  See the
+ * documentation for `RegisteredMessage`, `Domain`, and `Category` for more
+ * information.
+ *
  * For more information about NVTX and how it can be used, see
  * https://docs.nvidia.com/cuda/profiler-users-guide/index.html#nvtx and
  * https://devblogs.nvidia.com/cuda-pro-tip-generate-custom-application-profile-timelines-nvtx/
  * for more information.
- *
  *
  */
 
