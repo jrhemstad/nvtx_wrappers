@@ -18,6 +18,19 @@
 
 #include <string>
 
+/**
+ * @file nvtx.hpp
+ *
+ * @brief Modern C++ convenience wrappers for the NVTX library.
+ *
+ * See
+ * https://devblogs.nvidia.com/cuda-pro-tip-generate-custom-application-profile-timelines-nvtx/
+ * for more information.
+ *
+ *
+ *
+ */
+
 // Initializing a legacy-C (i.e., no constructor) union member requires
 // initializing in the constructor body. Non-empty constexpr constructors
 // require C++14 relaxed constexpr.
@@ -65,10 +78,11 @@ constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
  * The type `Domain::global` may be used to indicate that the global NVTX domain
  * should be used.
  *
- * If a custom domain is desired, the user is expected to define a type
- * `DomainName` that contains a member `DomainName::name` which resolves to
- * either a `char const*` or `wchar_t const*`. The value of `DomainName::name`
- * is used to name and uniquely identify the custom `Domain` object.
+ * None of the C++ NVTX constructs require the user to manually construct a
+ * `Domain` object. Instead, if a custom domain is desired, the user is expected
+ * to define a type `DomainName` that contains a member `DomainName::name` which
+ * resolves to either a `char const*` or `wchar_t const*`. The value of
+ * `DomainName::name` is used to name and uniquely identify the custom domain.
  *
  * Upon the first use of an NVTX construct associated with the type
  * `DomainName`, the "construct on first use" pattern is used to construct a
@@ -85,7 +99,7 @@ constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
  * // The NVTX range `r` will be grouped with all other NVTX constructs
  * // associated with  `my_domain`.
  * nvtx::domain_thread_range<my_domain> r{};
- * 
+ *
  * // An alias can be created for a `domain_thread_range` in the custom domain
  * using my_thread_range = nvtx::domain_thread_range<my_domain>;
  * my_thread_range my_range{};
@@ -94,7 +108,7 @@ constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
  * nvtx::domain_thread_range<Domain::global> r2{};
  *
  * // For convenience, `nvtx::thread_range` is an alias for a range in the
- * // global domain 
+ * // global domain
  * nvtx::thread_range r3{};
  * ```
  *---------------------------------------------------------------------------**/
