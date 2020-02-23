@@ -460,6 +460,10 @@ class Color {
  * it may have several `Category`s. For example, one might have separate
  * categories for IO, memory allocation, compute, etc.
  *
+ * A `Category` is uniquely identified by an integer `id`. Optionally, a `name`
+ * string can be associated with the `id` to help differentiate among
+ * categories.
+ *
  * @tparam Domain Type containing `name` member used to identify the `Domain` to
  * which the `Category` belongs. Else, `Domain::global` to  indicate that the
  * global NVTX domain should be used.
