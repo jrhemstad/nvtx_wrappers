@@ -697,10 +697,44 @@ class Message {
    *
    * @param msg The contents of the message
    */
+  Message(std::string const& msg) noexcept : Message{msg.c_str()} {}
+
+  /**
+   * @brief Disallow construction for `std::string` r-value
+   *
+   * `Message` is a non-owning type and therefore cannot take ownership of an
+   * r-value. Therefore, constructing from an r-value is disallowed to prevent a
+   * dangling pointer.
+   *
+   */
+  Message(std::string&&) = delete;
+
+  /**
+   * @brief Construct a `Message` whose contents are specified by `msg`.
+   *
+   * @param msg The contents of the message
+   */
   NVTX_RELAXED_CONSTEXPR Message(wchar_t const* msg) noexcept
       : type_{NVTX_MESSAGE_TYPE_UNICODE} {
     value_.unicode = msg;
   }
+
+  /**
+   * @brief Construct a `Message` whose contents are specified by `msg`.
+   *
+   * @param msg The contents of the message
+   */
+  Message(std::wstring const& msg) noexcept : Message{msg.c_str()} {}
+
+  /**
+   * @brief Disallow construction for `std::wstring` r-value
+   *
+   * `Message` is a non-owning type and therefore cannot take ownership of an
+   * r-value. Therefore, constructing from an r-value is disallowed to prevent a
+   * dangling pointer.
+   *
+   */
+  Message(std::wstring&&) = delete;
 
   /**
    * @brief Construct a `Message` from a `RegisteredMessage`.
