@@ -27,6 +27,70 @@
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
+template <CUpti_CallbackId cbid>
+struct params {};
+
+/**
+ * @brief Maps an NVTX API's CUPTI callback ID to it's corresponding function
+ * parameters type.
+ * 
+ */
+#define PARAMS_TRAIT(NVTX_API)                \
+  template <>                                 \
+  struct params<CUPTI_CBID_NVTX_##NVTX_API> { \
+    using type = NVTX_API##_params;           \
+  };
+
+PARAMS_TRAIT(nvtxMarkA);
+PARAMS_TRAIT(nvtxMarkW)
+PARAMS_TRAIT(nvtxMarkEx)
+PARAMS_TRAIT(nvtxRangeStartA)
+PARAMS_TRAIT(nvtxRangeStartW)
+PARAMS_TRAIT(nvtxRangeStartEx)
+PARAMS_TRAIT(nvtxRangeEnd)
+PARAMS_TRAIT(nvtxRangePushA)
+PARAMS_TRAIT(nvtxRangePushW)
+PARAMS_TRAIT(nvtxRangePushEx)
+PARAMS_TRAIT(nvtxRangePop)
+PARAMS_TRAIT(nvtxNameCategoryA)
+PARAMS_TRAIT(nvtxNameCategoryW)
+PARAMS_TRAIT(nvtxNameOsThreadA)
+PARAMS_TRAIT(nvtxNameOsThreadW)
+PARAMS_TRAIT(nvtxNameCuDeviceA)
+PARAMS_TRAIT(nvtxNameCuDeviceW)
+PARAMS_TRAIT(nvtxNameCuContextA)
+PARAMS_TRAIT(nvtxNameCuContextW)
+PARAMS_TRAIT(nvtxNameCuStreamA)
+PARAMS_TRAIT(nvtxNameCuStreamW)
+PARAMS_TRAIT(nvtxNameCuEventA)
+PARAMS_TRAIT(nvtxNameCuEventW)
+PARAMS_TRAIT(nvtxNameCudaDeviceA)
+PARAMS_TRAIT(nvtxNameCudaDeviceW)
+PARAMS_TRAIT(nvtxNameCudaStreamA)
+PARAMS_TRAIT(nvtxNameCudaStreamW)
+PARAMS_TRAIT(nvtxNameCudaEventA)
+PARAMS_TRAIT(nvtxNameCudaEventW)
+PARAMS_TRAIT(nvtxDomainMarkEx)
+PARAMS_TRAIT(nvtxDomainRangeStartEx)
+PARAMS_TRAIT(nvtxDomainRangeEnd)
+PARAMS_TRAIT(nvtxDomainRangePushEx)
+PARAMS_TRAIT(nvtxDomainRangePop)
+PARAMS_TRAIT(nvtxDomainRegisterStringA)
+PARAMS_TRAIT(nvtxDomainRegisterStringW)
+PARAMS_TRAIT(nvtxDomainCreateA)
+PARAMS_TRAIT(nvtxDomainDestroy)
+//PARAMS_TRAIT(nvtxDomainResourceCreate)
+//PARAMS_TRAIT(nvtxDomainResourceDestroy)
+//PARAMS_TRAIT(nvtxDomainNameCategoryA)
+//PARAMS_TRAIT(nvtxDomainNameCategoryW)
+//PARAMS_TRAIT(nvtxDomainCreateW)
+//PARAMS_TRAIT(nvtxDomainSyncUserCreate)
+//PARAMS_TRAIT(nvtxDomainSyncUserDestroy)
+//PARAMS_TRAIT(nvtxDomainSyncUserAcquireStart)
+//PARAMS_TRAIT(nvtxDomainSyncUserAcquireFailed)
+//PARAMS_TRAIT(nvtxDomainSyncUserAcquireSuccess)
+//PARAMS_TRAIT(nvtxDomainSyncUserReleasing)
+
 #define NVTX_DISPATCH_CASE(call_back_id) \
   case call_back_id:                     \
     return f.template operator()<call_back_id>();
