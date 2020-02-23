@@ -886,7 +886,7 @@ class EventAttributes {
    * color, payload, nor message.
    *---------------------------------------------------------------------------**/
   constexpr EventAttributes() noexcept
-      : _attributes{
+      : attributes_{
             NVTX_VERSION,                   // version
             sizeof(nvtxEventAttributes_t),  // size
             0,                              // category
@@ -902,31 +902,31 @@ class EventAttributes {
   NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Category<D> const& c,
                                                   Args const&... args) noexcept
       : EventAttributes(args...) {
-    _attributes.category = c.get_id().get_value();
+    attributes_.category = c.get_id().get_value();
   }
 
   template <typename... Args>
   NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Color const& c,
                                                   Args const&... args) noexcept
       : EventAttributes(args...) {
-    _attributes.color = c.get_value();
-    _attributes.colorType = c.get_type();
+    attributes_.color = c.get_value();
+    attributes_.colorType = c.get_type();
   }
 
   template <typename... Args>
   NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Payload const& p,
                                                   Args const&... args) noexcept
       : EventAttributes(args...) {
-    _attributes.payload = p.get_value();
-    _attributes.payloadType = p.get_type();
+    attributes_.payload = p.get_value();
+    attributes_.payloadType = p.get_type();
   }
 
   template <typename... Args>
   NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Message const& m,
                                                   Args const&... args) noexcept
       : EventAttributes(args...) {
-    _attributes.message = m.get_value();
-    _attributes.messageType = m.get_type();
+    attributes_.message = m.get_value();
+    attributes_.messageType = m.get_type();
   }
 
   ~EventAttributes() = default;
@@ -939,10 +939,10 @@ class EventAttributes {
    * @brief Get raw pointer to underlying NVTX attributes object.
    *
    */
-  constexpr value_type const* get() const noexcept { return &_attributes; }
+  constexpr value_type const* get() const noexcept { return &attributes_; }
 
  private:
-  value_type _attributes{};  ///< The NVTX attributes structure
+  value_type attributes_{};  ///< The NVTX attributes structure
 };
 
 /**
