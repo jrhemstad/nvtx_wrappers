@@ -22,22 +22,15 @@
 
 #include <iostream>
 
-/**
- * @brief
- *
- * See https://docs.nvidia.com/cupti/Cupti/r_main.html for CUPTI info.
- *
- */
-
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
+// Get path to `libcupti.so` from the `CUPTI_PATH` definition specified as a
+// compile argument
+static constexpr char const* cupti_path = TOSTRING(CUPTI_PATH);
+
 struct NVTX_Test : public ::testing::Test {
   NVTX_Test() {
-    // Get path to `libcupti.so` from the `CUPTI_PATH` definition specified as a
-    // compile argument
-    char const* cupti_path = TOSTRING(CUPTI_PATH);
-
     // Inject CUPTI into NVTX
     setenv("NVTX_INJECTION64_PATH", cupti_path, 1);
   }
