@@ -428,6 +428,12 @@ class Color {
    */
   constexpr nvtxColorType_t get_type() const noexcept { return _type; }
 
+  Color() = delete;
+  Color(Color const&) = default;
+  Color& operator=(Color const&) = default;
+  Color(Color&&) = default;
+  Color& operator=(Color&&) = default;
+
  private:
   /**
    * @brief Constructs an unsigned, 4B integer from the component bytes in most
