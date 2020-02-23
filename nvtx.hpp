@@ -491,11 +491,8 @@ class Category {
    * to either a `char const*` or `wchar_t const*` used to register a name with
    * the `Category. the `Category`.
    * @tparam Id Uniquely identifies the `Category`
-   * @tparam Domain Type containing `name` member used to identify the `Domain`
-   * to which the `Category` belongs. Else, `Domain::global` to  indicate that
-   * the global NVTX domain should be used.
    */
-  template <typename Name, uint32_t Id, typename D = Domain::global>
+  template <typename Name, uint32_t Id>
   static Category<D> const& get() noexcept {
     static_assert(detail::has_name_member<Name>(),
                   "Type used to name a Category must contain a name member.");
