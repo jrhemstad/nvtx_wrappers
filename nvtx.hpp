@@ -69,8 +69,8 @@
  * manual intervention.
  *
  *
- *
  * For more information about NVTX and how it can be used, see
+ * https://docs.nvidia.com/cuda/profiler-users-guide/index.html#nvtx and
  * https://devblogs.nvidia.com/cuda-pro-tip-generate-custom-application-profile-timelines-nvtx/
  * for more information.
  *
