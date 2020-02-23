@@ -603,8 +603,30 @@ class RegisteredMessage {
    *
    * @param msg The contents of the message
    */
+  constexpr explicit RegisteredMessage(std::string const& msg) noexcept
+      : RegisteredMessage{msg.c_str()} {}
+
+  /**
+   * @brief Constructs a `RegisteredMessage` from the specified `msg` string.
+   *
+   * Registers `msg` with NVTX and associates a handle with the registered
+   * message.
+   *
+   * @param msg The contents of the message
+   */
   constexpr explicit RegisteredMessage(wchar_t const* msg) noexcept
       : handle_{nvtxDomainRegisterStringW(Domain::get<D>(), msg)} {}
+
+  /**
+   * @brief Constructs a `RegisteredMessage` from the specified `msg` string.
+   *
+   * Registers `msg` with NVTX and associates a handle with the registered
+   * message.
+   *
+   * @param msg The contents of the message
+   */
+  constexpr explicit RegisteredMessage(std::wstring const& msg) noexcept
+      : RegisteredMessage{msg.c_str()} {}
 
   /**
    * @brief Returns the registered message's handle
@@ -622,7 +644,7 @@ class RegisteredMessage {
  private:
   nvtxStringHandle_t const handle_{};  ///< The handle returned from
                                        ///< registering the message with NVTX
-};
+};                                     // namespace nvtx
 
 /**
  * @brief Allows associating a message string with an NVTX event via
