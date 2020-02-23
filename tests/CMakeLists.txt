@@ -25,8 +25,8 @@ set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
 find_library(NVTX_LIBRARY nvToolsExt PATH ${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES})
 
-# TODO: Find a more portable way to do this
-set(CUPTI_PATH "/usr/local/cuda/extras/CUPTI")
+set(CUPTI_PATH "${CUDA_TOOLKIT_ROOT_DIR}/extras/CUPTI")
+
 find_library(CUPTI_LIBRARY cupti ${CUPTI_PATH}/lib64)
 
 ###################################################################################################

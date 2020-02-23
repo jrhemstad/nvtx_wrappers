@@ -17,6 +17,8 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 project(NVTX VERSION 0.1.0 LANGUAGES C CXX CUDA)
 
+find_package(CUDA REQUIRED)
+
 ###################################################################################################
 # - build type ------------------------------------------------------------------------------------
 
