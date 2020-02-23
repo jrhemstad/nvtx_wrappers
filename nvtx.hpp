@@ -21,12 +21,58 @@
 /**
  * @file nvtx.hpp
  *
- * @brief Modern C++ convenience wrappers for the NVTX library.
+ * @brief Provides C++ constructs making the NVTX library safer and easier to
+ * use with zero overhead.
  *
- * See
+ * The NVTX library provides C APIs for users to annotate their code to aid in
+ * performance profiling and optimization. One of the most commonly  used NVTX
+ * features are "ranges". Ranges allow the user to annotate a span of time which
+ * can later be visualized in the application timeline by tools such as Nsight
+ * Systems.
+ *
+ * For example, imagine a user wanted to see every time a function,
+ * `my_function`, is called and how long it takes to execute. This can be
+ * accomplished with an NVTX range created on the entry to the function and
+ * terminated on return from `my_function` using the push/pop C APIs:
+ *
+ * ```c++
+ * void my_function(...){
+ *    nvtxRangePushA("my_function"); // Begins NVTX range
+ *
+ *    // do work
+ *
+ *    nvtxRangePop(); // Ends NVTX range
+ * }
+ * ```
+ *
+ * One of the challenges with using the NVTX C API is that it requires manually
+ * terminating the end of the range with `nvtxRangePop`. This can be challenging
+ * if `my_function()` has multiple returns or can throw exceptions as it
+ * requires calling `nvtxRangePop()` in all of those situations.
+ *
+ * The C++ wrappers in this header solve this inconvenience (and others) by
+ * providing a `thread_range` class using the "RAII" pattern. In short, upon
+ * construction `thread_range` calls "push" and upon destruction calls "pop".
+ * The above example then becomes:
+ *
+ * ```c++
+ * void my_function(...){
+ *    nvtx::thread_range r{"my_function"}; // Begins NVTX range
+ *
+ *    // do work
+ *
+ * } // Range ends on exit from `my_function` when `r` is destroyed
+ * ```
+ *
+ * No matter when or where `my_function` returns, through the rules of object
+ * lifetime, `r` is guaranteed to be destroyed and end the NVTX range without
+ * manual intervention.
+ *
+ *
+ *
+ * For more information about NVTX and how it can be used, see
  * https://devblogs.nvidia.com/cuda-pro-tip-generate-custom-application-profile-timelines-nvtx/
  * for more information.
- *
  *
  *
  */
