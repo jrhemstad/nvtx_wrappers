@@ -29,6 +29,9 @@ set(CUPTI_PATH "${CUDA_TOOLKIT_ROOT_DIR}/extras/CUPTI")
 
 find_library(CUPTI_LIBRARY cupti ${CUPTI_PATH}/lib64)
 
+# Set CUPTI_PATH preprocessor definition to allow injecting CUPTI into NVTX at runtime
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DCUPTI_PATH=\"${CUPTI_LIBRARY}\"")
+
 ###################################################################################################
 # - compiler function -----------------------------------------------------------------------------
 

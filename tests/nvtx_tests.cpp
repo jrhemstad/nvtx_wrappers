@@ -22,12 +22,29 @@
 
 #include <iostream>
 
+/**
+ * @brief
+ *
+ * See https://docs.nvidia.com/cupti/Cupti/r_main.html for CUPTI info.
+ *
+ */
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
 
-TEST(First, first){
-    setenv("NVTX_INJECTION64_PATH", CUPTI_PATH, 1);
+struct NVTX_Test : public ::testing::Test {
+  NVTX_Test() {
+    // Get path to `libcupti.so` from the `CUPTI_PATH` definition specified as a
+    // compile argument
+    char const* cupti_path = TOSTRING(CUPTI_PATH);
 
-    nvtxRangePushA("test");
-    nvtxRangePop();
-    std::cout << "First\n";
+    // Inject CUPTI into NVTX
+    setenv("NVTX_INJECTION64_PATH", cupti_path, 1);
+  }
+};
+
+TEST_F(NVTX_Test, first) {
+  nvtxRangePushA("test");
+  nvtxRangePop();
+  std::cout << "First\n";
 }
