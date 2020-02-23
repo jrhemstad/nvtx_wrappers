@@ -443,7 +443,7 @@ class Color {
   constexpr static value_type from_bytes_msb_to_lsb(uint8_t byte3,
                                                     uint8_t byte2,
                                                     uint8_t byte1,
-                                                    uint8_t byte0) {
+                                                    uint8_t byte0) noexcept {
     return uint32_t{byte3} << 24 | uint32_t{byte2} << 16 |
            uint32_t{byte1} << 8 | uint32_t{byte0};
   }
