@@ -30,6 +30,8 @@ int main(void){
 
     nvtx::domain_thread_range<my_domain> r2{attr};
 
-    nvtx::domain_thread_range<my_domain>{"msg", nvtx::Color{0}};
+    nvtx::domain_thread_range<my_domain> r3{"msg", nvtx::Color{0}};
+
+    nvtx::thread_range r4{attr};
 
 }
