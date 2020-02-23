@@ -1006,7 +1006,7 @@ class domain_thread_range {
    * @param attr `EventAttributes` that describes the desired attributes of the
    * range.
    */
-  domain_thread_range(EventAttributes const& attr) noexcept {
+  explicit domain_thread_range(EventAttributes const& attr) noexcept {
     nvtxDomainRangePushEx(Domain::get<D>(), attr.get());
   }
 
@@ -1017,7 +1017,7 @@ class domain_thread_range {
   template <typename First, typename... Args,
             typename = typename std::enable_if<std::is_same<
                 EventAttributes, typename std::decay<First>>::value>>
-  domain_thread_range(First const& first, Args const&... args) noexcept
+  explicit domain_thread_range(First const& first, Args const&... args) noexcept
       : domain_thread_range{EventAttributes{first, args...}} {}
 
   domain_thread_range() = delete;
