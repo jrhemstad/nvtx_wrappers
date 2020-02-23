@@ -1,3 +1,0 @@
-/home/jhemstad/RAPIDS/nvtx_wrappers/build/googletest/CMakeFiles/edit_cache.dir
-/home/jhemstad/RAPIDS/nvtx_wrappers/build/googletest/CMakeFiles/rebuild_cache.dir
-/home/jhemstad/RAPIDS/nvtx_wrappers/build/googletest/CMakeFiles/GoogleTest.dir
