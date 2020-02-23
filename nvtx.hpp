@@ -88,7 +88,8 @@
  * inconvenience. In short, it makes use of a function local static object that
  * safely constructs the object upon the first invocation of the function and
  * returns a reference to that object on all future invocations.  See the
- * documentation for `RegisteredMessage`, `Domain`, and `Category` for more
+ * documentation for `RegisteredMessage`, `Domain`, and `Category`  and
+ * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use for more
  * information.
  *
  * For more information about NVTX and how it can be used, see
