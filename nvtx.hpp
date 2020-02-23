@@ -621,6 +621,9 @@ class RegisteredMessage {
  * @brief Allows associating a message string with an NVTX event via
  * it's `EventAttribute`s.
  *
+ * Associating a `Message` with an NVTX event through its `EventAttributes`
+ * allows for naming events to easily differentiate them from other events.
+ *
  * Example:
  * ```c++
  * // Creates an `EventAttributes` with message "message 0"
