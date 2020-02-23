@@ -366,7 +366,11 @@ struct ARGB : RGB {
 };
 
 /**
- * @brief Represents a color that can be associated with NVTX events.
+ * @brief Allows controlling the color associated with an NVTX event.
+ *
+ * Specifying custom colors for NVTX events is a convenient way to visually
+ * differentiate among different events in a visualization tool such as Nsight
+ * Systems.
  *
  */
 class Color {
