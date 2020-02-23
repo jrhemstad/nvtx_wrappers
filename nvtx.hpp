@@ -13,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+#pragma once
 
 #include <nvToolsExt.h>
 
@@ -514,7 +515,7 @@ class Category {
    * The name `name` will be registered with `id`.
    *
    */
-  constexpr Category(id_type id, const char* name) noexcept : id_{id} {
+  Category(id_type id, const char* name) noexcept : id_{id} {
     nvtxDomainNameCategoryA(Domain::get<D>(), get_id(), name);
   };
 
@@ -524,7 +525,7 @@ class Category {
    * The name `name` will be registered with `id`.
    *
    */
-  constexpr Category(id_type id, const wchar_t* name) noexcept : id_{id} {
+  Category(id_type id, const wchar_t* name) noexcept : id_{id} {
     nvtxDomainNameCategoryW(Domain::get<D>(), get_id(), name);
   };
 
@@ -754,13 +755,13 @@ class Message {
    * @brief Return the union holding the value of the message.
    *
    */
-  constexpr value_type get_value() const noexcept { return value_; }
+  NVTX_RELAXED_CONSTEXPR value_type get_value() const noexcept { return value_; }
 
   /**
    * @brief Return the type information about the value the union holds.
    *
    */
-  constexpr nvtxMessageType_t get_type() const noexcept { return type_; }
+  NVTX_RELAXED_CONSTEXPR nvtxMessageType_t get_type() const noexcept { return type_; }
 
  private:
   nvtxMessageType_t const type_{};  ///< Message type
@@ -851,13 +852,13 @@ class Payload {
    * @brief Return the union holding the value of the payload
    *
    */
-  constexpr value_type get_value() const noexcept { return value_; }
+  NVTX_RELAXED_CONSTEXPR value_type get_value() const noexcept { return value_; }
 
   /**
    * @brief Return the information about the type the union holds.
    *
    */
-  constexpr nvtxPayloadType_t get_type() const noexcept { return type_; }
+  NVTX_RELAXED_CONSTEXPR nvtxPayloadType_t get_type() const noexcept { return type_; }
 
  private:
   nvtxPayloadType_t const type_;  ///< Type of the payload value
