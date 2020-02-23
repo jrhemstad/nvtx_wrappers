@@ -33,3 +33,9 @@
 
 # vscode
 .vscode/
+
+## C++ build directories & artifacts
+CMakeFiles/
+Debug
+build/
+thirdparty/googletest/
