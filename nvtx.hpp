@@ -590,15 +590,15 @@ class NamedCategory final : public Category {
    * // Define a type with `name` and `id` members
    * struct my_category{
    *    static constexpr char const* name{"my category"}; // Category name
-   *    static constexpr Category::id_type id{42}; // Category id
+   *    static constexpr uint32_t id{42}; // Category id
    * };
    *
    * // Use construct on first use to name the category id `42`
    * // with name "my category"
-   * auto my_category = NamedCategory<my_domain>::get<my_category>();
+   * auto cat = NamedCategory<my_domain>::get<my_category>();
    *
    * // Range `r` associated with category id `42`
-   * nvtx::thread_range r{my_category};
+   * nvtx::thread_range r{cat};
    * ```
    *
    * Uses the "construct on first use" idiom to safely ensure the `Category`
@@ -622,6 +622,8 @@ class NamedCategory final : public Category {
    *
    * Every unique value of `id` should only be named once.
    *
+   * @param[in] id The category id to name
+   * @param[in] name The name to associated with `id`
    */
   NamedCategory(id_type id, const char* name) noexcept : Category{id} {
     nvtxDomainNameCategoryA(Domain::get<D>(), get_id(), name);
@@ -634,6 +636,8 @@ class NamedCategory final : public Category {
    *
    * Every unique value of `id` should only be named once.
    *
+   * @param[in] id The category id to name
+   * @param[in] name The name to associated with `id`
    */
   NamedCategory(id_type id, const wchar_t* name) noexcept : Category{id} {
     nvtxDomainNameCategoryW(Domain::get<D>(), get_id(), name);
