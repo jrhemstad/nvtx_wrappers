@@ -873,18 +873,75 @@ class Payload {
   value_type value_;              ///< Union holding the payload value
 };
 
-/**---------------------------------------------------------------------------*
- * @brief Describes the attributes of a NVTX event such as color and
- * identifying message.
- *---------------------------------------------------------------------------**/
+/**
+ * @brief Describes the attributes of a NVTX event.
+ *
+ * NVTX events can be customized via four "attributes":
+ *
+ * - color:    Color used to visualize the event in tools such as Nsight
+ *             Systems. See `Color`.
+ * - message:  Custom message string. See `Message`.
+ * - payload:  User-defined numerical value. See `Payload`.
+ * - category: Intra-domain grouping. See `Category`.
+ *
+ * These component attributes are specified via an `EventAttributes` object.
+ * See `nvtx::Color`, `nvtx::Message`, `nvtx::Payload`, and `nvtx::Category` for
+ * how these individual attributes are constructed.
+ *
+ * While it is possible to specify all four attributes, it is common to want to
+ * only specify a subset of attributes and use default values for the others.
+ * For convenience, `EventAttributes` can be constructed from any number of
+ * attribute components in any order.
+ *
+ * Example:
+ * ```c++
+ * EventAttributes attr{}; // No arguments, use defaults for all attributes
+ *
+ * EventAttributes attr{"message"}; // Custom message, rest defaulted
+ *
+ * // Custom color & message
+ * EventAttributes attr{"message", nvtx::RGB{127, 255, 0}};
+ *
+ * // Custom color & message, can use any order of arguments
+ * EventAttributes attr{nvtx::RGB{127, 255, 0}, "message"};
+ *
+ *
+ * // Custom color, message, payload, category
+ * EventAttributes attr{nvtx::RGB{127, 255, 0},
+ *                      "message",
+ *                      nvtx::Payload{42},
+ *                      nvtx::Category{1}};
+ *
+ * // Custom color, message, payload, category, can use any order of arguments
+ * EventAttributes attr{nvtx::Payload{42},
+ *                      nvtx::Category{1},
+ *                      "message",
+ *                      nvtx::RGB{127, 255, 0}};
+ *
+ * // Multiple arguments of the same type are allowed, but only the first is
+ * // used. All others are ignored
+ * EventAttributes attr{ nvtx::Payload{42}, nvtx::Payload{7} }; // Payload is 42
+ *
+ * // Range `r` will be customized according the attributes in `attr`
+ * nvtx::thread_range r{attr};
+ *
+ *
+ * // For convenience, the arguments that can be passed to the `EventAttributes`
+ * // constructor may be passed to the `domain_thread_range` contructor where
+ * // they will be forwarded to the `EventAttribute`s constructor
+ * nvtx::thread_range r{nvtx::Payload{42}, nvtx::Category{1}, "message"};
+ * ```
+ *
+ *
+ */
 class EventAttributes {
  public:
   using value_type = nvtxEventAttributes_t;
 
-  /**---------------------------------------------------------------------------*
+  /**
    * @brief Default constructor creates an `EventAttributes` with no category,
    * color, payload, nor message.
-   *---------------------------------------------------------------------------**/
+   */
   constexpr EventAttributes() noexcept
       : attributes_{
             NVTX_VERSION,                   // version
