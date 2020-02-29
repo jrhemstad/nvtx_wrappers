@@ -1047,17 +1047,19 @@ class Payload {
  * only specify a subset of attributes and use default values for the others.
  * For convenience, `EventAttributes` can be constructed from any number of
  * attribute components in any order.
+ * 
+ * 
  *
  * Example:
- * ```c++
+ * \code{.cpp}
  * EventAttributes attr{}; // No arguments, use defaults for all attributes
- *
+ * 
  * EventAttributes attr{"message"}; // Custom message, rest defaulted
  *
  * // Custom color & message
  * EventAttributes attr{"message", nvtx::RGB{127, 255, 0}};
  *
- * // Custom color & message, can use any order of arguments
+ * /// Custom color & message, can use any order of arguments
  * EventAttributes attr{nvtx::RGB{127, 255, 0}, "message"};
  *
  *
@@ -1079,13 +1081,12 @@ class Payload {
  *
  * // Range `r` will be customized according the attributes in `attr`
  * nvtx::thread_range r{attr};
- *
- *
+ * 
  * // For convenience, the arguments that can be passed to the `EventAttributes`
  * // constructor may be passed to the `domain_thread_range` contructor where
  * // they will be forwarded to the `EventAttribute`s constructor
  * nvtx::thread_range r{nvtx::Payload{42}, nvtx::Category{1}, "message"};
- * ```
+ * \endcode
  *
  */
 class EventAttributes {
