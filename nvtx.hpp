@@ -380,7 +380,7 @@ struct RGB {
  * for an ARGB color code.
  *
  */
-struct ARGB : RGB {
+struct ARGB final : RGB {
   /**
    * @brief Construct an ARGB with alpha, red, green, and blue channels
    * specified by `alpha_`, `red_`, `green_`, and `blue_`, respectively.
@@ -483,82 +483,32 @@ class Color {
   nvtxColorType_t const _type{NVTX_COLOR_ARGB};  ///< NVTX color type code
 };
 
-/**---------------------------------------------------------------------------*
- * @brief Construct for intra-domain grouping of NVTX events.
+/**
+ * @brief Object for intra-domain grouping of NVTX events.
  *
  * A `Category` allows for more fine-grain grouping of NVTX events than a
  * `Domain`. While it is typical for a library to only have a single `Domain`,
  * it may have several `Category`s. For example, one might have separate
  * categories for IO, memory allocation, compute, etc.
  *
- * A `Category` is uniquely identified by an integer `id`. Optionally, a `name`
- * string can be associated with the `id` to help differentiate among
- * categories.
+ * A `Category` is identified by an integer `id`.
  *
- * `Category`s are local to a particular domain specified via the type `D`.
+ * To associate a name string with a `Category`, see `NamedCategory`.
  *
- * @tparam D Type containing `name` member used to identify the `Domain` to
- * which the `Category` belongs. Else, `Domain::global` to  indicate that the
- * global NVTX domain should be used.
- *---------------------------------------------------------------------------**/
-template <typename D = Domain::global>
+ */
 class Category {
  public:
   using id_type = uint32_t;
-
-  /**
-   * @brief Returns a global instance of a `Category` as a function-local
-   * static.
-   *
-   * Creates the `Category` with the name specified by the contents of
-   * `Name::name`, id specified by `Id`, and domain by `Domain`. This function
-   * is useful for constructing a named `Category` exactly once and reusing the
-   * same instance throughout an application.
-   *
-   * Uses the "construct on first use" idiom to safely ensure the `Category`
-   * object is initialized exactly once. See
-   * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
-   *
-   * @tparam Name Type required to contain a member `Name::name` that resolves
-   * to either a `char const*` or `wchar_t const*` used to register a name with
-   * the `Category. the `Category`.
-   * @tparam Id Uniquely identifies the `Category`
-   */
-  template <typename Name, uint32_t Id>
-  static Category<D> const& get() noexcept {
-    static_assert(detail::has_name_member<Name>(),
-                  "Type used to name a Category must contain a name member.");
-    static Category<D> const category{Id, Name::name};
-    return category;
-  }
-
   /**
    * @brief Construct a `Category` with the specified `id`.
    *
    * The `Category` will be unnamed and identified only by it's `id` value.
    *
+   * All `Category` objects sharing the same `id` are equivalent.
+   *
+   * @param[in] id The `Category`'s identifying value
    */
   constexpr explicit Category(id_type id) noexcept : id_{id} {}
-
-  /**
-   * @brief Construct a `Category` with the specified `id` and `name`.
-   *
-   * The name `name` will be registered with `id`.
-   *
-   */
-  Category(id_type id, const char* name) noexcept : id_{id} {
-    nvtxDomainNameCategoryA(Domain::get<D>(), get_id(), name);
-  };
-
-  /**
-   * @brief Construct a `Category` with the specified `id` and `name`.
-   *
-   * The name `name` will be registered with `id`.
-   *
-   */
-  Category(id_type id, const wchar_t* name) noexcept : id_{id} {
-    nvtxDomainNameCategoryW(Domain::get<D>(), get_id(), name);
-  };
 
   /**
    * @brief Returns the id of the Category.
@@ -568,13 +518,126 @@ class Category {
 
   Category() = delete;
   ~Category() = default;
-  Category(Category const&) = delete;
-  Category& operator=(Category const&) = delete;
-  Category(Category&&) = delete;
-  Category& operator=(Category&&) = delete;
+  Category(Category const&) = default;
+  Category& operator=(Category const&) = default;
+  Category(Category&&) = default;
+  Category& operator=(Category&&) = default;
 
  private:
   id_type const id_{};  ///< Category's unique identifier
+};
+
+/**
+ * @brief A `Category` with an associated name string.
+ *
+ * Similar to a `Category`, but associates a `name` string with the `id` to help
+ * differentiate among categories.
+ *
+ * For any given category id `Id`, a `NamedCategory(Id, "name")` should only
+ * be constructed once and reused throughout an application. This can be done by
+ * either explicitly creating static `NamedCategory` objects, or using the
+ * `NamedCategory::get` construct on first use helper (reccomended).
+ *
+ * Example:
+ * ```c++
+ *
+ * // Explicitly constructed, static `NamedCategory`
+ * static nvtx::NamedCategory static_category{42, "my category"};
+ *
+ * // Range `r` associated with category id `42`
+ * nvtx::thread_range r{static_category};
+ *
+ * // OR use construct on first use:
+ *
+ * // Define a type with `name` and `id` members
+ * struct my_category{
+ *    static constexpr char const* name{"my category"}; // Category name
+ *    static constexpr Category::id_type id{42}; // Category id
+ * };
+ *
+ * // Use construct on first use to name the category id `42`
+ * // with name "my category"
+ * auto my_category = NamedCategory<my_domain>::get<my_category>();
+ *
+ * // Range `r` associated with category id `42`
+ * nvtx::thread_range r{my_category};
+ * ```
+ *
+ * `NamedCategory`'s association of a name to a category id is local to the
+ * domain specified by the type `D`. An id may have a different name in another
+ * domain.
+ *
+ * @tparam D Type containing `name` member used to identify the `Domain` to
+ * which the `Category` belongs. Else, `Domain::global` to  indicate that the
+ * global NVTX domain should be used.
+ */
+template <typename D = Domain::global>
+class NamedCategory final : public Category {
+ public:
+  /**
+   * @brief Returns a global instance of a `NamedCategory` as a function-local
+   * static.
+   *
+   * Creates a `NamedCategory` with name and id specified by the contents of a
+   * type `C`. `C::name` determines the name and `C::id` determines the category
+   * id.
+   *
+   * This function is useful for constructing a named `Category` exactly once
+   * and reusing the same instance throughout an application.
+   *
+   * Example:
+   * ```c++
+   * // Define a type with `name` and `id` members
+   * struct my_category{
+   *    static constexpr char const* name{"my category"}; // Category name
+   *    static constexpr Category::id_type id{42}; // Category id
+   * };
+   *
+   * // Use construct on first use to name the category id `42`
+   * // with name "my category"
+   * auto my_category = NamedCategory<my_domain>::get<my_category>();
+   *
+   * // Range `r` associated with category id `42`
+   * nvtx::thread_range r{my_category};
+   * ```
+   *
+   * Uses the "construct on first use" idiom to safely ensure the `Category`
+   * object is initialized exactly once. See
+   * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
+   *
+   * @tparam C Type containing a member `C::name` that resolves  to either a
+   * `char const*` or `wchar_t const*` and `C::id`.
+   */
+  template <typename C>
+  static NamedCategory<D> const& get() noexcept {
+    static_assert(detail::has_name_member<C>(),
+                  "Type used to name a Category must contain a name member.");
+    static NamedCategory<D> const category{C::id, C::name};
+    return category;
+  }
+  /**
+   * @brief Construct a `Category` with the specified `id` and `name`.
+   *
+   * The name `name` will be registered with `id`.
+   *
+   * Every unique value of `id` should only be named once.
+   *
+   */
+  NamedCategory(id_type id, const char* name) noexcept : Category{id} {
+    nvtxDomainNameCategoryA(Domain::get<D>(), get_id(), name);
+  };
+
+  /**
+   * @brief Construct a `Category` with the specified `id` and `name`.
+   *
+   * The name `name` will be registered with `id`.
+   *
+   * Every unique value of `id` should only be named once.
+   *
+   */
+  NamedCategory(id_type id, const wchar_t* name) noexcept : Category{id} {
+    nvtxDomainNameCategoryW(Domain::get<D>(), get_id(), name);
+  };
 };
 
 /**
@@ -1049,11 +1112,11 @@ class EventAttributes {
    * the remaining variadic parameter pack to the next constructor.
    *
    */
-  template <typename D, typename... Args>
-  NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Category<D> const& c,
+  template <typename... Args>
+  NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Category const& c,
                                                   Args const&... args) noexcept
       : EventAttributes(args...) {
-    attributes_.category = c.get_id().get_value();
+    attributes_.category = c.get_id();
   }
 
   /**
