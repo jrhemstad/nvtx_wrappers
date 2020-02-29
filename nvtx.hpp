@@ -596,7 +596,7 @@ class Category {
  *
  * // Explicitly constructed, static `RegisteredMessage`
  * static RegisteredMessage<my_domain> static_message{"message"};
- * 
+ *
  * // "message" is associated with the range `r`
  * nvtx::thread_range r{static_message};
  *
@@ -607,9 +607,9 @@ class Category {
  * struct my_message{ static constexpr char const* message{ "my message" }; };
  *
  * // Uses construct on first use to register the contents of
- * // `my_message::message` 
+ * // `my_message::message`
  * auto msg = RegisteredMessage<my_domain>::get<my_message>();
- * 
+ *
  * // "my message" is associated with the range `r`
  * nvtx::thread_range r{msg};
  * ```
@@ -644,8 +644,11 @@ class RegisteredMessage {
    * struct my_message{ static constexpr char const* message{ "my message" }; };
    *
    * // Uses construct on first use to register the contents of
-   * // `my_message::message` and return a handle to the registered message
-   * auto handle = RegisteredMessage<my_domain>::get<my_message>();
+   * // `my_message::message`
+   * auto msg = RegisteredMessage<my_domain>::get<my_message>();
+   *
+   * // "my message" is associated with the range `r`
+   * nvtx::thread_range r{msg};
    * ```
    *
    * @tparam Message Type required to contain a member `Message::message` that
