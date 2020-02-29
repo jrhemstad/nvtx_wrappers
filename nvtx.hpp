@@ -19,10 +19,13 @@
 
 #include <string>
 
-/** \mainpage
+/**
+ * @file nvtx.hpp
  *
  * @brief Provides C++ constructs making the NVTX library safer and easier to
  * use with zero overhead.
+ *
+ * \mainpage
  *
  * The NVTX library provides C APIs for users to annotate their code to aid in
  * performance profiling and optimization. One of the most commonly  used NVTX
@@ -51,9 +54,9 @@
  * requires calling `nvtxRangePop()` before all possible return points.
  *
  * The C++ wrappers in this header solve this inconvenience (and others) by
- * providing a `nvtx::thread_range` class using the "RAII" pattern. In short, upon
- * construction `nvtx::thread_range` calls "push" and upon destruction calls "pop".
- * The above example then becomes:
+ * providing a `nvtx::thread_range` class using the "RAII" pattern. In short,
+ * upon construction `nvtx::thread_range` calls "push" and upon destruction
+ * calls "pop". The above example then becomes:
  *
  * ```
  * void my_function(...){
