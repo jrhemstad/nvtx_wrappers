@@ -78,3 +78,13 @@ if(GTEST_FOUND)
 else()
     message(AUTHOR_WARNING "Google C++ Testing Framework (Google Test) not found: automated tests are disabled.")
 endif(GTEST_FOUND)
+
+
+###################################################################################################
+# - build doxygen ---------------------------------------------------------------------------------
+add_custom_command(OUTPUT BUILD_DOXYGEN
+                   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doxygen
+                   COMMAND doxygen Doxyfile
+                   VERBATIM)
+
+add_custom_target(docs DEPENDS BUILD_DOXYGEN)
