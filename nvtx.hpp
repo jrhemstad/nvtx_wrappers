@@ -488,14 +488,22 @@ class Color {
 /**
  * @brief Object for intra-domain grouping of NVTX events.
  *
- * A `Category` allows for more fine-grain grouping of NVTX events than a
- * `Domain`. While it is typical for a library to only have a single `Domain`,
- * it may have several `Category`s. For example, one might have separate
- * categories for IO, memory allocation, compute, etc.
+ * A `Category` is simply an integer id that allows for fine-grain grouping of
+ * NVTX events. For example, one might use separate categories for IO, memory
+ * allocation, compute, etc.
  *
- * A `Category` is identified by an integer `id`.
+ * Example:
+ * \code{.cpp}
+ * nvtx::Category cat1{1};
  *
- * To associate a name string with a `Category`, see `NamedCategory`.
+ * // Range `r1` belongs to the category identified by the value `1`.
+ * nvtx::thread_range r1{cat1};
+ *
+ * // Range `r2` belongs to the same category as `r1`
+ * nvtx::thread_range r2{nvtx::Category{1}};
+ * \endcode
+ *
+ * To associate a name string with a category id, see `NamedCategory`.
  *
  */
 class Category {
@@ -541,8 +549,7 @@ class Category {
  * `NamedCategory::get` construct on first use helper (reccomended).
  *
  * Example:
- * ```
- *
+ * \code{.cpp}
  * // Explicitly constructed, static `NamedCategory`
  * static nvtx::NamedCategory static_category{42, "my category"};
  *
@@ -563,15 +570,15 @@ class Category {
  *
  * // Range `r` associated with category id `42`
  * nvtx::thread_range r{my_category};
- * ```
+ * \endcode
  *
  * `NamedCategory`'s association of a name to a category id is local to the
  * domain specified by the type `D`. An id may have a different name in another
  * domain.
  *
  * @tparam D Type containing `name` member used to identify the `Domain` to
- * which the `Category` belongs. Else, `Domain::global` to  indicate that the
- * global NVTX domain should be used.
+ * which the `NamedCategory` belongs. Else, `Domain::global` to  indicate that
+ * the global NVTX domain should be used.
  */
 template <typename D = Domain::global>
 class NamedCategory final : public Category {
@@ -588,7 +595,7 @@ class NamedCategory final : public Category {
    * and reusing the same instance throughout an application.
    *
    * Example:
-   * ```
+   * \code{.cpp}
    * // Define a type with `name` and `id` members
    * struct my_category{
    *    static constexpr char const* name{"my category"}; // Category name
@@ -601,7 +608,7 @@ class NamedCategory final : public Category {
    *
    * // Range `r` associated with category id `42`
    * nvtx::thread_range r{cat};
-   * ```
+   * \endcode
    *
    * Uses the "construct on first use" idiom to safely ensure the `Category`
    * object is initialized exactly once. See
