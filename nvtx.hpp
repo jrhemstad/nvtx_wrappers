@@ -1068,9 +1068,10 @@ using thread_range = domain_thread_range<>;
  * `Domain` to which the `RegisteredMessage` belongs. Else,
  * `Domain::global` to  indicate that the global NVTX domain should be used.
  */
-#define NVTX_FUNC_RANGE_IN(D)                                               \
-  static ::nvtx::RegisteredMessage<D> const nvtx_function_name__{__func__}; \
-  ::nvtx::domain_thread_range<D> const nvtx_range__{nvtx_function_name__};
+#define NVTX_FUNC_RANGE_IN(D)                                              \
+  static ::nvtx::RegisteredMessage<D> const nvtx_func_name__{__func__};    \
+  static ::nvtx::EventAttributes const nvtx_func_attr__{nvtx_func_name__}; \
+  ::nvtx::domain_thread_range<D> const nvtx_range__{nvtx_func_attr__};
 
 /**
  * @brief Convenience macro for generating a range in the global domain from the
