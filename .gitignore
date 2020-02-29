@@ -39,3 +39,6 @@ CMakeFiles/
 Debug
 build/
 thirdparty/googletest/
+
+# Doxygen
+doxygen/
