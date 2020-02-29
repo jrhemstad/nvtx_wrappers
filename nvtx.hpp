@@ -495,7 +495,10 @@ class Color {
  * string can be associated with the `id` to help differentiate among
  * categories.
  *
- * @tparam Domain Type containing `name` member used to identify the `Domain` to
+ * Categories are local to a particular domain that is specified via the type
+ * `D`.
+ *
+ * @tparam D Type containing `name` member used to identify the `Domain` to
  * which the `Category` belongs. Else, `Domain::global` to  indicate that the
  * global NVTX domain should be used.
  *---------------------------------------------------------------------------**/
