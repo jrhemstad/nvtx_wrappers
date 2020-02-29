@@ -932,7 +932,6 @@ class Payload {
  * nvtx::thread_range r{nvtx::Payload{42}, nvtx::Category{1}, "message"};
  * ```
  *
- *
  */
 class EventAttributes {
  public:
@@ -955,6 +954,13 @@ class EventAttributes {
             {}                              // message value (union)
         } {}
 
+  /**
+   * @brief Variadic constructor where the first argument is a `Category`.
+   *
+   * Sets the value of the `EventAttribute`s category based on `c` and forwards
+   * the remaining variadic parameter pack to the next constructor.
+   *
+   */
   template <typename D, typename... Args>
   NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Category<D> const& c,
                                                   Args const&... args) noexcept
@@ -962,6 +968,13 @@ class EventAttributes {
     attributes_.category = c.get_id().get_value();
   }
 
+  /**
+   * @brief Variadic constructor where the first argument is a `Color`.
+   *
+   * Sets the value of the `EventAttribute`s color based on `c` and forwards the
+   * remaining variadic parameter pack to the next constructor.
+   *
+   */
   template <typename... Args>
   NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Color const& c,
                                                   Args const&... args) noexcept
@@ -970,6 +983,13 @@ class EventAttributes {
     attributes_.colorType = c.get_type();
   }
 
+  /**
+   * @brief Variadic constructor where the first argument is a `Payload`.
+   *
+   * Sets the value of the `EventAttribute`s payload based on `p` and forwards
+   * the remaining variadic parameter pack to the next constructor.
+   *
+   */
   template <typename... Args>
   NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Payload const& p,
                                                   Args const&... args) noexcept
@@ -978,6 +998,13 @@ class EventAttributes {
     attributes_.payloadType = p.get_type();
   }
 
+  /**
+   * @brief Variadic constructor where the first argument is a `Message`.
+   *
+   * Sets the value of the `EventAttribute`s message based on `m` and forwards
+   * the remaining variadic parameter pack to the next constructor.
+   *
+   */
   template <typename... Args>
   NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Message const& m,
                                                   Args const&... args) noexcept
