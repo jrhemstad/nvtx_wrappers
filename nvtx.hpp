@@ -397,9 +397,10 @@ struct ARGB final : RGB {
 };
 
 /**
- * @brief Allows controlling the color associated with an NVTX event.
+ * @brief Represents a custom color that can be associated with an NVTX event
+ * via it's `EventAttributes`.
  *
- * Specifying custom colors for NVTX events is a convenient way to visually
+ * Specifying colors for NVTX events is a convenient way to visually
  * differentiate among different events in a visualization tool such as Nsight
  * Systems.
  *
@@ -409,7 +410,7 @@ class Color {
   using value_type = uint32_t;
 
   /**
-   * @brief Constructs a `Color` using the values provided by `hex_code`.
+   * @brief Constructs a `Color` using the value provided by `hex_code`.
    *
    * `hex_code` is expected to be a 4 byte ARGB hex code.
    *
