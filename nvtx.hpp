@@ -495,8 +495,7 @@ class Color {
  * string can be associated with the `id` to help differentiate among
  * categories.
  *
- * Categories are local to a particular domain that is specified via the type
- * `D`.
+ * `Category`s are local to a particular domain specified via the type `D`.
  *
  * @tparam D Type containing `name` member used to identify the `Domain` to
  * which the `Category` belongs. Else, `Domain::global` to  indicate that the
@@ -587,7 +586,32 @@ class Category {
  *
  * Registering a message yields a handle that may be used with any NVTX event.
  *
- * @tparam Domain Type containing `name` member used to identify the `Domain` to
+ * A particular message should should only be registered once and the handle
+ * reused throughout the rest of the application. This can be done by either
+ * explicitly creating static `RegisteredMessage` objects, or using the
+ * `RegisteredMessage::get` construct on first use helper (reccomended).
+ *
+ * Example:
+ * ```c++
+ *
+ * // Explicitly constructed, static `RegisteredMessage`
+ * static RegisteredMessage<my_domain> static_message{"message"};
+ *
+ * // Or use construct on first use:
+ *
+ * // Define a type with a `message` member that defines the contents of the
+ * // registered message
+ * struct my_message{ static constexpr char const* message{ "my message" }; };
+ *
+ * // Uses construct on first use to register the contents of
+ * // `my_message::message` and return a handle to the registered message
+ * auto handle = RegisteredMessage<my_domain>::get<my_message>();
+ * ```
+ *
+ * `RegisteredMessage`s are local to a particular domain specified via
+ * the type `D`.
+ *
+ * @tparam D Type containing `name` member used to identify the `Domain` to
  * which the `RegisteredMessage` belongs. Else, `Domain::global` to  indicate
  * that the global NVTX domain should be used.
  */
@@ -607,6 +631,17 @@ class RegisteredMessage {
    * All future invocations will return a reference to the object constructed in
    * the first invocation.
    *
+   * Example:
+   * ```c++
+   * // Define a type with a `message` member that defines the contents of the
+   * // registered message
+   * struct my_message{ static constexpr char const* message{ "my message" }; };
+   *
+   * // Uses construct on first use to register the contents of
+   * // `my_message::message` and return a handle to the registered message
+   * auto handle = RegisteredMessage<my_domain>::get<my_message>();
+   * ```
+   *
    * @tparam Message Type required to contain a member `Message::message` that
    * resolves to either a `char const*` or `wchar_t const*` used as the
    * registered message's contents.
@@ -623,6 +658,9 @@ class RegisteredMessage {
    * Registers `msg` with NVTX and associates a handle with the registered
    * message.
    *
+   * A particular message should should only be registered once and the handle
+   * reused throughout the rest of the application.
+   *
    * @param msg The contents of the message
    */
   constexpr explicit RegisteredMessage(char const* msg) noexcept
@@ -633,6 +671,9 @@ class RegisteredMessage {
    *
    * Registers `msg` with NVTX and associates a handle with the registered
    * message.
+   *
+   * A particular message should should only be registered once and the handle
+   * reused throughout the rest of the application.
    *
    * @param msg The contents of the message
    */
@@ -645,6 +686,9 @@ class RegisteredMessage {
    * Registers `msg` with NVTX and associates a handle with the registered
    * message.
    *
+   * A particular message should should only be registered once and the handle
+   * reused throughout the rest of the application.
+   *
    * @param msg The contents of the message
    */
   constexpr explicit RegisteredMessage(wchar_t const* msg) noexcept
@@ -655,6 +699,9 @@ class RegisteredMessage {
    *
    * Registers `msg` with NVTX and associates a handle with the registered
    * message.
+   *
+   * A particular message should should only be registered once and the handle
+   * reused throughout the rest of the application.
    *
    * @param msg The contents of the message
    */
