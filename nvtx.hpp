@@ -19,8 +19,7 @@
 
 #include <string>
 
-/**
- * @file nvtx.hpp
+/** \mainpage
  *
  * @brief Provides C++ constructs making the NVTX library safer and easier to
  * use with zero overhead.
@@ -36,7 +35,7 @@
  * accomplished with an NVTX range created on the entry to the function and
  * terminated on return from `my_function` using the push/pop C APIs:
  *
- * ```c++
+ * ```
  * void my_function(...){
  *    nvtxRangePushA("my_function"); // Begins NVTX range
  *
@@ -52,11 +51,11 @@
  * requires calling `nvtxRangePop()` before all possible return points.
  *
  * The C++ wrappers in this header solve this inconvenience (and others) by
- * providing a `thread_range` class using the "RAII" pattern. In short, upon
- * construction `thread_range` calls "push" and upon destruction calls "pop".
+ * providing a `nvtx::thread_range` class using the "RAII" pattern. In short, upon
+ * construction `nvtx::thread_range` calls "push" and upon destruction calls "pop".
  * The above example then becomes:
  *
- * ```c++
+ * ```
  * void my_function(...){
  *    nvtx::thread_range r{"my_function"}; // Begins NVTX range
  *
@@ -75,7 +74,7 @@
  * categories, and registered messages.
  *
  * Example:
- * ```c++
+ * ```
  * nvtxDomainHandle_t D = nvtxDomainCreateA("my domain");
  *
  * // Reuse `D` throughout the rest of the application
@@ -89,12 +88,13 @@
  * inconvenience. In short, it makes use of a function local static object that
  * safely constructs the object upon the first invocation of the function and
  * returns a reference to that object on all future invocations.  See the
- * documentation for `RegisteredMessage`, `Domain`, and `Category`  and
+ * documentation for `nvtx::RegisteredMessage`, `nvtx::Domain`, and
+ * `nvtx::NamedCategory`  and
  * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use for more
  * information.
  *
  * Using construct on first use, the above example becomes:
- * ```c++
+ * ```
  * struct my_domain{ static constexpr char const* name{"my domain"}; };
  *
  * // The first invocation of `Domain::get` for the type `my_domain` will
@@ -170,7 +170,7 @@ constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
  * object. See `Domain::get`.
  *
  * Example:
- * ```c++
+ * ```
  * // The type `my_domain` defines a `name` member used to name and identify the
  * // `Domain` object identified by `my_domain`.
  * struct my_domain{ static constexpr char const* name{"my_domain"}; };
@@ -225,7 +225,7 @@ class Domain {
    * `DomainName::name` is used to name and uniquely identify the `Domain`.
    *
    * Example:
-   * ```c++
+   * ```
    * // The type `my_domain` defines a `name` member used to name and identify
    * // the `Domain` object identified by `my_domain`.
    * struct my_domain{ static constexpr char const* name{"my domain"}; };
@@ -539,7 +539,7 @@ class Category {
  * `NamedCategory::get` construct on first use helper (reccomended).
  *
  * Example:
- * ```c++
+ * ```
  *
  * // Explicitly constructed, static `NamedCategory`
  * static nvtx::NamedCategory static_category{42, "my category"};
@@ -586,7 +586,7 @@ class NamedCategory final : public Category {
    * and reusing the same instance throughout an application.
    *
    * Example:
-   * ```c++
+   * ```
    * // Define a type with `name` and `id` members
    * struct my_category{
    *    static constexpr char const* name{"my category"}; // Category name
@@ -659,7 +659,7 @@ class NamedCategory final : public Category {
  * `RegisteredMessage::get` construct on first use helper (reccomended).
  *
  * Example:
- * ```c++
+ * ```
  *
  * // Explicitly constructed, static `RegisteredMessage`
  * static RegisteredMessage<my_domain> static_message{"message"};
@@ -705,7 +705,7 @@ class RegisteredMessage {
    * the first invocation.
    *
    * Example:
-   * ```c++
+   * ```
    * // Define a type with a `message` member that defines the contents of the
    * // registered message
    * struct my_message{ static constexpr char const* message{ "my message" }; };
@@ -810,7 +810,7 @@ class RegisteredMessage {
  * allows for naming events to easily differentiate them from other events.
  *
  * Example:
- * ```c++
+ * ```
  * // Creates an `EventAttributes` with message "message 0"
  * nvtx::EventAttributes attr0{nvtx::Message{"message 0"}};
  *
@@ -932,7 +932,7 @@ class Message {
  * its `EventAttributes`.
  *
  * Example:
- * ```c++
+ * ```
  * nvtx:: EventAttributes attr{nvtx::Payload{42}}; // Constructs a Payload from
  *                                                 // the `int32_t` value 42
  *
@@ -1047,13 +1047,13 @@ class Payload {
  * only specify a subset of attributes and use default values for the others.
  * For convenience, `EventAttributes` can be constructed from any number of
  * attribute components in any order.
- * 
- * 
+ *
+ *
  *
  * Example:
  * \code{.cpp}
  * EventAttributes attr{}; // No arguments, use defaults for all attributes
- * 
+ *
  * EventAttributes attr{"message"}; // Custom message, rest defaulted
  *
  * // Custom color & message
@@ -1081,7 +1081,7 @@ class Payload {
  *
  * // Range `r` will be customized according the attributes in `attr`
  * nvtx::thread_range r{attr};
- * 
+ *
  * // For convenience, the arguments that can be passed to the `EventAttributes`
  * // constructor may be passed to the `domain_thread_range` contructor where
  * // they will be forwarded to the `EventAttribute`s constructor
@@ -1212,7 +1212,7 @@ class EventAttributes {
  * with the type `D`.
  *
  * Example:
- * ```c++
+ * ```
  * // Define a type `my_domain` with a member `name` used to name the domain
  * // associated with the type `my_domain`.
  * struct my_domain{
@@ -1221,7 +1221,7 @@ class EventAttributes {
  * ```
  *
  * Usage:
- * ```c++
+ * ```
  * nvtx::domain_thread_range<> r0{"range 0"}; // Range in global domain
  *
  * nvtx::thread_range r1{"range 1"}; // Alias for range in global domain
@@ -1242,7 +1242,7 @@ class domain_thread_range {
    * `EventAttributes`
    *
    * Example:
-   * ```c++
+   * ```
    * EventAttributes attr{"msg", nvtx::RGB{127,255,0}};
    * domain_thread_range<> range{attr}; // Creates a range with message contents
    *                                    // "msg" and green color
@@ -1263,9 +1263,9 @@ class domain_thread_range {
    * object.
    *
    * For more detail, see `EventAttributes` documentation.
-   * 
+   *
    * Example:
-   * ```c++
+   * ```
    * // Creates a range with message "message" and green color
    * domain_thread_range<> r{"message", nvtx::RGB{127,255,0}};
    * ```
@@ -1316,7 +1316,7 @@ using thread_range = domain_thread_range<>;
  * message.
  *
  * Example:
- * ```c++
+ * ```
  * struct my_domain{static constexpr char const* name{"my_domain"};};
  *
  * void foo(...){
@@ -1349,7 +1349,7 @@ using thread_range = domain_thread_range<>;
  * message.
  *
  * Example:
- * ```c++
+ * ```
  * void foo(...){
  *    NVTX_FUNC_RANGE(); // Range begins on entry to foo()
  *    // do stuff
