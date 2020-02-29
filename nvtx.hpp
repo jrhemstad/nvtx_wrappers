@@ -263,8 +263,8 @@ class Domain {
    * @brief Tag type for the "global" NVTX domain.
    *
    * This type may be passed as a template argument to any function/class
-   * expecting a `Domain` argument to indicate that the global domain should be
-   * used.
+   * expecting a type to identify a domain to indicate that the global domain
+   * should be used.
    *
    * All NVTX events in the global domain across all libraries and applications
    * will be grouped together.
