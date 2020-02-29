@@ -645,7 +645,7 @@ class RegisteredMessage {
  private:
   nvtxStringHandle_t const handle_{};  ///< The handle returned from
                                        ///< registering the message with NVTX
-};                                     // namespace nvtx
+};
 
 /**
  * @brief Allows associating a message string with an NVTX event via
