@@ -83,8 +83,8 @@ endif(GTEST_FOUND)
 ###################################################################################################
 # - build doxygen ---------------------------------------------------------------------------------
 add_custom_command(OUTPUT BUILD_DOXYGEN
-                   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doxygen
-                   COMMAND doxygen Doxyfile
+                   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                   COMMAND doxygen doxygen/Doxyfile
                    VERBATIM)
 
 add_custom_target(docs DEPENDS BUILD_DOXYGEN)

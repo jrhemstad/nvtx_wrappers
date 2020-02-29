@@ -41,4 +41,3 @@ build/
 thirdparty/googletest/
 
 # Doxygen
-doxygen/
