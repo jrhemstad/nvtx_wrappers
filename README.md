@@ -1,7 +1,6 @@
-# nvtx_wrappers
+# NVTX++
 
 Provides C++ convenience wrappers for NVIDIA Tool Extension (NVTX) C APIs. 
 
-Includes:
-- nvtx::thread_range
-   - A RAII wrapper for creating an NVTX nested thread range
+See https://jrhemstad.github.io/nvtx_wrappers/html/index.html for Doxygen documentation.
+
