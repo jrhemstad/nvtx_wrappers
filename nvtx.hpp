@@ -93,6 +93,16 @@
  * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use for more
  * information.
  *
+ * Using construct on first use, the above example becomes:
+ * ```c++
+ * struct my_domain{ static constexpr char const* name{"my domain"}; };
+ *
+ * // The first invocation of `Domain::get` for the type `my_domain` will
+ * // construct a `nvtx::Domain` object and return a reference to it. Future
+ * // invocations simply return a reference. 
+ * nvtx::Domain const& D = nvtx::Domain::get<my_domain>();
+ * ```
+ *
  * For more information about NVTX and how it can be used, see
  * https://docs.nvidia.com/cuda/profiler-users-guide/index.html#nvtx and
  * https://devblogs.nvidia.com/cuda-pro-tip-generate-custom-application-profile-timelines-nvtx/
