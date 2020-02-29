@@ -91,6 +91,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">nvtx.hpp File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Provides C++ constructs making the NVTX library safer and easier to use with zero overhead.  
+<a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;nvToolsExt.h&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -170,7 +173,9 @@ Functions</h2></td></tr>
 <tr class="memdesc:adaac1defc761db1a01d5161775b8188d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns reference to the <code><a class="el" href="classnvtx_1_1Domain.html" title="Domains allow for grouping NVTX events into a single scope to differentiate them from events in other...">Domain</a></code> object that represents the global NVTX domain.  <a href="nvtx_8hpp.html#adaac1defc761db1a01d5161775b8188d">More...</a><br /></td></tr>
 <tr class="separator:adaac1defc761db1a01d5161775b8188d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Macro Definition Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Provides C++ constructs making the NVTX library safer and easier to use with zero overhead. </p>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
 <a class="anchor" id="a293e6557152209335b50f785c19dccb3"></a>
 <div class="memitem">
 <div class="memproto">
@@ -203,7 +208,7 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">static ::nvtx::RegisteredMessage&lt;D&gt; <span class="keyword">const</span> nvtx_func_name__{__func__};    \</div><div class="line">  static ::nvtx::EventAttributes <span class="keyword">const</span> nvtx_func_attr__{nvtx_func_name__}; \</div><div class="line">  <a class="code" href="classnvtx_1_1domain__thread__range.html">::nvtx::domain_thread_range&lt;D&gt;</a> <span class="keyword">const</span> nvtx_range__{nvtx_func_attr__};</div><div class="ttc" id="classnvtx_1_1domain__thread__range_html"><div class="ttname"><a href="classnvtx_1_1domain__thread__range.html">nvtx::domain_thread_range</a></div><div class="ttdoc">A RAII object for creating a NVTX range local to a thread within a domain. </div><div class="ttdef"><b>Definition:</b> nvtx.hpp:1251</div></div>
+<b>Value:</b><div class="fragment"><div class="line">static ::nvtx::RegisteredMessage&lt;D&gt; <span class="keyword">const</span> nvtx_func_name__{__func__};    \</div><div class="line">  static ::nvtx::EventAttributes <span class="keyword">const</span> nvtx_func_attr__{nvtx_func_name__}; \</div><div class="line">  <a class="code" href="classnvtx_1_1domain__thread__range.html">::nvtx::domain_thread_range&lt;D&gt;</a> <span class="keyword">const</span> nvtx_range__{nvtx_func_attr__};</div><div class="ttc" id="classnvtx_1_1domain__thread__range_html"><div class="ttname"><a href="classnvtx_1_1domain__thread__range.html">nvtx::domain_thread_range</a></div><div class="ttdoc">A RAII object for creating a NVTX range local to a thread within a domain. </div><div class="ttdef"><b>Definition:</b> nvtx.hpp:1249</div></div>
 </div><!-- fragment -->
 <p>Convenience macro for generating a range in the specified <code>Domain</code> from the lifetime of a function. </p>
 <p>This macro is useful for generating an NVTX range in <code>Domain</code> from the entry point of a function to its exit. It is intended to be the first line of the function.</p>

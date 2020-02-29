@@ -671,8 +671,7 @@ class NamedCategory final : public Category {
  * `RegisteredMessage::get` construct on first use helper (reccomended).
  *
  * Example:
- * ```
- *
+ * \code{.cpp}
  * // Explicitly constructed, static `RegisteredMessage`
  * static RegisteredMessage<my_domain> static_message{"message"};
  *
@@ -691,7 +690,7 @@ class NamedCategory final : public Category {
  *
  * // "my message" is associated with the range `r`
  * nvtx::thread_range r{msg};
- * ```
+ * \endcode
  *
  * `RegisteredMessage`s are local to a particular domain specified via
  * the type `D`.
@@ -822,7 +821,7 @@ class RegisteredMessage {
  * allows for naming events to easily differentiate them from other events.
  *
  * Example:
- * ```
+ * \code{.cpp}
  * // Creates an `EventAttributes` with message "message 0"
  * nvtx::EventAttributes attr0{nvtx::Message{"message 0"}};
  *
@@ -844,7 +843,7 @@ class RegisteredMessage {
  * // the contents of an `nvtx::Message`
  * // `range3` contains message "message 3"
  * nvtx::thread_range range3{"message 3"};
- * ```
+ * \endcode
  */
 class Message {
  public:
