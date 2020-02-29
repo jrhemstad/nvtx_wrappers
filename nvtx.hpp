@@ -22,10 +22,11 @@
 /**
  * @file nvtx.hpp
  *
+ * \mainpage
+ * 
  * @brief Provides C++ constructs making the NVTX library safer and easier to
  * use with zero overhead.
  * 
- * \mainpage
  *
  * The NVTX library provides C APIs for users to annotate their code to aid in
  * performance profiling and optimization. One of the most commonly  used NVTX
