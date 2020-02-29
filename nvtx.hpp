@@ -716,7 +716,7 @@ class RegisteredMessage {
    * the first invocation.
    *
    * Example:
-   * ```
+   * \code{.cpp}
    * // Define a type with a `message` member that defines the contents of the
    * // registered message
    * struct my_message{ static constexpr char const* message{ "my message" }; };
@@ -727,7 +727,7 @@ class RegisteredMessage {
    *
    * // "my message" is associated with the range `r`
    * nvtx::thread_range r{msg};
-   * ```
+   * \endcode
    *
    * @tparam Message Type required to contain a member `Message::message` that
    * resolves to either a `char const*` or `wchar_t const*` used as the
