@@ -99,7 +99,7 @@
  *
  * // The first invocation of `Domain::get` for the type `my_domain` will
  * // construct a `nvtx::Domain` object and return a reference to it. Future
- * // invocations simply return a reference. 
+ * // invocations simply return a reference.
  * nvtx::Domain const& D = nvtx::Domain::get<my_domain>();
  * ```
  *
@@ -275,6 +275,9 @@ class Domain {
   /**---------------------------------------------------------------------------*
    * @brief Construct a new Domain with the specified `name`.
    *
+   * This constructor is private as it is intended that `Domain` objects only be
+   * created through the `Domain::get` function.
+   *
    * @param name A unique name identifying the domain
    *---------------------------------------------------------------------------**/
   explicit Domain(const char* name) noexcept
@@ -282,6 +285,9 @@ class Domain {
 
   /**---------------------------------------------------------------------------*
    * @brief Construct a new Domain with the specified `name`.
+   *
+   * This constructor is private as it is intended that `Domain` objects only be
+   * created through the `Domain::get` function.
    *
    * @param name A unique name identifying the domain
    *---------------------------------------------------------------------------**/
@@ -291,9 +297,22 @@ class Domain {
   /**---------------------------------------------------------------------------*
    * @brief Construct a new Domain with the specified `name`.
    *
+   * This constructor is private as it is intended that `Domain` objects only be
+   * created through the `Domain::get` function.
+   *
    * @param name A unique name identifying the domain
    *---------------------------------------------------------------------------**/
   explicit Domain(std::string const& name) noexcept : Domain{name.c_str()} {}
+
+  /**---------------------------------------------------------------------------*
+   * @brief Construct a new Domain with the specified `name`.
+   *
+   * This constructor is private as it is intended that `Domain` objects only be
+   * created through the `Domain::get` function.
+   *
+   * @param name A unique name identifying the domain
+   *---------------------------------------------------------------------------**/
+  explicit Domain(std::wstring const& name) noexcept : Domain{name.c_str()} {}
 
   /**
    * @brief Default constructor creates a `Domain` representing the
