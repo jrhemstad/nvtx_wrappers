@@ -139,7 +139,7 @@ constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
 }
 }  // namespace detail
 
-/**---------------------------------------------------------------------------*
+/**
  * @brief `Domain`s allow for grouping NVTX events into a single scope to
  * differentiate them from events in other `Domain`s.
  *
@@ -190,7 +190,7 @@ constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
  * // global domain
  * nvtx::thread_range r3{};
  * ```
- *---------------------------------------------------------------------------**/
+ */
 class Domain {
  public:
   Domain(Domain const&) = delete;
@@ -250,12 +250,12 @@ class Domain {
     return d;
   }
 
-  /**---------------------------------------------------------------------------*
+  /**
    * @brief Conversion operator to `nvtxDomainHandle_t`.
    *
    * Allows transparently passing a Domain object into an API expecting a native
    * `nvtxDomainHandle_t` object.
-   *---------------------------------------------------------------------------**/
+   */
   operator nvtxDomainHandle_t() const noexcept { return _domain; }
 
   /**
@@ -272,46 +272,46 @@ class Domain {
   struct global {};
 
  private:
-  /**---------------------------------------------------------------------------*
+  /**
    * @brief Construct a new Domain with the specified `name`.
    *
    * This constructor is private as it is intended that `Domain` objects only be
    * created through the `Domain::get` function.
    *
    * @param name A unique name identifying the domain
-   *---------------------------------------------------------------------------**/
+   */
   explicit Domain(const char* name) noexcept
       : _domain{nvtxDomainCreateA(name)} {}
 
-  /**---------------------------------------------------------------------------*
+  /**
    * @brief Construct a new Domain with the specified `name`.
    *
    * This constructor is private as it is intended that `Domain` objects only be
    * created through the `Domain::get` function.
    *
    * @param name A unique name identifying the domain
-   *---------------------------------------------------------------------------**/
+   */
   explicit Domain(const wchar_t* name) noexcept
       : _domain{nvtxDomainCreateW(name)} {}
 
-  /**---------------------------------------------------------------------------*
+  /**
    * @brief Construct a new Domain with the specified `name`.
    *
    * This constructor is private as it is intended that `Domain` objects only be
    * created through the `Domain::get` function.
    *
    * @param name A unique name identifying the domain
-   *---------------------------------------------------------------------------**/
+   */
   explicit Domain(std::string const& name) noexcept : Domain{name.c_str()} {}
 
-  /**---------------------------------------------------------------------------*
+  /**
    * @brief Construct a new Domain with the specified `name`.
    *
    * This constructor is private as it is intended that `Domain` objects only be
    * created through the `Domain::get` function.
    *
    * @param name A unique name identifying the domain
-   *---------------------------------------------------------------------------**/
+   */
   explicit Domain(std::wstring const& name) noexcept : Domain{name.c_str()} {}
 
   /**
@@ -324,10 +324,10 @@ class Domain {
    */
   Domain() = default;
 
-  /**---------------------------------------------------------------------------*
+  /**
    * @brief Destroy the Domain object, unregistering and freeing all domain
    * specific resources.
-   *---------------------------------------------------------------------------**/
+   */
   ~Domain() noexcept { nvtxDomainDestroy(_domain); }
 
  private:
