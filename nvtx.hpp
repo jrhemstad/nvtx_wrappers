@@ -1205,16 +1205,21 @@ class EventAttributes {
  * global NVTX domain. The convenience alias `thread_range` is provided for
  * ranges scoped to the global domain.
  *
- * If a custom domain is desired, a custom type may be specified. This type is
- * required to contain a `static constexpr const char*` member called `name`.
- * For example:
+ * If a custom domain is desired, a custom type `D` may be specified. This type
+ * is required to contain a member `D::name` that resolves to either a `char
+ * const*` or `wchar_t const*`. `D::name` is used to name the domain associated
+ * with the type `D`.
+ *
+ * Example:
  * ```c++
+ * // Define a type `my_domain` with a member `name` used to name the domain
+ * // associated with the type `my_domain`.
  * struct my_domain{
  *    static constexpr const char * name{"my domain"};
  * };
  * ```
  *
- * Example usage:
+ * Usage:
  * ```c++
  * nvtx::domain_thread_range<> r0{"range 0"}; // Range in global domain
  *
@@ -1232,7 +1237,7 @@ template <class D = Domain::global>
 class domain_thread_range {
  public:
   /**
-   * @brief Construct a `domain_thread_range` from the specified
+   * @brief Construct a `domain_thread_range` with the specified
    * `EventAttributes`
    *
    * Example:
@@ -1242,19 +1247,36 @@ class domain_thread_range {
    *                                    // "msg" and green color
    * ```
    *
-   * @param attr `EventAttributes` that describes the desired attributes of the
-   * range.
+   * @param[in] attr `EventAttributes` that describes the desired attributes of
+   * the range.
    */
   explicit domain_thread_range(EventAttributes const& attr) noexcept {
     nvtxDomainRangePushEx(Domain::get<D>(), attr.get());
   }
 
   /**
-   * @brief Construct a `domain_thread_range`
+   * @brief Convenience constructor that allows creating a `domain_thread_range`
+   * from the constructor arguments of an `EventAttributes`.
+   *
+   * Forwards the arguments `first, args...` to construct an `EventAttributes`
+   * object.
+   *
+   * For more detail, see `EventAttributes` documentation.
+   * 
+   * Example:
+   * ```c++
+   * // Creates a range with message "message" and green color
+   * domain_thread_range<> r{"message", nvtx::RGB{127,255,0}};
+   * ```
+   *
+   * @note To prevent making needless copies of `EventAttributes` objects, this
+   * constructor is disabled when the first argument is an `EventAttributes`
+   * object, instead preferring the explicit
+   * `domain_thread_range(EventAttributes const&)` constructor.
    *
    */
   template <typename First, typename... Args,
-            typename = typename std::enable_if<std::is_same<
+            typename = typename std::enable_if<not std::is_same<
                 EventAttributes, typename std::decay<First>>::value>>
   explicit domain_thread_range(First const& first, Args const&... args) noexcept
       : domain_thread_range{EventAttributes{first, args...}} {}
@@ -1265,9 +1287,9 @@ class domain_thread_range {
   domain_thread_range(domain_thread_range&&) = delete;
   domain_thread_range& operator=(domain_thread_range&&) = delete;
 
-  /**---------------------------------------------------------------------------*
+  /**
    * @brief Destroy the domain_thread_range, ending the NVTX range event.
-   *---------------------------------------------------------------------------**/
+   */
   ~domain_thread_range() noexcept { nvtxDomainRangePop(Domain::get<D>()); }
 };
 
