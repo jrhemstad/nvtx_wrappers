@@ -199,14 +199,8 @@ class Domain {
   Domain& operator=(Domain&&) = delete;
 
   /**
-   * @brief Returns reference to an instance of a `Domain` constructed using the
-   * specified name created as a function local static.
-   *
-   * None of the constructs in this header require the user to directly invoke
-   * `Domain::get`. It is automatically invoked when constructing objects like a
-   * `thread_range` or `Category`. Advanced users may wish to use `Domain::get`
-   * for the convenience of the "construct on first use" idiom when using
-   * domains with their own use of the NVTX C API.
+   * @brief Returns reference to an instance of a function local static `Domain`
+   * object.
    *
    * Uses the "construct on first use" idiom to safely ensure the `Domain`
    * object is initialized exactly once upon first invocation of
@@ -214,15 +208,22 @@ class Domain {
    * reference to the previously constructed `Domain` object. See
    * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
    *
+   * None of the constructs in this header require the user to directly invoke
+   * `Domain::get`. It is automatically invoked when constructing objects like a
+   * `domain_thread_range` or `Category`. Advanced users may wish to use
+   * `Domain::get` for the convenience of the "construct on first use" idiom
+   * when using domains with their own use of the NVTX C API.
+   *
    * This function is threadsafe as of C++11. If two or more threads call
    * `Domain::get<DomainName>` concurrently, exactly one of them is guaranteed
    * to construct the `Domain` object and the other(s) will receive a reference
    * to the object after it is fully constructed.
    *
-   * The Domain's name is specified via template parameter `DomainName`.
-   * The type `DomainName` is required to contain a member `DomainName::name`
-   * that resolves to either a `char const*` or `wchar_t const*`. The value of
-   * `DomainName::name` is used to name and uniquely identify the `Domain`.
+   * The Domain's name is specified via the type `DomainName` pass as an
+   * explicit template parameter. `DomainName` is required to contain a
+   * member `DomainName::name` that resolves to either a `char const*` or
+   * `wchar_t const*`. The value of `DomainName::name` is used to name and
+   * uniquely identify the `Domain`.
    *
    * Example:
    * ```
@@ -239,7 +240,7 @@ class Domain {
    *
    * @tparam DomainName Type that contains a `DomainName::name` member used to
    * name the `Domain` object.
-   * @return Reference to the `Domain` created with the specified name.
+   * @return Reference to the `Domain` corresponding to the type `DomainName`.
    */
   template <typename DomainName>
   static Domain const& get() {
