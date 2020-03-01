@@ -82,7 +82,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
 <ul><li class="level1"><a href="#Overview">Overview</a></li>
-<li class="level1"><a href="#RANGES">Ranges</a></li>
+<li class="level1"><a href="#RANGES">Ranges</a><ul><li class="level2"><a href="#THREAD_RANGE">Thread Range</a></li>
+<li class="level2"><a href="#PROCESS_RANGE">Process Range</a></li>
+</ul>
+</li>
 <li class="level1"><a href="#DOMAINS">Domains</a></li>
 <li class="level1"><a href="#ATTRIBUTES">Event Attributes</a><ul><li class="level2"><a href="#MESSAGES">Message</a><ul><li class="level3"><a href="#REGISTERED_MESSAGE">Registered Messages</a></li>
 </ul>
@@ -94,6 +97,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li class="level2"><a href="#Payload">Payload</a></li>
 </ul>
 </li>
+<li class="level1"><a href="#EXAMPLE">Example</a></li>
 </ul>
 </div>
 <div class="textblock"><h1><a class="anchor" id="Overview"></a>
@@ -109,6 +113,18 @@ Overview</h1>
 <p>Using construct on first use, the above example becomes: </p><div class="fragment"><div class="line"><span class="keyword">struct </span>my_domain{ <span class="keyword">static</span> constexpr <span class="keywordtype">char</span> <span class="keyword">const</span>* name{<span class="stringliteral">&quot;my domain&quot;</span>}; };</div><div class="line"></div><div class="line"><span class="comment">// The first invocation of `Domain::get` for the type `my_domain` will</span></div><div class="line"><span class="comment">// construct a `nvtx::Domain` object and return a reference to it. Future</span></div><div class="line"><span class="comment">// invocations simply return a reference.</span></div><div class="line"><a class="code" href="classnvtx_1_1Domain.html">nvtx::Domain</a> <span class="keyword">const</span>&amp; D = nvtx::Domain::get&lt;my_domain&gt;();</div></div><!-- fragment --><p> For more information about NVTX and how it can be used, see <a href="https://docs.nvidia.com/cuda/profiler-users-guide/index.html#nvtx">https://docs.nvidia.com/cuda/profiler-users-guide/index.html#nvtx</a> and <a href="https://devblogs.nvidia.com/cuda-pro-tip-generate-custom-application-profile-timelines-nvtx/">https://devblogs.nvidia.com/cuda-pro-tip-generate-custom-application-profile-timelines-nvtx/</a> for more information.</p>
 <h1><a class="anchor" id="RANGES"></a>
 Ranges</h1>
+<p>Ranges are used to describe a span of time during the execution of an application. Common examples are using ranges to annotate the time it takes to execute a function or an iteration of a loop.</p>
+<p>NVTX++ uses RAII to automate the generation of ranges that are tied to the lifetime of objects. Similar to <code>std::lock_guard</code> in the C++ Standard Template Library.</p>
+<h2><a class="anchor" id="THREAD_RANGE"></a>
+Thread Range</h2>
+<p><code><a class="el" href="classnvtx_1_1domain__thread__range.html" title="A RAII object for creating a NVTX range local to a thread within a domain. ">nvtx::domain_thread_range</a></code> is a class that begins a range upon construction and ends the range at destruction. This is one of the most commonly used constructs in NVTX++ and is useful for annotating spans of time on a particular thread. These ranges can be nested to arbitrary depths.</p>
+<p><code>nvtx::thread_range</code> is an alias for a <code><a class="el" href="classnvtx_1_1domain__thread__range.html" title="A RAII object for creating a NVTX range local to a thread within a domain. ">nvtx::domain_thread_range</a></code> in the global NVTX domain. For more information about Domains, see <a class="el" href="index.html#DOMAINS">Domains</a>.</p>
+<p>Various attributes of a range can be configured constructing a <code><a class="el" href="classnvtx_1_1domain__thread__range.html" title="A RAII object for creating a NVTX range local to a thread within a domain. ">nvtx::domain_thread_range</a></code> with a <code><a class="el" href="classnvtx_1_1EventAttributes.html" title="Describes the attributes of a NVTX event. ">nvtx::EventAttributes</a></code> object. For more information, see <a class="el" href="index.html#ATTRIBUTES">Event Attributes</a>.</p>
+<p>Example:</p>
+<div class="fragment"><div class="line"><span class="keywordtype">void</span> some_function(){</div><div class="line">   <span class="comment">// Creates a range for the duration of `some_function`</span></div><div class="line">   <a class="code" href="classnvtx_1_1domain__thread__range.html">nvtx::thread_range</a> r{};</div><div class="line"></div><div class="line">   <span class="keywordflow">while</span>(<span class="keyword">true</span>){</div><div class="line">      <span class="comment">// Creates a range for every loop iteration</span></div><div class="line">      <span class="comment">// `loop_range` is nested inside `r`</span></div><div class="line">      <a class="code" href="classnvtx_1_1domain__thread__range.html">nvtx::thread_range</a> loop_range{};</div><div class="line">   }</div><div class="line">}</div></div><!-- fragment --><h2><a class="anchor" id="PROCESS_RANGE"></a>
+Process Range</h2>
+<p><code><a class="el" href="classnvtx_1_1domain__process__range.html" title="A RAII object for creating a NVTX range within a domain that can be created and destroyed on differen...">nvtx::domain_process_range</a></code> is identical to <code><a class="el" href="classnvtx_1_1domain__thread__range.html" title="A RAII object for creating a NVTX range local to a thread within a domain. ">nvtx::domain_thread_range</a></code> with the exception that a <code>domain_process_range</code> can be created and destroyed on different threads. This is useful to annotate spans of time that can bridge multiple threads.</p>
+<p><code><a class="el" href="classnvtx_1_1domain__thread__range.html" title="A RAII object for creating a NVTX range local to a thread within a domain. ">nvtx::domain_thread_range</a></code>s should be preferred unless one needs the ability to begin and end a range on different threads.</p>
 <h1><a class="anchor" id="DOMAINS"></a>
 Domains</h1>
 <h1><a class="anchor" id="ATTRIBUTES"></a>
@@ -125,6 +141,8 @@ Category</h2>
 Named Categories</h3>
 <h2><a class="anchor" id="Payload"></a>
 Payload</h2>
+<h1><a class="anchor" id="EXAMPLE"></a>
+Example</h1>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

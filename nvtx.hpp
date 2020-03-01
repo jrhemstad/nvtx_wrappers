@@ -109,6 +109,53 @@
  *
  * \section RANGES Ranges
  *
+ * Ranges are used to describe a span of time during the execution of an
+ * application. Common examples are using ranges to annotate the time it takes
+ * to execute a function or an iteration of a loop.
+ *
+ * NVTX++ uses RAII to automate the generation of ranges that are tied to the
+ * lifetime of objects. Similar to `std::lock_guard` in the C++ Standard
+ * Template Library.
+ *
+ * \subsection THREAD_RANGE Thread Range
+ *
+ * `nvtx::domain_thread_range` is a class that begins a range upon construction
+ * and ends the range at destruction. This is one of the most commonly used
+ * constructs in NVTX++ and is useful for annotating spans of time on a
+ * particular thread. These ranges can be nested to arbitrary depths.
+ *
+ * `nvtx::thread_range` is an alias for a `nvtx::domain_thread_range` in the
+ * global NVTX domain. For more information about Domains, see \ref DOMAINS.
+ *
+ * Various attributes of a range can be configured constructing a
+ * `nvtx::domain_thread_range` with a `nvtx::EventAttributes` object. For
+ * more information, see \ref ATTRIBUTES.
+ *
+ * Example:
+ *
+ * \code{.cpp}
+ * void some_function(){
+ *    // Creates a range for the duration of `some_function`
+ *    nvtx::thread_range r{};
+ *
+ *    while(true){
+ *       // Creates a range for every loop iteration
+ *       // `loop_range` is nested inside `r`
+ *       nvtx::thread_range loop_range{};
+ *    }
+ * }
+ * \endcode
+ *
+ * \subsection PROCESS_RANGE Process Range
+ *
+ * `nvtx::domain_process_range` is identical to `nvtx::domain_thread_range` with
+ * the exception that a `domain_process_range` can be created and destroyed on
+ * different threads. This is useful to annotate spans of time that can bridge
+ * multiple threads.
+ *
+ * `nvtx::domain_thread_range`s should be preferred unless one needs the
+ * ability to begin and end a range on different threads.
+ *
  * \section DOMAINS Domains
  *
  * \section ATTRIBUTES Event Attributes
@@ -119,6 +166,7 @@
  * \subsection CATEGORY Category
  * \subsubsection NAMED_CATEGORIES Named Categories
  * \subsection Payload
+ * \section EXAMPLE Example
  *
  */
 
