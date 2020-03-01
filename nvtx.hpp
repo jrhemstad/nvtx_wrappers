@@ -24,26 +24,28 @@
  *
  * @brief Provides C++ constructs making the NVTX library safer and easier to
  * use with zero overhead.
- *
+ */
+
+/**
  * \mainpage
+ * \tableofcontents
+ * \section Overview
  *
- * The NVTX library provides C APIs for users to annotate their code to aid in
- * performance profiling and optimization. One of the most commonly  used NVTX
- * features are "ranges". Ranges allow the user to annotate a span of time which
- * can later be visualized in the application timeline by tools such as Nsight
- * Systems.
+ * The NVTX library provides a set of functions for users to annotate their code
+ * to aid in performance profiling and optimization. These annotations provide
+ * information to tools like Nsight Systems to improve visualization of
+ * application timelines.
  *
- * For example, imagine a user wanted to see every time a function,
- * `my_function`, is called and how long it takes to execute. This can be
- * accomplished with an NVTX range created on the entry to the function and
+ * \ref RANGES are one of the most commonly used NVTX constructs for annotating
+ * a span of time. For example, imagine a user wanted to see every time a
+ * function, `my_function`, is called and how long it takes to execute. This can
+ * be accomplished with an NVTX range created on the entry to the function and
  * terminated on return from `my_function` using the push/pop C APIs:
  *
  * ```
  * void my_function(...){
  *    nvtxRangePushA("my_function"); // Begins NVTX range
- *
  *    // do work
- *
  *    nvtxRangePop(); // Ends NVTX range
  * }
  * ```
@@ -53,34 +55,29 @@
  * if `my_function()` has multiple returns or can throw exceptions as it
  * requires calling `nvtxRangePop()` before all possible return points.
  *
- * The C++ wrappers in this header solve this inconvenience (and others) by
- * providing a `nvtx::thread_range` class using the "RAII" pattern. In short,
- * upon construction `nvtx::thread_range` calls "push" and upon destruction
- * calls "pop". The above example then becomes:
+ * NVTX++ solves this inconvenience through the "RAII" technique by providing a
+ * `nvtx::thread_range` class that begins a range at construction and ends the
+ * range on destruction. The above example then becomes:
  *
  * ```
  * void my_function(...){
  *    nvtx::thread_range r{"my_function"}; // Begins NVTX range
- *
  *    // do work
- *
  * } // Range ends on exit from `my_function` when `r` is destroyed
  * ```
  *
- * No matter when or where `my_function` returns, through the rules of object
- * lifetime, `r` is guaranteed to be destroyed before `my_function` returns and
- * end the NVTX range without manual intervention. For more information, see
- * `nvtx::domain_thread_range`.
+ * The range object `r` is deterministically destroyed whenever `my_function`
+ * returns---ending the NVTX range without manual intervention. For more
+ * information, see \ref RANGES and `nvtx::domain_thread_range`.
  *
- * Additionally, the NVTX C API has several constructs where the user is
- * expected to initialize an object at the beggining of an application and reuse
- * that object throughout the lifetime of the application. For example: domains,
- * categories, and registered messages.
+ * Another inconvenience of the NVTX C APIs are the several constructs where the
+ * user is expected to initialize an object at the beginning of an application
+ * and reuse that object throughout the lifetime of the application. For example
+ * Domains, Categories, and Registered messages.
  *
  * Example:
  * ```
  * nvtxDomainHandle_t D = nvtxDomainCreateA("my domain");
- *
  * // Reuse `D` throughout the rest of the application
  * ```
  *
@@ -88,12 +85,11 @@
  * explicit initialization function called before all other functions to
  * ensure that these long-lived objects are initialized before being used.
  *
- * This header makes use of the "construct on first use" idiom to alleviate this
- * inconvenience. In short, it makes use of a function local static object that
- * safely constructs the object upon the first invocation of the function and
- * returns a reference to that object on all future invocations.  See the
- * documentation for `nvtx::RegisteredMessage`, `nvtx::Domain`, and
- * `nvtx::NamedCategory`  and
+ * NVTX++ makes use of the "construct on first use" technique to alleviate this
+ * inconvenience. In short, a function local static object is constructed upon
+ * the first invocation of a function and returns a reference to that object on
+ * all future invocations. See the documentation for `nvtx::RegisteredMessage`,
+ * `nvtx::Domain`, and `nvtx::NamedCategory`  and
  * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use for more
  * information.
  *
@@ -106,11 +102,23 @@
  * // invocations simply return a reference.
  * nvtx::Domain const& D = nvtx::Domain::get<my_domain>();
  * ```
- *
  * For more information about NVTX and how it can be used, see
  * https://docs.nvidia.com/cuda/profiler-users-guide/index.html#nvtx and
  * https://devblogs.nvidia.com/cuda-pro-tip-generate-custom-application-profile-timelines-nvtx/
  * for more information.
+ *
+ * \section RANGES Ranges
+ *
+ * \section DOMAINS Domains
+ *
+ * \section ATTRIBUTES Event Attributes
+ *
+ * \subsection MESSAGES Message
+ * \subsubsection REGISTERED_MESSAGE Registered Messages
+ * \subsection COLOR Color
+ * \subsection CATEGORY Category
+ * \subsubsection NAMED_CATEGORIES Named Categories
+ * \subsection Payload
  *
  */
 
@@ -941,7 +949,7 @@ class Message {
   /**
    * @brief Construct a `Message` from a `RegisteredMessage`.
    *
-   * @tparam Domain Type containing `name` member used to identify the `Domain`
+   * @tparam D Type containing `name` member used to identify the `Domain`
    * to which the `RegisteredMessage` belongs. Else, `Domain::global` to
    * indicate that the global NVTX domain should be used.
    * @param msg The message that has already been registered with NVTX.
@@ -1348,10 +1356,98 @@ class domain_thread_range {
 };
 
 /**
- * @brief Convenience alias for a `thread_range` in the global NVTX domain.
+ * @brief Alias for a `thread_range` in the global NVTX domain.
  *
  */
 using thread_range = domain_thread_range<>;
+
+/**
+ * @brief A RAII object for creating a NVTX range within a domain that can be
+ * created and destroyed on different threads.
+ *
+ * When constructed, begins a NVTX range in the specified domain. Upon
+ * destruction, ends the NVTX range.
+ *
+ * Similar to `nvtx::domain_thread_range`, the only difference being that
+ * `domain_process_range` can start and end on different threads.
+ *
+ * Use of `nvtx::domain_thread_range` should be preferred unless one needs the
+ * ability to start and end a range on different threads.
+ *
+ * `domain_process_range` is moveable, but not copyable.
+ *
+ * @tparam D Type containing `name` member used to identify the `Domain`
+ * to which the `domain_process_range` belongs. Else, `Domain::global` to
+ * indicate that the global NVTX domain should be used.
+ */
+template <typename D = Domain::global>
+class domain_process_range {
+ public:
+  /**
+   * @brief Construct a new domain process range object
+   *
+   * @param attr
+   */
+  explicit domain_process_range(EventAttributes const& attr) noexcept
+      : range_id_{nvtxDomainRangeStartEx(Domain::get<D>(), attr.get())} {}
+
+  /**
+   * @brief Construct a new domain process range object
+   *
+   * @param first
+   * @param args
+   */
+  template <typename First, typename... Args,
+            typename = typename std::enable_if<not std::is_same<
+                EventAttributes, typename std::decay<First>>::value>>
+  explicit domain_process_range(First const& first,
+                                Args const&... args) noexcept
+      : domain_process_range{EventAttributes{first, args...}} {}
+
+  /**
+   * @brief Construct a new domain process range object
+   *
+   */
+  constexpr domain_process_range() noexcept
+      : domain_process_range{EventAttributes{}} {}
+
+  /**
+   * @brief Destroy the `domain_process_range` ending the range.
+   *
+   */
+  ~domain_process_range() noexcept {
+    if (not moved_from_) {
+      nvtxDomainRangeEnd(range_id_);
+    }
+  }
+
+  domain_process_range(domain_process_range const&) = delete;
+  domain_process_range& operator=(domain_process_range const&) = delete;
+
+  domain_process_range(domain_process_range&& other) noexcept
+      : range_id_{other.range_id_} {
+    other.moved_from_ = true;
+  }
+
+  domain_process_range& operator=(domain_process_range&& other) noexcept {
+    range_id_ = other.range_id_;
+    other.moved_from_ = true;
+  }
+
+ private:
+  nvtxRangeId_t range_id_;  ///< Range id used to correlate
+                            ///< the start/end of the range
+  bool moved_from_{false};  ///< Indicates if the object has had
+                            ///< it's contents moved from it,
+                            ///< indicating it should not attempt
+                            ///< to end the NVTX range.
+};
+
+/**
+ * @brief Alias for a `domain_process_range` in the global NVTX domain.
+ *
+ */
+using process_range = domain_process_range<>;
 
 }  // namespace nvtx
 

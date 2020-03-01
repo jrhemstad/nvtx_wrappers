@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['thread_5frange',['thread_range',['../nvtx_8hpp.html#ad16cdf6802b165935451e5e2f70abd3c',1,'nvtx']]]
+  ['process_5frange',['process_range',['../nvtx_8hpp.html#aec66a60f39c09f9890ce3f290ada3b54',1,'nvtx']]]
 ];
