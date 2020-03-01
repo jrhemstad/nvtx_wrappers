@@ -685,11 +685,13 @@ class NamedCategory final : public Category {
 /**
  * @brief A message registered with NVTX.
  *
- * Message registration is an optimization to lower the overhead of associating
- * a message with an NVTX event by avoiding copying the contents of the message
- * for each event.
+ * Normally, associating a `Message` with an NVTX event requires copying the
+ * contents of the message string. This may cause non-trivial overhead in highly
+ * performance sensitive regions of code.
  *
- * Registering a message yields a handle that may be used with any NVTX event.
+ * Message registration is an optimization to lower the overhead of associating
+ * a message with an NVTX event. Registering a message yields a handle that is
+ * inexpensive to copy that may be used in place of a message string.
  *
  * A particular message should should only be registered once and the handle
  * reused throughout the rest of the application. This can be done by either
@@ -846,6 +848,11 @@ class RegisteredMessage {
  *
  * Associating a `Message` with an NVTX event through its `EventAttributes`
  * allows for naming events to easily differentiate them from other events.
+ *
+ * Every time an NVTX event is created with an associated `Message`, the
+ * contents of the message string must be copied.  This may cause non-trivial
+ * overhead in highly performance sensitive sections of code. Use of a
+ * `nvtx::RegisteredMessage` is reccomended in these situations.
  *
  * Example:
  * \code{.cpp}
@@ -1279,7 +1286,8 @@ class domain_thread_range {
    * Example:
    * ```
    * nvtx::EventAttributes attr{"msg", nvtx::RGB{127,255,0}};
-   * nvtx::domain_thread_range<> range{attr}; // Creates a range with message contents
+   * nvtx::domain_thread_range<> range{attr}; // Creates a range with message
+   * contents
    *                                    // "msg" and green color
    * ```
    *
