@@ -543,13 +543,19 @@ class Category {
 /**
  * @brief A `Category` with an associated name string.
  *
- * Similar to a `Category`, but associates a `name` string with the `id` to help
- * differentiate among categories.
+ * Associates a `name` string with a category `id` to help differentiate among
+ * categories.
  *
  * For any given category id `Id`, a `NamedCategory(Id, "name")` should only
  * be constructed once and reused throughout an application. This can be done by
  * either explicitly creating static `NamedCategory` objects, or using the
  * `NamedCategory::get` construct on first use helper (reccomended).
+ *
+ * Creating two or more `NamedCategory` objects with the same value for `id` in
+ * the same domain results in undefined behavior.
+ *
+ * Similarly, behavior is undefined when a `NamedCategory` and `Category`
+ * share the same value of `id`.
  *
  * Example:
  * \code{.cpp}
