@@ -1238,8 +1238,6 @@ class EventAttributes {
  * Behavior is undefined if a `domain_thread_range` object is created/destroyed
  * on different threads.
  *
- * `domain_thread_range` is not default constructible.
- *
  * `domain_thread_range` is neither moveable nor copyable.
  *
  * `domain_thread_range`s may be nested within other ranges.
@@ -1299,11 +1297,12 @@ class domain_thread_range {
   }
 
   /**
-   * @brief Convenience constructor that allows creating a `domain_thread_range`
-   * from the constructor arguments of an `EventAttributes`.
+   * @brief Constructs a `domain_thread_range` from the constructor arguments of
+   * an `EventAttributes`.
    *
    * Forwards the arguments `first, args...` to construct an `EventAttributes`
-   * object.
+   * object. The `EventAttributes` object is then associated with the
+   * `domain_thread_range`.
    *
    * For more detail, see `EventAttributes` documentation.
    *
@@ -1329,7 +1328,13 @@ class domain_thread_range {
   explicit domain_thread_range(First const& first, Args const&... args) noexcept
       : domain_thread_range{EventAttributes{first, args...}} {}
 
-  domain_thread_range() = delete;
+  /**
+   * @brief Default constructor creates a `domain_thread_range` with no message,
+   * color, payload, nor category.
+   *
+   */
+  domain_thread_range() : domain_thread_range{EventAttributes{}} {}
+
   domain_thread_range(domain_thread_range const&) = delete;
   domain_thread_range& operator=(domain_thread_range const&) = delete;
   domain_thread_range(domain_thread_range&&) = delete;
