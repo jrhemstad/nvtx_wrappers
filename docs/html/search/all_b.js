@@ -1,8 +1,5 @@
 var searchData=
 [
-  ['red',['red',['../structnvtx_1_1RGB.html#a1c33ee08e59d1627ecc486323afbad2d',1,'nvtx::RGB']]],
-  ['registeredmessage',['RegisteredMessage',['../classnvtx_1_1RegisteredMessage.html#af65ca39259a01167afa018ac3ea504f5',1,'nvtx::RegisteredMessage::RegisteredMessage(char const *msg) noexcept'],['../classnvtx_1_1RegisteredMessage.html#a43522f888e5b6a4e7f02ee91364373b8',1,'nvtx::RegisteredMessage::RegisteredMessage(std::string const &amp;msg) noexcept'],['../classnvtx_1_1RegisteredMessage.html#a8ba16b36346c9919d804f34c8be5b57e',1,'nvtx::RegisteredMessage::RegisteredMessage(wchar_t const *msg) noexcept'],['../classnvtx_1_1RegisteredMessage.html#add02853255396172544267ae11a9c32f',1,'nvtx::RegisteredMessage::RegisteredMessage(std::wstring const &amp;msg) noexcept']]],
-  ['registeredmessage',['RegisteredMessage',['../classnvtx_1_1RegisteredMessage.html',1,'nvtx']]],
-  ['rgb',['RGB',['../structnvtx_1_1RGB.html',1,'nvtx']]],
-  ['rgb',['RGB',['../structnvtx_1_1RGB.html#a476c6fb82c2de666aeebd080c7294425',1,'nvtx::RGB']]]
+  ['payload',['Payload',['../classnvtx_1_1Payload.html',1,'nvtx']]],
+  ['payload',['Payload',['../classnvtx_1_1Payload.html#a6b3b5889a96003d60347b008c1b268c8',1,'nvtx::Payload::Payload(int64_t value) noexcept'],['../classnvtx_1_1Payload.html#a98154b07099dbec4e0b987860f2ad669',1,'nvtx::Payload::Payload(int32_t value) noexcept'],['../classnvtx_1_1Payload.html#a73464dbecba1916dd6368ce464d20af0',1,'nvtx::Payload::Payload(uint64_t value) noexcept'],['../classnvtx_1_1Payload.html#a3a92c622789c101ef4171dcbbce44ad6',1,'nvtx::Payload::Payload(uint32_t value) noexcept'],['../classnvtx_1_1Payload.html#a065335ae611ac3281001514fa2fa29f9',1,'nvtx::Payload::Payload(float value) noexcept'],['../classnvtx_1_1Payload.html#aa2900fc197359a2a83751326a689b213',1,'nvtx::Payload::Payload(double value) noexcept']]]
 ];

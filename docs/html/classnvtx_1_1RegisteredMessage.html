@@ -135,7 +135,7 @@ constexpr nvtxStringHandle_t&#160;</td><td class="memItemRight" valign="bottom">
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:af6758cf7f01741d0a8ed8b03d0de270e"><td class="memTemplParams" colspan="2">template&lt;typename Message &gt; </td></tr>
+<tr class="memitem:af6758cf7f01741d0a8ed8b03d0de270e"><td class="memTemplParams" colspan="2">template&lt;typename M &gt; </td></tr>
 <tr class="memitem:af6758cf7f01741d0a8ed8b03d0de270e"><td class="memTemplItemLeft" align="right" valign="top">static <a class="el" href="classnvtx_1_1RegisteredMessage.html">RegisteredMessage</a>&lt; D &gt; const &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classnvtx_1_1RegisteredMessage.html#af6758cf7f01741d0a8ed8b03d0de270e">get</a> () noexcept</td></tr>
 <tr class="memdesc:af6758cf7f01741d0a8ed8b03d0de270e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a global instance of a <code><a class="el" href="classnvtx_1_1RegisteredMessage.html" title="A message registered with NVTX. ">RegisteredMessage</a></code> as a function local static.  <a href="#af6758cf7f01741d0a8ed8b03d0de270e">More...</a><br /></td></tr>
 <tr class="separator:af6758cf7f01741d0a8ed8b03d0de270e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -307,7 +307,7 @@ template&lt;typename D = Domain::global&gt; </div>
 <div class="memtemplate">
 template&lt;typename D = Domain::global&gt; </div>
 <div class="memtemplate">
-template&lt;typename Message &gt; </div>
+template&lt;typename M &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -330,15 +330,13 @@ template&lt;typename Message &gt; </div>
 <p>Provides a convenient way to register a message with NVTX without having to explicitly register the message.</p>
 <p>Upon first invocation, constructs a <code><a class="el" href="classnvtx_1_1RegisteredMessage.html" title="A message registered with NVTX. ">RegisteredMessage</a></code> whose contents are specified by <code>Message::message</code>.</p>
 <p>All future invocations will return a reference to the object constructed in the first invocation.</p>
-<p>Example: ``<code> // Define a type with a</code>message` member that defines the contents of the // registered message struct my_message{ static constexpr char const* message{ "my message" }; };</p>
-<p>// Uses construct on first use to register the contents of // <code>my_message::message</code> auto msg = RegisteredMessage&lt;my_domain&gt;::get&lt;my_message&gt;();</p>
-<p>// "my message" is associated with the range <code>r</code> nvtx::thread_range r{msg}; ```</p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
+<p>Example: </p><div class="fragment"><div class="line"><span class="comment">// Define a type with a `message` member that defines the contents of the</span></div><div class="line"><span class="comment">// registered message</span></div><div class="line"><span class="keyword">struct </span>my_message{ <span class="keyword">static</span> constexpr <span class="keywordtype">char</span> <span class="keyword">const</span>* message{ <span class="stringliteral">&quot;my message&quot;</span> }; };</div><div class="line"></div><div class="line"><span class="comment">// Uses construct on first use to register the contents of</span></div><div class="line"><span class="comment">// `my_message::message`</span></div><div class="line"><span class="keyword">auto</span> msg = <a class="code" href="classnvtx_1_1RegisteredMessage.html#af6758cf7f01741d0a8ed8b03d0de270e">RegisteredMessage&lt;my_domain&gt;::get</a>&lt;my_message&gt;();</div><div class="line"></div><div class="line"><span class="comment">// &quot;my message&quot; is associated with the range `r`</span></div><div class="line"><a class="code" href="classnvtx_1_1domain__thread__range.html">nvtx::thread_range</a> r{msg};</div></div><!-- fragment --><dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname"><a class="el" href="classnvtx_1_1Message.html" title="Allows associating a message string with an NVTX event via it&#39;s EventAttributes. ">Message</a></td><td>Type required to contain a member <code>Message::message</code> that resolves to either a <code>char const*</code> or <code>wchar_t const*</code> used as the registered message's contents. </td></tr>
+    <tr><td class="paramname">M</td><td>Type required to contain a member <code>M::message</code> that resolves to either a <code>char const*</code> or <code>wchar_t const*</code> used as the registered message's contents. </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Reference to a <code><a class="el" href="classnvtx_1_1RegisteredMessage.html" title="A message registered with NVTX. ">RegisteredMessage</a></code> associated with the type <code>M</code>. </dd></dl>
 
 </div>
 </div>

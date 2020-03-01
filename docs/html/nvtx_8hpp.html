@@ -145,8 +145,8 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a9ea5d8c638ad965401586e9621931395"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9ea5d8c638ad965401586e9621931395"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>NVTX_RELAXED_CONSTEXPR</b></td></tr>
+<tr class="memitem:a9ea5d8c638ad965401586e9621931395"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nvtx_8hpp.html#a9ea5d8c638ad965401586e9621931395">NVTX_RELAXED_CONSTEXPR</a></td></tr>
+<tr class="memdesc:a9ea5d8c638ad965401586e9621931395"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enables the use of constexpr when support for C++14 relaxed constexpr is present.  <a href="#a9ea5d8c638ad965401586e9621931395">More...</a><br /></td></tr>
 <tr class="separator:a9ea5d8c638ad965401586e9621931395"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c0a9db50356b8c5c72ea75c5a386386"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nvtx_8hpp.html#a1c0a9db50356b8c5c72ea75c5a386386">NVTX_FUNC_RANGE_IN</a>(D)</td></tr>
 <tr class="memdesc:a1c0a9db50356b8c5c72ea75c5a386386"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience macro for generating a range in the specified <code>Domain</code> from the lifetime of a function.  <a href="#a1c0a9db50356b8c5c72ea75c5a386386">More...</a><br /></td></tr>
@@ -208,7 +208,7 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">static ::nvtx::RegisteredMessage&lt;D&gt; <span class="keyword">const</span> nvtx_func_name__{__func__};    \</div><div class="line">  static ::nvtx::EventAttributes <span class="keyword">const</span> nvtx_func_attr__{nvtx_func_name__}; \</div><div class="line">  <a class="code" href="classnvtx_1_1domain__thread__range.html">::nvtx::domain_thread_range&lt;D&gt;</a> <span class="keyword">const</span> nvtx_range__{nvtx_func_attr__};</div><div class="ttc" id="classnvtx_1_1domain__thread__range_html"><div class="ttname"><a href="classnvtx_1_1domain__thread__range.html">nvtx::domain_thread_range</a></div><div class="ttdoc">A RAII object for creating a NVTX range local to a thread within a domain. </div><div class="ttdef"><b>Definition:</b> nvtx.hpp:1249</div></div>
+<b>Value:</b><div class="fragment"><div class="line">static ::nvtx::RegisteredMessage&lt;D&gt; <span class="keyword">const</span> nvtx_func_name__{__func__};    \</div><div class="line">  static ::nvtx::EventAttributes <span class="keyword">const</span> nvtx_func_attr__{nvtx_func_name__}; \</div><div class="line">  <a class="code" href="classnvtx_1_1domain__thread__range.html">::nvtx::domain_thread_range&lt;D&gt;</a> <span class="keyword">const</span> nvtx_range__{nvtx_func_attr__};</div><div class="ttc" id="classnvtx_1_1domain__thread__range_html"><div class="ttname"><a href="classnvtx_1_1domain__thread__range.html">nvtx::domain_thread_range</a></div><div class="ttdoc">A RAII object for creating a NVTX range local to a thread within a domain. </div><div class="ttdef"><b>Definition:</b> nvtx.hpp:1275</div></div>
 </div><!-- fragment -->
 <p>Convenience macro for generating a range in the specified <code>Domain</code> from the lifetime of a function. </p>
 <p>This macro is useful for generating an NVTX range in <code>Domain</code> from the entry point of a function to its exit. It is intended to be the first line of the function.</p>
@@ -219,6 +219,21 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="a9ea5d8c638ad965401586e9621931395"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define NVTX_RELAXED_CONSTEXPR</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Enables the use of constexpr when support for C++14 relaxed constexpr is present. </p>
+<p>Initializing a legacy-C (i.e., no constructor) union member requires initializing in the constructor body. Non-empty constexpr constructors require C++14 relaxed constexpr. </p>
 
 </div>
 </div>
@@ -240,7 +255,8 @@ template&lt;&gt; </div>
 
 <p>Returns reference to the <code><a class="el" href="classnvtx_1_1Domain.html" title="Domains allow for grouping NVTX events into a single scope to differentiate them from events in other...">Domain</a></code> object that represents the global NVTX domain. </p>
 <p>This specialization for <code><a class="el" href="structnvtx_1_1Domain_1_1global.html" title="Tag type for the &quot;global&quot; NVTX domain. ">Domain::global</a></code> returns a default constructed, <code><a class="el" href="classnvtx_1_1Domain.html" title="Domains allow for grouping NVTX events into a single scope to differentiate them from events in other...">Domain</a></code> object for use when the "global" domain is desired.</p>
-<p>All NVTX events in the global domain across all libraries and applications will be grouped together. </p>
+<p>All NVTX events in the global domain across all libraries and applications will be grouped together.</p>
+<dl class="section return"><dt>Returns</dt><dd>Reference to the <code><a class="el" href="classnvtx_1_1Domain.html" title="Domains allow for grouping NVTX events into a single scope to differentiate them from events in other...">Domain</a></code> corresponding to the global NVTX domain. </dd></dl>
 
 </div>
 </div>

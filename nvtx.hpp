@@ -113,9 +113,15 @@
  *
  */
 
-// Initializing a legacy-C (i.e., no constructor) union member requires
-// initializing in the constructor body. Non-empty constexpr constructors
-// require C++14 relaxed constexpr.
+/**
+ * @brief Enables the use of constexpr when support for C++14 relaxed constexpr
+ * is present.
+ *
+ * Initializing a legacy-C (i.e., no constructor) union member requires
+ * initializing in the constructor body. Non-empty constexpr constructors
+ * require C++14 relaxed constexpr.
+ *
+ */
 #if __cpp_constexpr >= 201304L
 #define NVTX_RELAXED_CONSTEXPR constexpr
 #else
@@ -348,6 +354,8 @@ class Domain {
  * All NVTX events in the global domain across all libraries and applications
  * will be grouped together.
  *
+ * @return Reference to the `Domain` corresponding to the global NVTX domain.
+ *
  */
 template <>
 Domain const& Domain::get<Domain::global>() {
@@ -361,6 +369,7 @@ Domain const& Domain::get<Domain::global>() {
  *
  */
 struct RGB {
+  /// Type used for component values
   using component_type = uint8_t;
 
   /**
@@ -369,6 +378,9 @@ struct RGB {
    *
    * Valid values are in the range `[0,255]`.
    *
+   * @param red_ Value of the red channel
+   * @param green_ Value of the green channel
+   * @param blue_ Value of the blue channel
    */
   constexpr RGB(component_type red_, component_type green_,
                 component_type blue_) noexcept
@@ -391,6 +403,11 @@ struct ARGB final : RGB {
    *
    * Valid values are in the range `[0,255]`.
    *
+   * @param alpha_  Value of the alpha channel (opacity)
+   * @param red_  Value of the red channel
+   * @param green_  Value of the green channel
+   * @param blue_  Value of the blue channel
+   *
    */
   constexpr ARGB(component_type alpha_, component_type red_,
                  component_type green_, component_type blue_) noexcept
@@ -410,6 +427,7 @@ struct ARGB final : RGB {
  */
 class Color {
  public:
+  /// Type used for the color's value
   using value_type = uint32_t;
 
   /**
@@ -426,7 +444,7 @@ class Color {
    *
    * The least significant byte indicates the value of the blue channel (0-255)
    *
-   * @param v The hex code used to construct the `Color`
+   * @param hex_code The hex code used to construct the `Color`
    */
   constexpr explicit Color(value_type hex_code) noexcept : _value{hex_code} {}
 
@@ -511,7 +529,9 @@ class Color {
  */
 class Category {
  public:
+  /// Type used for `Category`s integer id.
   using id_type = uint32_t;
+
   /**
    * @brief Construct a `Category` with the specified `id`.
    *
@@ -735,13 +755,14 @@ class RegisteredMessage {
    * nvtx::thread_range r{msg};
    * \endcode
    *
-   * @tparam Message Type required to contain a member `Message::message` that
+   * @tparam M Type required to contain a member `M::message` that
    * resolves to either a `char const*` or `wchar_t const*` used as the
    * registered message's contents.
+   * @return Reference to a `RegisteredMessage` associated with the type `M`.
    */
-  template <typename Message>
+  template <typename M>
   static RegisteredMessage<D> const& get() noexcept {
-    static RegisteredMessage<D> const registered_message{Message::message};
+    static RegisteredMessage<D> const registered_message{M::message};
     return registered_message;
   }
 
