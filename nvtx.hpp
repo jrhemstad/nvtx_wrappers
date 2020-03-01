@@ -89,7 +89,7 @@
  * inconvenience. In short, a function local static object is constructed upon
  * the first invocation of a function and returns a reference to that object on
  * all future invocations. See the documentation for `nvtx::RegisteredMessage`,
- * `nvtx::Domain`, and `nvtx::NamedCategory`  and
+ * `nvtx::Domain`, `nvtx::NamedCategory`,  and
  * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use for more
  * information.
  *
