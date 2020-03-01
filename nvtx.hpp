@@ -1278,8 +1278,8 @@ class domain_thread_range {
    *
    * Example:
    * ```
-   * EventAttributes attr{"msg", nvtx::RGB{127,255,0}};
-   * domain_thread_range<> range{attr}; // Creates a range with message contents
+   * nvtx::EventAttributes attr{"msg", nvtx::RGB{127,255,0}};
+   * nvtx::domain_thread_range<> range{attr}; // Creates a range with message contents
    *                                    // "msg" and green color
    * ```
    *
@@ -1302,7 +1302,7 @@ class domain_thread_range {
    * Example:
    * ```
    * // Creates a range with message "message" and green color
-   * domain_thread_range<> r{"message", nvtx::RGB{127,255,0}};
+   * nvtx::domain_thread_range<> r{"message", nvtx::RGB{127,255,0}};
    * ```
    *
    * @note To prevent making needless copies of `EventAttributes` objects, this
