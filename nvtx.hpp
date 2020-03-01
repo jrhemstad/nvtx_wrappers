@@ -69,7 +69,8 @@
  *
  * No matter when or where `my_function` returns, through the rules of object
  * lifetime, `r` is guaranteed to be destroyed before `my_function` returns and
- * end the NVTX range without manual intervention.
+ * end the NVTX range without manual intervention. For more information, see
+ * `nvtx::domain_thread_range`.
  *
  * Additionally, the NVTX C API has several constructs where the user is
  * expected to initialize an object at the beggining of an application and reuse
