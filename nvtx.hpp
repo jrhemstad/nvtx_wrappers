@@ -158,6 +158,48 @@
  *
  * \section DOMAINS Domains
  *
+ * Similar to C++ namespaces, Domains allow for scoping NVTX events. By default,
+ * all NVTX events belong to the "global" domain. Libraries and applications
+ * should scope their events to use a custom domain to differentiate where the
+ * events originate from.
+ *
+ * It is common for a library or application to have only a single domain and
+ * for the name of that domain to be known at compile time. Therefore, Domains
+ * in NVTX++ are represented by _tag types_.
+ *
+ * For example, to define a custom  domain, simply define a new concrete type
+ * (a `class` or `struct`) with a `static` member called `name` that contains
+ * the desired name of the domain.
+ *
+ * ```
+ * struct my_domain{ static constexpr char const* name{"my domain"}; };
+ * ```
+ *
+ * For any NVTX++ construct that can be scoped to a domain, the type `my_domain`
+ * can be passed as an explicit template argument to scope it to the custom
+ * domain.
+ *
+ * The tag type `nvtx::Domain::global` represents the global NVTX domain.
+ *
+ * \code{.cpp}
+ * // By default, `domain_thread_range` belongs to the global domain
+ * nvtx::domain_thread_range<> r0{};
+ *
+ * // `thread_range` is an alias for a `domain_thread_range` in the global
+ * domain nvtx::thread_range r1{};
+ *
+ * // `r` belongs to the custom domain
+ * nvtx::domain_thread_range<my_domain> r{};
+ * \endcode
+ *
+ * When using a custom domain, it is reccomended to define type aliases for NVTX
+ * constructs in the custom domain. 
+ * ```
+ * using my_thread_range = nvtx::domain_thread_range<my_domain>;
+ * using my_registered_message = nvtx::RegisteredMessage<my_domain>;
+ * using my_named_category = nvtx::NamedCategory<my_domain>;
+ * ```
+ *
  * \section ATTRIBUTES Event Attributes
  *
  * \subsection MESSAGES Message
@@ -167,6 +209,10 @@
  * \subsubsection NAMED_CATEGORIES Named Categories
  * \subsection Payload
  * \section EXAMPLE Example
+ * \code{.cpp}
+ * // Define a custom domain tag type
+ * struct my_domain{ static constexpr char const* name{"my domain"}; };
+ * \endcode
  *
  */
 
@@ -1404,7 +1450,7 @@ class domain_thread_range {
 };
 
 /**
- * @brief Alias for a `thread_range` in the global NVTX domain.
+ * @brief Alias for a `domain_thread_range` in the global NVTX domain.
  *
  */
 using thread_range = domain_thread_range<>;

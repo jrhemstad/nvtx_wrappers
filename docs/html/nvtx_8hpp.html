@@ -162,7 +162,7 @@ Macros</h2></td></tr>
 Typedefs</h2></td></tr>
 <tr class="memitem:ad16cdf6802b165935451e5e2f70abd3c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad16cdf6802b165935451e5e2f70abd3c"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nvtx_8hpp.html#ad16cdf6802b165935451e5e2f70abd3c">nvtx::thread_range</a> = domain_thread_range&lt;&gt;</td></tr>
-<tr class="memdesc:ad16cdf6802b165935451e5e2f70abd3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alias for a <code>thread_range</code> in the global NVTX domain. <br /></td></tr>
+<tr class="memdesc:ad16cdf6802b165935451e5e2f70abd3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alias for a <code><a class="el" href="classnvtx_1_1domain__thread__range.html" title="A RAII object for creating a NVTX range local to a thread within a domain. ">domain_thread_range</a></code> in the global NVTX domain. <br /></td></tr>
 <tr class="separator:ad16cdf6802b165935451e5e2f70abd3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec66a60f39c09f9890ce3f290ada3b54"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aec66a60f39c09f9890ce3f290ada3b54"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nvtx_8hpp.html#aec66a60f39c09f9890ce3f290ada3b54">nvtx::process_range</a> = domain_process_range&lt;&gt;</td></tr>
@@ -215,7 +215,7 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">static ::nvtx::RegisteredMessage&lt;D&gt; <span class="keyword">const</span> nvtx_func_name__{__func__};    \</div><div class="line">  static ::nvtx::EventAttributes <span class="keyword">const</span> nvtx_func_attr__{nvtx_func_name__}; \</div><div class="line">  <a class="code" href="classnvtx_1_1domain__thread__range.html">::nvtx::domain_thread_range&lt;D&gt;</a> <span class="keyword">const</span> nvtx_range__{nvtx_func_attr__};</div><div class="ttc" id="classnvtx_1_1domain__thread__range_html"><div class="ttname"><a href="classnvtx_1_1domain__thread__range.html">nvtx::domain_thread_range</a></div><div class="ttdoc">A RAII object for creating a NVTX range local to a thread within a domain. </div><div class="ttdef"><b>Definition:</b> nvtx.hpp:1335</div></div>
+<b>Value:</b><div class="fragment"><div class="line">static ::nvtx::RegisteredMessage&lt;D&gt; <span class="keyword">const</span> nvtx_func_name__{__func__};    \</div><div class="line">  static ::nvtx::EventAttributes <span class="keyword">const</span> nvtx_func_attr__{nvtx_func_name__}; \</div><div class="line">  <a class="code" href="classnvtx_1_1domain__thread__range.html">::nvtx::domain_thread_range&lt;D&gt;</a> <span class="keyword">const</span> nvtx_range__{nvtx_func_attr__};</div><div class="ttc" id="classnvtx_1_1domain__thread__range_html"><div class="ttname"><a href="classnvtx_1_1domain__thread__range.html">nvtx::domain_thread_range</a></div><div class="ttdoc">A RAII object for creating a NVTX range local to a thread within a domain. </div><div class="ttdef"><b>Definition:</b> nvtx.hpp:1381</div></div>
 </div><!-- fragment -->
 <p>Convenience macro for generating a range in the specified <code>Domain</code> from the lifetime of a function. </p>
 <p>This macro is useful for generating an NVTX range in <code>Domain</code> from the entry point of a function to its exit. It is intended to be the first line of the function.</p>
