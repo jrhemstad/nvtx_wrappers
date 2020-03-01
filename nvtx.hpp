@@ -185,7 +185,7 @@
  * // By default, `domain_thread_range` belongs to the global domain
  * nvtx::domain_thread_range<> r0{};
  *
- * // Alias for a `domain_thread_range` in the global domain 
+ * // Alias for a `domain_thread_range` in the global domain
  * nvtx::thread_range r1{};
  *
  * // `r` belongs to the custom domain
@@ -193,17 +193,30 @@
  * \endcode
  *
  * When using a custom domain, it is reccomended to define type aliases for NVTX
- * constructs in the custom domain. 
+ * constructs in the custom domain.
  * ```
  * using my_thread_range = nvtx::domain_thread_range<my_domain>;
  * using my_registered_message = nvtx::RegisteredMessage<my_domain>;
  * using my_named_category = nvtx::NamedCategory<my_domain>;
  * ```
  * 
+ * See `nvtx::Domain` for more information.
+ *
  * \section ATTRIBUTES Event Attributes
  *
+ * NVTX events can be customized with various attributes to provide additional
+ * information (such as a custom message) or to control visualization of the
+ * event (such as the color used). These attributes can be specified per-event
+ * via a `nvtx::EventAttributes` object.
+ *
+ * All attributes are optional and use default values if not specified.
+ *
  * \subsection MESSAGES Message
+ *
+ *
+ *
  * \subsubsection REGISTERED_MESSAGE Registered Messages
+ *
  * \subsection COLOR Color
  * \subsection CATEGORY Category
  * \subsubsection NAMED_CATEGORIES Named Categories
