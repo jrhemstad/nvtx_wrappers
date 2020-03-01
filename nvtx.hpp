@@ -185,8 +185,8 @@
  * // By default, `domain_thread_range` belongs to the global domain
  * nvtx::domain_thread_range<> r0{};
  *
- * // `thread_range` is an alias for a `domain_thread_range` in the global
- * domain nvtx::thread_range r1{};
+ * // Alias for a `domain_thread_range` in the global domain 
+ * nvtx::thread_range r1{};
  *
  * // `r` belongs to the custom domain
  * nvtx::domain_thread_range<my_domain> r{};
@@ -199,7 +199,7 @@
  * using my_registered_message = nvtx::RegisteredMessage<my_domain>;
  * using my_named_category = nvtx::NamedCategory<my_domain>;
  * ```
- *
+ * 
  * \section ATTRIBUTES Event Attributes
  *
  * \subsection MESSAGES Message
