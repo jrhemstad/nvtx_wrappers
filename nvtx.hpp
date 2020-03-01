@@ -199,7 +199,7 @@
  * using my_registered_message = nvtx::RegisteredMessage<my_domain>;
  * using my_named_category = nvtx::NamedCategory<my_domain>;
  * ```
- * 
+ *
  * See `nvtx::Domain` for more information.
  *
  * \section ATTRIBUTES Event Attributes
@@ -225,6 +225,32 @@
  * \code{.cpp}
  * // Define a custom domain tag type
  * struct my_domain{ static constexpr char const* name{"my domain"}; };
+ *
+ * // Define a named category tag type
+ * struct my_category{
+ *    static constexpr char const* name{"my category"};
+ *    static constexpr uint32_t id{42};
+ * };
+ *
+ * // Define a registered message tag type
+ * struct my_message{ static constexpr char const* message{"my message"}; };
+ * \endcode
+ * \section MACROS Convenience Macros
+ *
+ * Oftentimes users want to quickly and easily add NVTX ranges to their library
+ * or application to aid in profiling and optimization.
+ *
+ * A convenient way to do this is to use the \ref NVTX_FUNC_RANGE and
+ * \ref NVTX_FUNC_RANGE_IN macros. These macros take care of constructing an
+ * `nvtx::domain_thread_range` with the name of the enclosing function as the
+ * range's message.
+ *
+ * \code{.cpp}
+ * void some_function(){
+ *    // Automatically generates an NVTX range for the duration of the function
+ *    // using "some_function" as the event's message.
+ *    NVTX_FUNC_RANGE();
+ * }
  * \endcode
  *
  */
