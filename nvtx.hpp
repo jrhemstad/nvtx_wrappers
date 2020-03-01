@@ -24,7 +24,7 @@
  *
  * @brief Provides C++ constructs making the NVTX library safer and easier to
  * use with zero overhead.
- * 
+ *
  * \mainpage
  *
  * The NVTX library provides C APIs for users to annotate their code to aid in
@@ -1217,10 +1217,9 @@ class EventAttributes {
  * global NVTX domain. The convenience alias `thread_range` is provided for
  * ranges scoped to the global domain.
  *
- * If a custom domain is desired, a custom type `D` may be specified. This type
- * is required to contain a member `D::name` that resolves to either a `char
- * const*` or `wchar_t const*`. `D::name` is used to name the domain associated
- * with the type `D`.
+ * A custom domain can be defined by creating a type, `D`, with a static member
+ * `D::name` whose value is used to name the domain associated with `D`.
+ * `D::name` must resolve to either `char const*` or `wchar_t const*`
  *
  * Example:
  * ```
