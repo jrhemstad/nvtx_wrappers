@@ -1086,8 +1086,6 @@ class Payload {
  * For convenience, `EventAttributes` can be constructed from any number of
  * attribute components in any order.
  *
- *
- *
  * Example:
  * \code{.cpp}
  * EventAttributes attr{}; // No arguments, use defaults for all attributes
@@ -1311,6 +1309,10 @@ class domain_thread_range {
    * constructor is disabled when the first argument is an `EventAttributes`
    * object, instead preferring the explicit
    * `domain_thread_range(EventAttributes const&)` constructor.
+   *
+   * @param[in] first First argument to forward to the `EventAttributes`
+   * constructor.
+   * @param[in] args Variadic parameter pack of additional arguments to forward.
    *
    */
   template <typename First, typename... Args,
