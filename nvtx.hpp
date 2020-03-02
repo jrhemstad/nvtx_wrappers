@@ -207,21 +207,159 @@
  * NVTX events can be customized with various attributes to provide additional
  * information (such as a custom message) or to control visualization of the
  * event (such as the color used). These attributes can be specified per-event
- * via a `nvtx::EventAttributes` object.
+ * via arguments to a `nvtx::EventAttributes` object.
  *
- * All attributes are optional and use default values if not specified.
+ * NVTX events can be customized via four "attributes":
+ * - \ref COLOR : Color used to visualize the event in tools.
+ * - \ref MESSAGES :  Custom message string.
+ * - \ref PAYLOAD :  User-defined numerical value.
+ * - \ref CATEGORY : Intra-domain grouping.
+ *
+ * It is possible to construct a `nvtx::EventAttributes` from any number of
+ * attribute objects (nvtx::Color, nvtx::Message, nvtx::Payload, nvtx::Category)
+ * in any order. If an attribute is not specified, a tool specific default value
+ * is used. See `nvtx::EventAttributes` for more information.
+ *
+ * \code{.cpp}
+ * // Custom color, message
+ * EventAttributes attr{nvtx::RGB{127, 255, 0},
+ *                      "message"};
+ *
+ * // Custom color, message, payload, category
+ * EventAttributes attr{nvtx::RGB{127, 255, 0},
+ *                      nvtx::Payload{42},
+ *                      "message",
+ *                      nvtx::Category{1}};
+ *
+ * // Arguments can be in any order
+ * EventAttributes attr{nvtx::Payload{42},
+ *                      nvtx::Category{1},
+ *                      "message",
+ *                      nvtx::RGB{127, 255, 0}};
+ *
+ * // "First wins" with multiple arguments of the same type
+ * EventAttributes attr{ nvtx::Payload{42}, nvtx::Payload{7} }; // Payload is 42
+ * \endcode
  *
  * \subsection MESSAGES Message
  *
+ * A `nvtx::Message` allows associating a custom message string with an NVTX
+ * event.
  *
+ * Example:
+ * \code{.cpp}
+ * // Create an `EventAttributes` with the custom message "my message"
+ * nvtx::EventAttributes attr{nvtx::Mesage{"my message"}};
+ *
+ * // strings and string literals implicitly assumed to be a `nvtx::Message`
+ * nvtx::EventAttributes attr{"my message"};
+ * \endcode
  *
  * \subsubsection REGISTERED_MESSAGE Registered Messages
  *
+ * Associating a `nvtx::Message` with an event requires copying the contents of
+ * the message every time the message is used, i.e., copying the entire message
+ * string. This may cause non-trivial overhead in performance sensitive code.
+ *
+ * To eliminate this overhead, NVTX allows registering a message string,
+ * yielding a "handle" that is inexpensive to copy that may be used in place of
+ * a message string. When visualizing the events, tools such as Nsight Systems
+ * will take care of mapping the message handle to it's string.
+ *
+ * A message should be registered once and the handle reused throughout the rest
+ * of the application. This can be done by either explicitly creating static
+ * `nvtx::RegisteredMessage` objects, or using the
+ * `nvtx::RegisteredMessage::get` construct on first use helper (reccomended).
+ *
+ * Similar to \ref DOMAINS, `nvtx::RegisteredMessage::get` requires defining a
+ * custom tag type with a static `message` member whose value will be the
+ * contents of the registered string.
+ *
+ * Example:
+ * \code{.cpp}
+ * // Explicitly constructed, static `RegisteredMessage`
+ * static RegisteredMessage<my_domain> static_message{"message"};
+ *
+ * // Or use construct on first use:
+ * // Define a tag type with a `message` member string to register
+ * struct my_message{ static constexpr char const* message{ "my message" }; };
+ *
+ * // Uses construct on first use to register the contents of
+ * // `my_message::message`
+ * nvtx::RegisteredMessage<my_domain> const& msg =
+ * nvtx::RegisteredMessage<my_domain>::get<my_message>(); \endcode
+ *
  * \subsection COLOR Color
+ *
+ * Associating a `nvtx::Color` with an event allows controlling how the event is
+ * visualized in a tool such as Nsight Systems. This is a convenient way to
+ * visually differentiate among different events.
+ *
+ * \code{.cpp}
+ * // Define a color via RGB color values
+ * nvtx::Color c{nvtx::RGB{127, 255, 0}};
+ * nvtx::EventAttributes attr{c};
+ *
+ * // RGB color values can be passed directly to an `EventAttributes`
+ * nvtx::EventAttributes attr1{nvtx::RGB{127,255,0}};
+ * \endcode
+ *
  * \subsection CATEGORY Category
+ *
+ * A `nvtx::Category` is simply an integer id that allows for fine-grain
+ * grouping of NVTX events. For example, one might use separate categories for
+ * IO, memory allocation, compute, etc.
+ *
+ * \code{.cpp}
+ * nvtx::EventAttributes{nvtx::Category{1}};
+ * \endcode
+ *
  * \subsubsection NAMED_CATEGORIES Named Categories
- * \subsection Payload
+ *
+ * Associates a `name` string with a category `id` to help differentiate among
+ * categories.
+ *
+ * For any given category id `Id`, a `NamedCategory{Id, "name"}` should only
+ * be constructed once and reused throughout an application. This can be done by
+ * either explicitly creating static `nvtx::NamedCategory` objects, or using the
+ * `nvtx::NamedCategory::get` construct on first use helper (reccomended).
+ *
+ * Similar to \ref DOMAINS, `nvtx::NamedCategory::get` requires defining a
+ * custom tag type with static `name` and `id` members.
+ *
+ * \code{.cpp}
+ * // Explicitly constructed, static `NamedCategory`
+ * static nvtx::NamedCategory static_category{42, "my category"};
+ *
+ * // OR use construct on first use:
+ * // Define a tag type with `name` and `id` members
+ * struct my_category{
+ *    static constexpr char const* name{"my category"}; // Category name
+ *    static constexpr Category::id_type id{42}; // Category id
+ * };
+ *
+ * // Use construct on first use to name the category id `42`
+ * // with name "my category"
+ * nvtx::NamedCategory const& my_category =
+ * NamedCategory<my_domain>::get<my_category>();
+ *
+ * // Range `r` associated with category id `42`
+ * nvtx::EventAttributes attr{my_category};
+ * \endcode
+ *
+ * \subsection PAYLOAD Payload
+ *
+ * Allows associating a user-defined numerical value with an event.
+ *
+ * ```
+ * nvtx:: EventAttributes attr{nvtx::Payload{42}}; // Constructs a Payload from
+ *                                                 // the `int32_t` value 42
+ * ```
+ *
+ *
  * \section EXAMPLE Example
+ *
+ * Putting it all together:
  * \code{.cpp}
  * // Define a custom domain tag type
  * struct my_domain{ static constexpr char const* name{"my domain"}; };
@@ -234,6 +372,36 @@
  *
  * // Define a registered message tag type
  * struct my_message{ static constexpr char const* message{"my message"}; };
+ *
+ * // For convenience, use aliases for domain scoped objects
+ * using my_thread_range = nvtx::domain_thread_range<my_domain>;
+ * using my_registered_message = nvtx::RegisteredMessage<my_domain>;
+ * using my_named_category = nvtx::NamedCategory<my_domain>;
+ *
+ *
+ * // Default values for all attributes
+ * nvtx::EventAttributes attr{}
+ * my_thread_range r0{attr};
+ *
+ * // Custom (unregistered) message, and unnamed Category
+ * nvtx::EventAttributes attr1{"message", nvtx::Category{2}};
+ * my_thread_range r1{attr1};
+ *
+ * // Alternatively, pass arguments of `EventAttributes` ctor directly to `my_thread_range`
+ * my_thread_range r2{"message", nvtx::Category{2}};
+ *
+ * // construct on first use a registered message
+ * auto msg = my_registered_message::get<my_message>();
+ *
+ * // construct on first use a named category
+ * auto category = my_named_category::get<my_category>();
+ *
+ * // Use registered message and named category
+ * my_thread_range r3{msg, category, nvtx::RGB{127, 255, 0}, nvtx::Payload{42}};
+ *
+ * // Any number of arguments in any order
+ * my_thread_range r{nvtx::RGB{127, 255,0}, msg};
+ *
  * \endcode
  * \section MACROS Convenience Macros
  *
