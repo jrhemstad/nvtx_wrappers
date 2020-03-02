@@ -50,7 +50,7 @@
  * } // Range ends when `r` is destroyed
  * \endcode
  *
- * Alternatively, use the \ref MACROS like `NVTX_FUNC_RANGE()` to easily add
+ * Alternatively, use the \ref MACROS like `NVTX_FUNC_RANGE()` to add
  * ranges to your code that automatically use the name of the enclosing function
  * as the range's message.
  *
