@@ -1718,7 +1718,7 @@ class domain_process_range {
    */
   ~domain_process_range() noexcept {
     if (not moved_from_) {
-      nvtxDomainRangeEnd(range_id_);
+      nvtxRangeEnd(range_id_);
     }
   }
 
