@@ -1089,7 +1089,7 @@ class RegisteredMessage {
    *
    * @param msg The contents of the message
    */
-  constexpr explicit RegisteredMessage(char const* msg) noexcept
+  explicit RegisteredMessage(char const* msg) noexcept
       : handle_{nvtxDomainRegisterStringA(Domain::get<D>(), msg)} {}
 
   /**
@@ -1103,7 +1103,7 @@ class RegisteredMessage {
    *
    * @param msg The contents of the message
    */
-  constexpr explicit RegisteredMessage(std::string const& msg) noexcept
+  explicit RegisteredMessage(std::string const& msg) noexcept
       : RegisteredMessage{msg.c_str()} {}
 
   /**
@@ -1117,7 +1117,7 @@ class RegisteredMessage {
    *
    * @param msg The contents of the message
    */
-  constexpr explicit RegisteredMessage(wchar_t const* msg) noexcept
+  explicit RegisteredMessage(wchar_t const* msg) noexcept
       : handle_{nvtxDomainRegisterStringW(Domain::get<D>(), msg)} {}
 
   /**
@@ -1131,14 +1131,14 @@ class RegisteredMessage {
    *
    * @param msg The contents of the message
    */
-  constexpr explicit RegisteredMessage(std::wstring const& msg) noexcept
+  explicit RegisteredMessage(std::wstring const& msg) noexcept
       : RegisteredMessage{msg.c_str()} {}
 
   /**
    * @brief Returns the registered message's handle
    *
    */
-  constexpr nvtxStringHandle_t get_handle() const noexcept { return handle_; }
+  nvtxStringHandle_t get_handle() const noexcept { return handle_; }
 
   RegisteredMessage() = delete;
   ~RegisteredMessage() = default;
