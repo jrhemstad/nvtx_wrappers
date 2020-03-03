@@ -1823,9 +1823,9 @@ using process_range = domain_process_range<>;
  * `Domain::global` to  indicate that the global NVTX domain should be used.
  */
 #define NVTX3_FUNC_RANGE_IN(D)                                              \
-  static ::nvtx3::RegisteredMessage<D> const nvtx_func_name__{__func__};    \
-  static ::nvtx3::EventAttributes const nvtx_func_attr__{nvtx_func_name__}; \
-  ::nvtx3::domain_thread_range<D> const nvtx_range__{nvtx_func_attr__};
+  static ::nvtx3::RegisteredMessage<D> const nvtx3_func_name__{__func__};    \
+  static ::nvtx3::EventAttributes const nvtx3_func_attr__{nvtx3_func_name__}; \
+  ::nvtx3::domain_thread_range<D> const nvtx3_range__{nvtx3_func_attr__};
 
 /**
  * @brief Convenience macro for generating a range in the global domain from the
