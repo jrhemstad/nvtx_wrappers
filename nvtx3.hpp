@@ -55,7 +55,7 @@
  *
  * \image html https://raw.githubusercontent.com/jrhemstad/nvtx_wrappers/master/docs/example_range.png
  *
- * Alternatively, use the \ref MACROS like `NVTX_FUNC_RANGE()` to add
+ * Alternatively, use the \ref MACROS like `NVTX3_FUNC_RANGE()` to add
  * ranges to your code that automatically use the name of the enclosing function
  * as the range's message.
  *
@@ -65,7 +65,7 @@
  *    // Creates a range with a message "some_function" that ends when the
  * enclosing
  *    // function returns
- *    NVTX_FUNC_RANGE();
+ *    NVTX3_FUNC_RANGE();
  *    ...
  * }
  * \endcode
@@ -450,8 +450,8 @@
  * Oftentimes users want to quickly and easily add NVTX ranges to their library
  * or application to aid in profiling and optimization.
  *
- * A convenient way to do this is to use the \ref NVTX_FUNC_RANGE and
- * \ref NVTX_FUNC_RANGE_IN macros. These macros take care of constructing an
+ * A convenient way to do this is to use the \ref NVTX3_FUNC_RANGE and
+ * \ref NVTX3_FUNC_RANGE_IN macros. These macros take care of constructing an
  * `nvtx3::domain_thread_range` with the name of the enclosing function as the
  * range's message.
  *
@@ -459,7 +459,7 @@
  * void some_function(){
  *    // Automatically generates an NVTX range for the duration of the function
  *    // using "some_function" as the event's message.
- *    NVTX_FUNC_RANGE();
+ *    NVTX3_FUNC_RANGE();
  * }
  * \endcode
  *
@@ -1812,7 +1812,7 @@ using process_range = domain_process_range<>;
  * struct my_domain{static constexpr char const* name{"my_domain"};};
  *
  * void foo(...){
- *    NVTX_FUNC_RANGE_IN(my_domain); // Range begins on entry to foo()
+ *    NVTX3_FUNC_RANGE_IN(my_domain); // Range begins on entry to foo()
  *    // do stuff
  *    ...
  * } // Range ends on return from foo()
@@ -1822,7 +1822,7 @@ using process_range = domain_process_range<>;
  * `Domain` to which the `RegisteredMessage` belongs. Else,
  * `Domain::global` to  indicate that the global NVTX domain should be used.
  */
-#define NVTX_FUNC_RANGE_IN(D)                                              \
+#define NVTX3_FUNC_RANGE_IN(D)                                              \
   static ::nvtx3::RegisteredMessage<D> const nvtx_func_name__{__func__};    \
   static ::nvtx3::EventAttributes const nvtx_func_attr__{nvtx_func_name__}; \
   ::nvtx3::domain_thread_range<D> const nvtx_range__{nvtx_func_attr__};
@@ -1843,10 +1843,10 @@ using process_range = domain_process_range<>;
  * Example:
  * ```
  * void foo(...){
- *    NVTX_FUNC_RANGE(); // Range begins on entry to foo()
+ *    NVTX3_FUNC_RANGE(); // Range begins on entry to foo()
  *    // do stuff
  *    ...
  * } // Range ends on return from foo()
  * ```
  */
-#define NVTX_FUNC_RANGE() NVTX_FUNC_RANGE_IN(::nvtx3::Domain::global)
+#define NVTX3_FUNC_RANGE() NVTX3_FUNC_RANGE_IN(::nvtx3::Domain::global)

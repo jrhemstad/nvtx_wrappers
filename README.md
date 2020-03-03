@@ -28,7 +28,7 @@ See https://jrhemstad.github.io/nvtx_wrappers/html/index.html for Doxygen docume
 
   ![alt text](https://raw.githubusercontent.com/jrhemstad/nvtx_wrappers/master/docs/example_range.png "Example NVTX Ranges")
   
-  Alternatively, use the macro `NVTX_FUNC_RANGE()` to add
+  Alternatively, use the macro `NVTX3_FUNC_RANGE()` to add
   ranges to your code that automatically use the name of the enclosing function
   as the range's message.
  
@@ -37,7 +37,7 @@ See https://jrhemstad.github.io/nvtx_wrappers/html/index.html for Doxygen docume
   void some_function(){
      // Creates a range with a message "some_function" that ends when the enclosing
      // function returns
-     NVTX_FUNC_RANGE();
+     NVTX3_FUNC_RANGE();
      ...
   }
   ```
