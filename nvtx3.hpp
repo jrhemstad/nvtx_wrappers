@@ -258,7 +258,7 @@
  * - \ref CATEGORY : Intra-domain grouping.
  *
  * It is possible to construct a `nvtx3::event_attributes` from any number of
- * attribute objects (nvtx3::Color, nvtx3::message, nvtx3::Payload, nvtx3::category)
+ * attribute objects (nvtx3::Color, nvtx3::message, nvtx3::payload, nvtx3::category)
  * in any order. If an attribute is not specified, a tool specific default value
  * is used. See `nvtx3::event_attributes` for more information.
  *
@@ -269,18 +269,18 @@
  *
  * // Custom color, message, payload, category
  * event_attributes attr{nvtx3::rgb{127, 255, 0},
- *                      nvtx3::Payload{42},
+ *                      nvtx3::payload{42},
  *                      "message",
  *                      nvtx3::category{1}};
  *
  * // Arguments can be in any order
- * event_attributes attr{nvtx3::Payload{42},
+ * event_attributes attr{nvtx3::payload{42},
  *                      nvtx3::category{1},
  *                      "message",
  *                      nvtx3::rgb{127, 255, 0}};
  *
  * // "First wins" with multiple arguments of the same type
- * event_attributes attr{ nvtx3::Payload{42}, nvtx3::Payload{7} }; // Payload is 42
+ * event_attributes attr{ nvtx3::payload{42}, nvtx3::payload{7} }; // payload is 42
  * \endcode
  *
  * \subsection MESSAGES message
@@ -389,12 +389,12 @@
  * nvtx3::event_attributes attr{my_category};
  * \endcode
  *
- * \subsection PAYLOAD Payload
+ * \subsection PAYLOAD payload
  *
  * Allows associating a user-defined numerical value with an event.
  *
  * ```
- * nvtx3:: event_attributes attr{nvtx3::Payload{42}}; // Constructs a Payload from
+ * nvtx3:: event_attributes attr{nvtx3::payload{42}}; // Constructs a payload from
  *                                                 // the `int32_t` value 42
  * ```
  *
@@ -439,7 +439,7 @@
  * auto category = my_named_category::get<my_category>();
  *
  * // Use registered message and named category
- * my_thread_range r3{msg, category, nvtx3::rgb{127, 255, 0}, nvtx3::Payload{42}};
+ * my_thread_range r3{msg, category, nvtx3::rgb{127, 255, 0}, nvtx3::payload{42}};
  *
  * // Any number of arguments in any order
  * my_thread_range r{nvtx3::rgb{127, 255,0}, msg};
@@ -1330,76 +1330,76 @@ class message {
  *
  * Example:
  * ```
- * nvtx3:: event_attributes attr{nvtx3::Payload{42}}; // Constructs a Payload from
+ * nvtx3:: event_attributes attr{nvtx3::payload{42}}; // Constructs a payload from
  *                                                 // the `int32_t` value 42
  *
  * // `range0` will have an int32_t payload of 42
  * nvtx3::thread_range range0{attr};
  *
  * // range1 has double payload of 3.14
- * nvtx3::thread_range range1{ nvtx3::Payload{3.14} };
+ * nvtx3::thread_range range1{ nvtx3::payload{3.14} };
  * ```
  */
-class Payload {
+class payload {
  public:
   using value_type = typename nvtxEventAttributes_v2::payload_t;
 
   /**
-   * @brief Construct a `Payload` from a signed, 8 byte integer.
+   * @brief Construct a `payload` from a signed, 8 byte integer.
    *
    * @param value Value to use as contents of the payload
    */
-  NVTX3_RELAXED_CONSTEXPR explicit Payload(int64_t value) noexcept
+  NVTX3_RELAXED_CONSTEXPR explicit payload(int64_t value) noexcept
       : type_{NVTX_PAYLOAD_TYPE_INT64}, value_{} {
     value_.llValue = value;
   }
 
   /**
-   * @brief Construct a `Payload` from a signed, 4 byte integer.
+   * @brief Construct a `payload` from a signed, 4 byte integer.
    *
    * @param value Value to use as contents of the payload
    */
-  NVTX3_RELAXED_CONSTEXPR explicit Payload(int32_t value) noexcept
+  NVTX3_RELAXED_CONSTEXPR explicit payload(int32_t value) noexcept
       : type_{NVTX_PAYLOAD_TYPE_INT32}, value_{} {
     value_.iValue = value;
   }
 
   /**
-   * @brief Construct a `Payload` from an unsigned, 8 byte integer.
+   * @brief Construct a `payload` from an unsigned, 8 byte integer.
    *
    * @param value Value to use as contents of the payload
    */
-  NVTX3_RELAXED_CONSTEXPR explicit Payload(uint64_t value) noexcept
+  NVTX3_RELAXED_CONSTEXPR explicit payload(uint64_t value) noexcept
       : type_{NVTX_PAYLOAD_TYPE_UNSIGNED_INT64}, value_{} {
     value_.ullValue = value;
   }
 
   /**
-   * @brief Construct a `Payload` from an unsigned, 4 byte integer.
+   * @brief Construct a `payload` from an unsigned, 4 byte integer.
    *
    * @param value Value to use as contents of the payload
    */
-  NVTX3_RELAXED_CONSTEXPR explicit Payload(uint32_t value) noexcept
+  NVTX3_RELAXED_CONSTEXPR explicit payload(uint32_t value) noexcept
       : type_{NVTX_PAYLOAD_TYPE_UNSIGNED_INT32}, value_{} {
     value_.uiValue = value;
   }
 
   /**
-   * @brief Construct a `Payload` from a single-precision floating point value.
+   * @brief Construct a `payload` from a single-precision floating point value.
    *
    * @param value Value to use as contents of the payload
    */
-  NVTX3_RELAXED_CONSTEXPR explicit Payload(float value) noexcept
+  NVTX3_RELAXED_CONSTEXPR explicit payload(float value) noexcept
       : type_{NVTX_PAYLOAD_TYPE_FLOAT}, value_{} {
     value_.fValue = value;
   }
 
   /**
-   * @brief Construct a `Payload` from a double-precision floating point value.
+   * @brief Construct a `payload` from a double-precision floating point value.
    *
    * @param value Value to use as contents of the payload
    */
-  NVTX3_RELAXED_CONSTEXPR explicit Payload(double value) noexcept
+  NVTX3_RELAXED_CONSTEXPR explicit payload(double value) noexcept
       : type_{NVTX_PAYLOAD_TYPE_DOUBLE}, value_{} {
     value_.dValue = value;
   }
@@ -1433,11 +1433,11 @@ class Payload {
  * - color:    Color used to visualize the event in tools such as Nsight
  *             Systems. See `Color`.
  * - message:  Custom message string. See `message`.
- * - payload:  User-defined numerical value. See `Payload`.
+ * - payload:  User-defined numerical value. See `payload`.
  * - category: Intra-domain grouping. See `category`.
  *
  * These component attributes are specified via an `event_attributes` object.
- * See `nvtx3::Color`, `nvtx3::message`, `nvtx3::Payload`, and `nvtx3::category` for
+ * See `nvtx3::Color`, `nvtx3::message`, `nvtx3::payload`, and `nvtx3::category` for
  * how these individual attributes are constructed.
  *
  * While it is possible to specify all four attributes, it is common to want to
@@ -1461,18 +1461,18 @@ class Payload {
  * // Custom color, message, payload, category
  * event_attributes attr{nvtx3::rgb{127, 255, 0},
  *                      "message",
- *                      nvtx3::Payload{42},
+ *                      nvtx3::payload{42},
  *                      nvtx3::category{1}};
  *
  * // Custom color, message, payload, category, can use any order of arguments
- * event_attributes attr{nvtx3::Payload{42},
+ * event_attributes attr{nvtx3::payload{42},
  *                      nvtx3::category{1},
  *                      "message",
  *                      nvtx3::rgb{127, 255, 0}};
  *
  * // Multiple arguments of the same type are allowed, but only the first is
  * // used. All others are ignored
- * event_attributes attr{ nvtx3::Payload{42}, nvtx3::Payload{7} }; // Payload is 42
+ * event_attributes attr{ nvtx3::payload{42}, nvtx3::payload{7} }; // payload is 42
  *
  * // Range `r` will be customized according the attributes in `attr`
  * nvtx3::thread_range r{attr};
@@ -1480,7 +1480,7 @@ class Payload {
  * // For convenience, the arguments that can be passed to the `event_attributes`
  * // constructor may be passed to the `domain_thread_range` contructor where
  * // they will be forwarded to the `EventAttribute`s constructor
- * nvtx3::thread_range r{nvtx3::Payload{42}, nvtx3::category{1}, "message"};
+ * nvtx3::thread_range r{nvtx3::payload{42}, nvtx3::category{1}, "message"};
  * \endcode
  *
  */
@@ -1535,14 +1535,14 @@ class event_attributes {
   }
 
   /**
-   * @brief Variadic constructor where the first argument is a `Payload`.
+   * @brief Variadic constructor where the first argument is a `payload`.
    *
    * Sets the value of the `EventAttribute`s payload based on `p` and forwards
    * the remaining variadic parameter pack to the next constructor.
    *
    */
   template <typename... Args>
-  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(Payload const& p,
+  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(payload const& p,
                                                   Args const&... args) noexcept
       : event_attributes(args...) {
     attributes_.payload = p.get_value();
