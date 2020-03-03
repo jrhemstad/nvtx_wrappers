@@ -15,6 +15,16 @@
  */
 #pragma once
 
+#if (defined(NVTX3_MAJOR_VERSION) && defined(NVTX3_MINOR_VERSION)) && \
+    ((NVTX3_MAJOR_VERSION < 3) or                                     \
+     ((NVTX3_MAJOR_VERSION == 3) and (NVTX3_MINOR_VERSION != 0)))
+#error \
+    "Trying to #include NVTX version 3 in a source file where an older NVTX version has already been included.  If you are not directly using NVTX (the NVIDIA Tools Extension library), you are getting this error because libraries you are using have included different versions of NVTX.  Suggested solutions are: (1) reorder #includes so the newest NVTX version is included first, (2) avoid using the conflicting libraries in the same .c/.cpp file, or (3) update the library using the older NVTX version to use the newer version instead."
+#endif
+
+#define NVTX3_MAJOR_VERSION 3
+#define NVTX3_MINOR_VERSION 0
+
 #include <nvToolsExt.h>
 
 #include <string>
@@ -53,7 +63,8 @@
  * The example code above generates the following timeline view in Nsight
  * Systems:
  *
- * \image html https://raw.githubusercontent.com/jrhemstad/nvtx_wrappers/master/docs/example_range.png
+ * \image html
+ * https://raw.githubusercontent.com/jrhemstad/nvtx_wrappers/master/docs/example_range.png
  *
  * Alternatively, use the \ref MACROS like `NVTX3_FUNC_RANGE()` to add
  * ranges to your code that automatically use the name of the enclosing function
@@ -130,8 +141,8 @@
  * NVTX++ makes use of the "construct on first use" technique to alleviate this
  * inconvenience. In short, a function local static object is constructed upon
  * the first invocation of a function and returns a reference to that object on
- * all future invocations. See the documentation for `nvtx3::registered_message`,
- * `nvtx3::domain`, `nvtx3::named_category`,  and
+ * all future invocations. See the documentation for
+ * `nvtx3::registered_message`, `nvtx3::domain`, `nvtx3::named_category`,  and
  * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use for more
  * information.
  *
@@ -190,10 +201,10 @@
  *
  * \subsection PROCESS_RANGE Process Range
  *
- * `nvtx3::domain_process_range` is identical to `nvtx3::domain_thread_range` with
- * the exception that a `domain_process_range` can be created and destroyed on
- * different threads. This is useful to annotate spans of time that can bridge
- * multiple threads.
+ * `nvtx3::domain_process_range` is identical to `nvtx3::domain_thread_range`
+ * with the exception that a `domain_process_range` can be created and destroyed
+ * on different threads. This is useful to annotate spans of time that can
+ * bridge multiple threads.
  *
  * `nvtx3::domain_thread_range`s should be preferred unless one needs the
  * ability to begin and end a range on different threads.
@@ -258,9 +269,10 @@
  * - \ref CATEGORY : Intra-domain grouping.
  *
  * It is possible to construct a `nvtx3::event_attributes` from any number of
- * attribute objects (nvtx3::Color, nvtx3::message, nvtx3::payload, nvtx3::category)
- * in any order. If an attribute is not specified, a tool specific default value
- * is used. See `nvtx3::event_attributes` for more information.
+ * attribute objects (nvtx3::Color, nvtx3::message, nvtx3::payload,
+ * nvtx3::category) in any order. If an attribute is not specified, a tool
+ * specific default value is used. See `nvtx3::event_attributes` for more
+ * information.
  *
  * \code{.cpp}
  * // Custom color, message
@@ -280,8 +292,8 @@
  *                      nvtx3::rgb{127, 255, 0}};
  *
  * // "First wins" with multiple arguments of the same type
- * event_attributes attr{ nvtx3::payload{42}, nvtx3::payload{7} }; // payload is 42
- * \endcode
+ * event_attributes attr{ nvtx3::payload{42}, nvtx3::payload{7} }; // payload is
+ * 42 \endcode
  *
  * \subsection MESSAGES message
  *
@@ -333,8 +345,8 @@
  *
  * \subsection COLOR Color
  *
- * Associating a `nvtx3::Color` with an event allows controlling how the event is
- * visualized in a tool such as Nsight Systems. This is a convenient way to
+ * Associating a `nvtx3::Color` with an event allows controlling how the event
+ * is visualized in a tool such as Nsight Systems. This is a convenient way to
  * visually differentiate among different events.
  *
  * \code{.cpp}
@@ -363,8 +375,8 @@
  *
  * For any given category id `Id`, a `named_category{Id, "name"}` should only
  * be constructed once and reused throughout an application. This can be done by
- * either explicitly creating static `nvtx3::named_category` objects, or using the
- * `nvtx3::named_category::get` construct on first use helper (recommended).
+ * either explicitly creating static `nvtx3::named_category` objects, or using
+ * the `nvtx3::named_category::get` construct on first use helper (recommended).
  *
  * Similar to \ref DOMAINS, `nvtx3::named_category::get` requires defining a
  * custom tag type with static `name` and `id` members.
@@ -394,7 +406,8 @@
  * Allows associating a user-defined numerical value with an event.
  *
  * ```
- * nvtx3:: event_attributes attr{nvtx3::payload{42}}; // Constructs a payload from
+ * nvtx3:: event_attributes attr{nvtx3::payload{42}}; // Constructs a payload
+ * from
  *                                                 // the `int32_t` value 42
  * ```
  *
@@ -429,7 +442,7 @@
  * my_thread_range r1{attr1};
  *
  * // Alternatively, pass arguments of `event_attributes` ctor directly to
- * // `my_thread_range` 
+ * // `my_thread_range`
  * my_thread_range r2{"message", nvtx3::category{2}};
  *
  * // construct on first use a registered message
@@ -439,7 +452,8 @@
  * auto category = my_named_category::get<my_category>();
  *
  * // Use registered message and named category
- * my_thread_range r3{msg, category, nvtx3::rgb{127, 255, 0}, nvtx3::payload{42}};
+ * my_thread_range r3{msg, category, nvtx3::rgb{127, 255, 0},
+ * nvtx3::payload{42}};
  *
  * // Any number of arguments in any order
  * my_thread_range r{nvtx3::rgb{127, 255,0}, msg};
@@ -1330,7 +1344,8 @@ class message {
  *
  * Example:
  * ```
- * nvtx3:: event_attributes attr{nvtx3::payload{42}}; // Constructs a payload from
+ * nvtx3:: event_attributes attr{nvtx3::payload{42}}; // Constructs a payload
+ * from
  *                                                 // the `int32_t` value 42
  *
  * // `range0` will have an int32_t payload of 42
@@ -1437,8 +1452,8 @@ class payload {
  * - category: Intra-domain grouping. See `category`.
  *
  * These component attributes are specified via an `event_attributes` object.
- * See `nvtx3::Color`, `nvtx3::message`, `nvtx3::payload`, and `nvtx3::category` for
- * how these individual attributes are constructed.
+ * See `nvtx3::Color`, `nvtx3::message`, `nvtx3::payload`, and `nvtx3::category`
+ * for how these individual attributes are constructed.
  *
  * While it is possible to specify all four attributes, it is common to want to
  * only specify a subset of attributes and use default values for the others.
@@ -1472,12 +1487,14 @@ class payload {
  *
  * // Multiple arguments of the same type are allowed, but only the first is
  * // used. All others are ignored
- * event_attributes attr{ nvtx3::payload{42}, nvtx3::payload{7} }; // payload is 42
+ * event_attributes attr{ nvtx3::payload{42}, nvtx3::payload{7} }; // payload is
+ * 42
  *
  * // Range `r` will be customized according the attributes in `attr`
  * nvtx3::thread_range r{attr};
  *
- * // For convenience, the arguments that can be passed to the `event_attributes`
+ * // For convenience, the arguments that can be passed to the
+ * `event_attributes`
  * // constructor may be passed to the `domain_thread_range` contructor where
  * // they will be forwarded to the `EventAttribute`s constructor
  * nvtx3::thread_range r{nvtx3::payload{42}, nvtx3::category{1}, "message"};
@@ -1513,8 +1530,8 @@ class event_attributes {
    *
    */
   template <typename... Args>
-  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(category const& c,
-                                                  Args const&... args) noexcept
+  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(
+      category const& c, Args const&... args) noexcept
       : event_attributes(args...) {
     attributes_.category = c.get_id();
   }
@@ -1527,8 +1544,8 @@ class event_attributes {
    *
    */
   template <typename... Args>
-  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(Color const& c,
-                                                  Args const&... args) noexcept
+  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(
+      Color const& c, Args const&... args) noexcept
       : event_attributes(args...) {
     attributes_.color = c.get_value();
     attributes_.colorType = c.get_type();
@@ -1542,8 +1559,8 @@ class event_attributes {
    *
    */
   template <typename... Args>
-  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(payload const& p,
-                                                  Args const&... args) noexcept
+  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(
+      payload const& p, Args const&... args) noexcept
       : event_attributes(args...) {
     attributes_.payload = p.get_value();
     attributes_.payloadType = p.get_type();
@@ -1557,8 +1574,8 @@ class event_attributes {
    *
    */
   template <typename... Args>
-  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(message const& m,
-                                                  Args const&... args) noexcept
+  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(
+      message const& m, Args const&... args) noexcept
       : event_attributes(args...) {
     attributes_.message = m.get_value();
     attributes_.messageType = m.get_type();
@@ -1618,7 +1635,8 @@ class event_attributes {
  *
  * nvtx3::thread_range r1{"range 1"}; // Alias for range in global domain
  *
- * nvtx3::domain_thread_range<my_domain> r2{"range 2"}; // Range in custom domain
+ * nvtx3::domain_thread_range<my_domain> r2{"range 2"}; // Range in custom
+ * domain
  *
  * // specify an alias to a range that uses a custom domain
  * using my_thread_range = nvtx3::domain_thread_range<my_domain>;
@@ -1792,7 +1810,7 @@ class domain_process_range {
  */
 using process_range = domain_process_range<>;
 
-}  // namespace nvtx
+}  // namespace nvtx3
 
 /**
  * @brief Convenience macro for generating a range in the specified `domain`
@@ -1822,8 +1840,8 @@ using process_range = domain_process_range<>;
  * `domain` to which the `registered_message` belongs. Else,
  * `domain::global` to  indicate that the global NVTX domain should be used.
  */
-#define NVTX3_FUNC_RANGE_IN(D)                                              \
-  static ::nvtx3::registered_message<D> const nvtx3_func_name__{__func__};    \
+#define NVTX3_FUNC_RANGE_IN(D)                                                 \
+  static ::nvtx3::registered_message<D> const nvtx3_func_name__{__func__};     \
   static ::nvtx3::event_attributes const nvtx3_func_attr__{nvtx3_func_name__}; \
   ::nvtx3::domain_thread_range<D> const nvtx3_range__{nvtx3_func_attr__};
 
