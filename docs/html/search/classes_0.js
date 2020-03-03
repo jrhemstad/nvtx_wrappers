@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['argb',['ARGB',['../structnvtx3_1_1ARGB.html',1,'nvtx3']]]
+  ['argb',['argb',['../structnvtx3_1_1argb.html',1,'nvtx3']]]
 ];

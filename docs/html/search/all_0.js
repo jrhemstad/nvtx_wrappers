@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['alpha',['alpha',['../structnvtx3_1_1ARGB.html#ad05d92d0d59bbc4893a3789930816f7b',1,'nvtx3::ARGB']]],
-  ['argb',['ARGB',['../structnvtx3_1_1ARGB.html#ac06c4ce11b526d31424a15de14a3395a',1,'nvtx3::ARGB']]],
-  ['argb',['ARGB',['../structnvtx3_1_1ARGB.html',1,'nvtx3']]]
+  ['alpha',['alpha',['../structnvtx3_1_1argb.html#a948b758a9647ef95be1d12fc215c0957',1,'nvtx3::argb']]],
+  ['argb',['argb',['../structnvtx3_1_1argb.html#aad61dd5a78dd4616769f95e9c801e1c4',1,'nvtx3::argb']]],
+  ['argb',['argb',['../structnvtx3_1_1argb.html',1,'nvtx3']]]
 ];

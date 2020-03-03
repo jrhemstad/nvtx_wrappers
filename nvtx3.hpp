@@ -131,7 +131,7 @@
  * inconvenience. In short, a function local static object is constructed upon
  * the first invocation of a function and returns a reference to that object on
  * all future invocations. See the documentation for `nvtx3::registered_message`,
- * `nvtx3::domain`, `nvtx3::NamedCategory`,  and
+ * `nvtx3::domain`, `nvtx3::named_category`,  and
  * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use for more
  * information.
  *
@@ -239,7 +239,7 @@
  * ```
  * using my_thread_range = nvtx3::domain_thread_range<my_domain>;
  * using my_registered_message = nvtx3::registered_message<my_domain>;
- * using my_named_category = nvtx3::NamedCategory<my_domain>;
+ * using my_named_category = nvtx3::named_category<my_domain>;
  * ```
  *
  * See `nvtx3::domain` for more information.
@@ -258,7 +258,7 @@
  * - \ref CATEGORY : Intra-domain grouping.
  *
  * It is possible to construct a `nvtx3::event_attributes` from any number of
- * attribute objects (nvtx3::Color, nvtx3::Message, nvtx3::Payload, nvtx3::Category)
+ * attribute objects (nvtx3::Color, nvtx3::Message, nvtx3::Payload, nvtx3::category)
  * in any order. If an attribute is not specified, a tool specific default value
  * is used. See `nvtx3::event_attributes` for more information.
  *
@@ -271,11 +271,11 @@
  * event_attributes attr{nvtx3::rgb{127, 255, 0},
  *                      nvtx3::Payload{42},
  *                      "message",
- *                      nvtx3::Category{1}};
+ *                      nvtx3::category{1}};
  *
  * // Arguments can be in any order
  * event_attributes attr{nvtx3::Payload{42},
- *                      nvtx3::Category{1},
+ *                      nvtx3::category{1},
  *                      "message",
  *                      nvtx3::rgb{127, 255, 0}};
  *
@@ -346,14 +346,14 @@
  * nvtx3::event_attributes attr1{nvtx3::rgb{127,255,0}};
  * \endcode
  *
- * \subsection CATEGORY Category
+ * \subsection CATEGORY category
  *
- * A `nvtx3::Category` is simply an integer id that allows for fine-grain
+ * A `nvtx3::category` is simply an integer id that allows for fine-grain
  * grouping of NVTX events. For example, one might use separate categories for
  * IO, memory allocation, compute, etc.
  *
  * \code{.cpp}
- * nvtx3::event_attributes{nvtx3::Category{1}};
+ * nvtx3::event_attributes{nvtx3::category{1}};
  * \endcode
  *
  * \subsubsection NAMED_CATEGORIES Named Categories
@@ -361,29 +361,29 @@
  * Associates a `name` string with a category `id` to help differentiate among
  * categories.
  *
- * For any given category id `Id`, a `NamedCategory{Id, "name"}` should only
+ * For any given category id `Id`, a `named_category{Id, "name"}` should only
  * be constructed once and reused throughout an application. This can be done by
- * either explicitly creating static `nvtx3::NamedCategory` objects, or using the
- * `nvtx3::NamedCategory::get` construct on first use helper (recommended).
+ * either explicitly creating static `nvtx3::named_category` objects, or using the
+ * `nvtx3::named_category::get` construct on first use helper (recommended).
  *
- * Similar to \ref DOMAINS, `nvtx3::NamedCategory::get` requires defining a
+ * Similar to \ref DOMAINS, `nvtx3::named_category::get` requires defining a
  * custom tag type with static `name` and `id` members.
  *
  * \code{.cpp}
- * // Explicitly constructed, static `NamedCategory`
- * static nvtx3::NamedCategory static_category{42, "my category"};
+ * // Explicitly constructed, static `named_category`
+ * static nvtx3::named_category static_category{42, "my category"};
  *
  * // OR use construct on first use:
  * // Define a tag type with `name` and `id` members
  * struct my_category{
- *    static constexpr char const* name{"my category"}; // Category name
- *    static constexpr Category::id_type id{42}; // Category id
+ *    static constexpr char const* name{"my category"}; // category name
+ *    static constexpr category::id_type id{42}; // category id
  * };
  *
  * // Use construct on first use to name the category id `42`
  * // with name "my category"
- * nvtx3::NamedCategory const& my_category =
- * NamedCategory<my_domain>::get<my_category>();
+ * nvtx3::named_category const& my_category =
+ * named_category<my_domain>::get<my_category>();
  *
  * // Range `r` associated with category id `42`
  * nvtx3::event_attributes attr{my_category};
@@ -418,19 +418,19 @@
  * // For convenience, use aliases for domain scoped objects
  * using my_thread_range = nvtx3::domain_thread_range<my_domain>;
  * using my_registered_message = nvtx3::registered_message<my_domain>;
- * using my_named_category = nvtx3::NamedCategory<my_domain>;
+ * using my_named_category = nvtx3::named_category<my_domain>;
  *
  * // Default values for all attributes
  * nvtx3::event_attributes attr{};
  * my_thread_range r0{attr};
  *
- * // Custom (unregistered) message, and unnamed Category
- * nvtx3::event_attributes attr1{"message", nvtx3::Category{2}};
+ * // Custom (unregistered) message, and unnamed category
+ * nvtx3::event_attributes attr1{"message", nvtx3::category{2}};
  * my_thread_range r1{attr1};
  *
  * // Alternatively, pass arguments of `event_attributes` ctor directly to
  * // `my_thread_range` 
- * my_thread_range r2{"message", nvtx3::Category{2}};
+ * my_thread_range r2{"message", nvtx3::category{2}};
  *
  * // construct on first use a registered message
  * auto msg = my_registered_message::get<my_message>();
@@ -571,7 +571,7 @@ class domain {
    *
    * None of the constructs in this header require the user to directly invoke
    * `domain::get`. It is automatically invoked when constructing objects like a
-   * `domain_thread_range` or `Category`. Advanced users may wish to use
+   * `domain_thread_range` or `category`. Advanced users may wish to use
    * `domain::get` for the convenience of the "construct on first use" idiom
    * when using domains with their own use of the NVTX C API.
    *
@@ -861,78 +861,78 @@ class Color {
 /**
  * @brief Object for intra-domain grouping of NVTX events.
  *
- * A `Category` is simply an integer id that allows for fine-grain grouping of
+ * A `category` is simply an integer id that allows for fine-grain grouping of
  * NVTX events. For example, one might use separate categories for IO, memory
  * allocation, compute, etc.
  *
  * Example:
  * \code{.cpp}
- * nvtx3::Category cat1{1};
+ * nvtx3::category cat1{1};
  *
  * // Range `r1` belongs to the category identified by the value `1`.
  * nvtx3::thread_range r1{cat1};
  *
  * // Range `r2` belongs to the same category as `r1`
- * nvtx3::thread_range r2{nvtx3::Category{1}};
+ * nvtx3::thread_range r2{nvtx3::category{1}};
  * \endcode
  *
- * To associate a name string with a category id, see `NamedCategory`.
+ * To associate a name string with a category id, see `named_category`.
  *
  */
-class Category {
+class category {
  public:
-  /// Type used for `Category`s integer id.
+  /// Type used for `category`s integer id.
   using id_type = uint32_t;
 
   /**
-   * @brief Construct a `Category` with the specified `id`.
+   * @brief Construct a `category` with the specified `id`.
    *
-   * The `Category` will be unnamed and identified only by its `id` value.
+   * The `category` will be unnamed and identified only by its `id` value.
    *
-   * All `Category` objects sharing the same `id` are equivalent.
+   * All `category` objects sharing the same `id` are equivalent.
    *
-   * @param[in] id The `Category`'s identifying value
+   * @param[in] id The `category`'s identifying value
    */
-  constexpr explicit Category(id_type id) noexcept : id_{id} {}
+  constexpr explicit category(id_type id) noexcept : id_{id} {}
 
   /**
-   * @brief Returns the id of the Category.
+   * @brief Returns the id of the category.
    *
    */
   constexpr id_type get_id() const noexcept { return id_; }
 
-  Category() = delete;
-  ~Category() = default;
-  Category(Category const&) = default;
-  Category& operator=(Category const&) = default;
-  Category(Category&&) = default;
-  Category& operator=(Category&&) = default;
+  category() = delete;
+  ~category() = default;
+  category(category const&) = default;
+  category& operator=(category const&) = default;
+  category(category&&) = default;
+  category& operator=(category&&) = default;
 
  private:
-  id_type const id_{};  ///< Category's unique identifier
+  id_type const id_{};  ///< category's unique identifier
 };
 
 /**
- * @brief A `Category` with an associated name string.
+ * @brief A `category` with an associated name string.
  *
  * Associates a `name` string with a category `id` to help differentiate among
  * categories.
  *
- * For any given category id `Id`, a `NamedCategory(Id, "name")` should only
+ * For any given category id `Id`, a `named_category(Id, "name")` should only
  * be constructed once and reused throughout an application. This can be done by
- * either explicitly creating static `NamedCategory` objects, or using the
- * `NamedCategory::get` construct on first use helper (recommended).
+ * either explicitly creating static `named_category` objects, or using the
+ * `named_category::get` construct on first use helper (recommended).
  *
- * Creating two or more `NamedCategory` objects with the same value for `id` in
+ * Creating two or more `named_category` objects with the same value for `id` in
  * the same domain results in undefined behavior.
  *
- * Similarly, behavior is undefined when a `NamedCategory` and `Category`
+ * Similarly, behavior is undefined when a `named_category` and `category`
  * share the same value of `id`.
  *
  * Example:
  * \code{.cpp}
- * // Explicitly constructed, static `NamedCategory`
- * static nvtx3::NamedCategory static_category{42, "my category"};
+ * // Explicitly constructed, static `named_category`
+ * static nvtx3::named_category static_category{42, "my category"};
  *
  * // Range `r` associated with category id `42`
  * nvtx3::thread_range r{static_category};
@@ -941,57 +941,57 @@ class Category {
  *
  * // Define a type with `name` and `id` members
  * struct my_category{
- *    static constexpr char const* name{"my category"}; // Category name
- *    static constexpr Category::id_type id{42}; // Category id
+ *    static constexpr char const* name{"my category"}; // category name
+ *    static constexpr category::id_type id{42}; // category id
  * };
  *
  * // Use construct on first use to name the category id `42`
  * // with name "my category"
- * auto my_category = NamedCategory<my_domain>::get<my_category>();
+ * auto my_category = named_category<my_domain>::get<my_category>();
  *
  * // Range `r` associated with category id `42`
  * nvtx3::thread_range r{my_category};
  * \endcode
  *
- * `NamedCategory`'s association of a name to a category id is local to the
+ * `named_category`'s association of a name to a category id is local to the
  * domain specified by the type `D`. An id may have a different name in another
  * domain.
  *
  * @tparam D Type containing `name` member used to identify the `domain` to
- * which the `NamedCategory` belongs. Else, `domain::global` to  indicate that
+ * which the `named_category` belongs. Else, `domain::global` to  indicate that
  * the global NVTX domain should be used.
  */
 template <typename D = domain::global>
-class NamedCategory final : public Category {
+class named_category final : public category {
  public:
   /**
-   * @brief Returns a global instance of a `NamedCategory` as a function-local
+   * @brief Returns a global instance of a `named_category` as a function-local
    * static.
    *
-   * Creates a `NamedCategory` with name and id specified by the contents of a
+   * Creates a `named_category` with name and id specified by the contents of a
    * type `C`. `C::name` determines the name and `C::id` determines the category
    * id.
    *
-   * This function is useful for constructing a named `Category` exactly once
+   * This function is useful for constructing a named `category` exactly once
    * and reusing the same instance throughout an application.
    *
    * Example:
    * \code{.cpp}
    * // Define a type with `name` and `id` members
    * struct my_category{
-   *    static constexpr char const* name{"my category"}; // Category name
-   *    static constexpr uint32_t id{42}; // Category id
+   *    static constexpr char const* name{"my category"}; // category name
+   *    static constexpr uint32_t id{42}; // category id
    * };
    *
    * // Use construct on first use to name the category id `42`
    * // with name "my category"
-   * auto cat = NamedCategory<my_domain>::get<my_category>();
+   * auto cat = named_category<my_domain>::get<my_category>();
    *
    * // Range `r` associated with category id `42`
    * nvtx3::thread_range r{cat};
    * \endcode
    *
-   * Uses the "construct on first use" idiom to safely ensure the `Category`
+   * Uses the "construct on first use" idiom to safely ensure the `category`
    * object is initialized exactly once. See
    * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
    *
@@ -999,14 +999,14 @@ class NamedCategory final : public Category {
    * `char const*` or `wchar_t const*` and `C::id`.
    */
   template <typename C>
-  static NamedCategory<D> const& get() noexcept {
+  static named_category<D> const& get() noexcept {
     static_assert(detail::has_name_member<C>(),
-                  "Type used to name a Category must contain a name member.");
-    static NamedCategory<D> const category{C::id, C::name};
+                  "Type used to name a category must contain a name member.");
+    static named_category<D> const category{C::id, C::name};
     return category;
   }
   /**
-   * @brief Construct a `Category` with the specified `id` and `name`.
+   * @brief Construct a `category` with the specified `id` and `name`.
    *
    * The name `name` will be registered with `id`.
    *
@@ -1015,12 +1015,12 @@ class NamedCategory final : public Category {
    * @param[in] id The category id to name
    * @param[in] name The name to associated with `id`
    */
-  NamedCategory(id_type id, char const* name) noexcept : Category{id} {
+  named_category(id_type id, char const* name) noexcept : category{id} {
     nvtxDomainNameCategoryA(domain::get<D>(), get_id(), name);
   };
 
   /**
-   * @brief Construct a `Category` with the specified `id` and `name`.
+   * @brief Construct a `category` with the specified `id` and `name`.
    *
    * The name `name` will be registered with `id`.
    *
@@ -1029,7 +1029,7 @@ class NamedCategory final : public Category {
    * @param[in] id The category id to name
    * @param[in] name The name to associated with `id`
    */
-  NamedCategory(id_type id, wchar_t const* name) noexcept : Category{id} {
+  named_category(id_type id, wchar_t const* name) noexcept : category{id} {
     nvtxDomainNameCategoryW(domain::get<D>(), get_id(), name);
   };
 };
@@ -1434,10 +1434,10 @@ class Payload {
  *             Systems. See `Color`.
  * - message:  Custom message string. See `Message`.
  * - payload:  User-defined numerical value. See `Payload`.
- * - category: Intra-domain grouping. See `Category`.
+ * - category: Intra-domain grouping. See `category`.
  *
  * These component attributes are specified via an `event_attributes` object.
- * See `nvtx3::Color`, `nvtx3::Message`, `nvtx3::Payload`, and `nvtx3::Category` for
+ * See `nvtx3::Color`, `nvtx3::Message`, `nvtx3::Payload`, and `nvtx3::category` for
  * how these individual attributes are constructed.
  *
  * While it is possible to specify all four attributes, it is common to want to
@@ -1462,11 +1462,11 @@ class Payload {
  * event_attributes attr{nvtx3::rgb{127, 255, 0},
  *                      "message",
  *                      nvtx3::Payload{42},
- *                      nvtx3::Category{1}};
+ *                      nvtx3::category{1}};
  *
  * // Custom color, message, payload, category, can use any order of arguments
  * event_attributes attr{nvtx3::Payload{42},
- *                      nvtx3::Category{1},
+ *                      nvtx3::category{1},
  *                      "message",
  *                      nvtx3::rgb{127, 255, 0}};
  *
@@ -1480,7 +1480,7 @@ class Payload {
  * // For convenience, the arguments that can be passed to the `event_attributes`
  * // constructor may be passed to the `domain_thread_range` contructor where
  * // they will be forwarded to the `EventAttribute`s constructor
- * nvtx3::thread_range r{nvtx3::Payload{42}, nvtx3::Category{1}, "message"};
+ * nvtx3::thread_range r{nvtx3::Payload{42}, nvtx3::category{1}, "message"};
  * \endcode
  *
  */
@@ -1506,14 +1506,14 @@ class event_attributes {
         } {}
 
   /**
-   * @brief Variadic constructor where the first argument is a `Category`.
+   * @brief Variadic constructor where the first argument is a `category`.
    *
    * Sets the value of the `EventAttribute`s category based on `c` and forwards
    * the remaining variadic parameter pack to the next constructor.
    *
    */
   template <typename... Args>
-  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(Category const& c,
+  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(category const& c,
                                                   Args const&... args) noexcept
       : event_attributes(args...) {
     attributes_.category = c.get_id();
