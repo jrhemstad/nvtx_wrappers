@@ -130,7 +130,7 @@
  * NVTX++ makes use of the "construct on first use" technique to alleviate this
  * inconvenience. In short, a function local static object is constructed upon
  * the first invocation of a function and returns a reference to that object on
- * all future invocations. See the documentation for `nvtx3::RegisteredMessage`,
+ * all future invocations. See the documentation for `nvtx3::registered_message`,
  * `nvtx3::Domain`, `nvtx3::NamedCategory`,  and
  * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use for more
  * information.
@@ -238,7 +238,7 @@
  * constructs in the custom domain.
  * ```
  * using my_thread_range = nvtx3::domain_thread_range<my_domain>;
- * using my_registered_message = nvtx3::RegisteredMessage<my_domain>;
+ * using my_registered_message = nvtx3::registered_message<my_domain>;
  * using my_named_category = nvtx3::NamedCategory<my_domain>;
  * ```
  *
@@ -310,17 +310,17 @@
  *
  * A message should be registered once and the handle reused throughout the rest
  * of the application. This can be done by either explicitly creating static
- * `nvtx3::RegisteredMessage` objects, or using the
- * `nvtx3::RegisteredMessage::get` construct on first use helper (recommended).
+ * `nvtx3::registered_message` objects, or using the
+ * `nvtx3::registered_message::get` construct on first use helper (recommended).
  *
- * Similar to \ref DOMAINS, `nvtx3::RegisteredMessage::get` requires defining a
+ * Similar to \ref DOMAINS, `nvtx3::registered_message::get` requires defining a
  * custom tag type with a static `message` member whose value will be the
  * contents of the registered string.
  *
  * Example:
  * \code{.cpp}
- * // Explicitly constructed, static `RegisteredMessage`
- * static RegisteredMessage<my_domain> static_message{"my message"};
+ * // Explicitly constructed, static `registered_message`
+ * static registered_message<my_domain> static_message{"my message"};
  *
  * // Or use construct on first use:
  * // Define a tag type with a `message` member string to register
@@ -328,8 +328,8 @@
  *
  * // Uses construct on first use to register the contents of
  * // `my_message::message`
- * nvtx3::RegisteredMessage<my_domain> const& msg =
- * nvtx3::RegisteredMessage<my_domain>::get<my_message>(); \endcode
+ * nvtx3::registered_message<my_domain> const& msg =
+ * nvtx3::registered_message<my_domain>::get<my_message>(); \endcode
  *
  * \subsection COLOR Color
  *
@@ -417,7 +417,7 @@
  *
  * // For convenience, use aliases for domain scoped objects
  * using my_thread_range = nvtx3::domain_thread_range<my_domain>;
- * using my_registered_message = nvtx3::RegisteredMessage<my_domain>;
+ * using my_registered_message = nvtx3::registered_message<my_domain>;
  * using my_named_category = nvtx3::NamedCategory<my_domain>;
  *
  * // Default values for all attributes
@@ -1047,13 +1047,13 @@ class NamedCategory final : public Category {
  *
  * A particular message should only be registered once and the handle
  * reused throughout the rest of the application. This can be done by either
- * explicitly creating static `RegisteredMessage` objects, or using the
- * `RegisteredMessage::get` construct on first use helper (recommended).
+ * explicitly creating static `registered_message` objects, or using the
+ * `registered_message::get` construct on first use helper (recommended).
  *
  * Example:
  * \code{.cpp}
- * // Explicitly constructed, static `RegisteredMessage`
- * static RegisteredMessage<my_domain> static_message{"message"};
+ * // Explicitly constructed, static `registered_message`
+ * static registered_message<my_domain> static_message{"message"};
  *
  * // "message" is associated with the range `r`
  * nvtx3::thread_range r{static_message};
@@ -1066,30 +1066,30 @@ class NamedCategory final : public Category {
  *
  * // Uses construct on first use to register the contents of
  * // `my_message::message`
- * auto msg = RegisteredMessage<my_domain>::get<my_message>();
+ * auto msg = registered_message<my_domain>::get<my_message>();
  *
  * // "my message" is associated with the range `r`
  * nvtx3::thread_range r{msg};
  * \endcode
  *
- * `RegisteredMessage`s are local to a particular domain specified via
+ * `registered_message`s are local to a particular domain specified via
  * the type `D`.
  *
  * @tparam D Type containing `name` member used to identify the `Domain` to
- * which the `RegisteredMessage` belongs. Else, `Domain::global` to  indicate
+ * which the `registered_message` belongs. Else, `Domain::global` to  indicate
  * that the global NVTX domain should be used.
  */
 template <typename D = Domain::global>
-class RegisteredMessage {
+class registered_message {
  public:
   /**
-   * @brief Returns a global instance of a `RegisteredMessage` as a function
+   * @brief Returns a global instance of a `registered_message` as a function
    * local static.
    *
    * Provides a convenient way to register a message with NVTX without having to
    * explicitly register the message.
    *
-   * Upon first invocation, constructs a `RegisteredMessage` whose contents are
+   * Upon first invocation, constructs a `registered_message` whose contents are
    * specified by `Message::message`.
    *
    * All future invocations will return a reference to the object constructed in
@@ -1103,7 +1103,7 @@ class RegisteredMessage {
    *
    * // Uses construct on first use to register the contents of
    * // `my_message::message`
-   * auto msg = RegisteredMessage<my_domain>::get<my_message>();
+   * auto msg = registered_message<my_domain>::get<my_message>();
    *
    * // "my message" is associated with the range `r`
    * nvtx3::thread_range r{msg};
@@ -1112,16 +1112,16 @@ class RegisteredMessage {
    * @tparam M Type required to contain a member `M::message` that
    * resolves to either a `char const*` or `wchar_t const*` used as the
    * registered message's contents.
-   * @return Reference to a `RegisteredMessage` associated with the type `M`.
+   * @return Reference to a `registered_message` associated with the type `M`.
    */
   template <typename M>
-  static RegisteredMessage<D> const& get() noexcept {
-    static RegisteredMessage<D> const registered_message{M::message};
+  static registered_message<D> const& get() noexcept {
+    static registered_message<D> const registered_message{M::message};
     return registered_message;
   }
 
   /**
-   * @brief Constructs a `RegisteredMessage` from the specified `msg` string.
+   * @brief Constructs a `registered_message` from the specified `msg` string.
    *
    * Registers `msg` with NVTX and associates a handle with the registered
    * message.
@@ -1131,11 +1131,11 @@ class RegisteredMessage {
    *
    * @param msg The contents of the message
    */
-  explicit RegisteredMessage(char const* msg) noexcept
+  explicit registered_message(char const* msg) noexcept
       : handle_{nvtxDomainRegisterStringA(Domain::get<D>(), msg)} {}
 
   /**
-   * @brief Constructs a `RegisteredMessage` from the specified `msg` string.
+   * @brief Constructs a `registered_message` from the specified `msg` string.
    *
    * Registers `msg` with NVTX and associates a handle with the registered
    * message.
@@ -1145,11 +1145,11 @@ class RegisteredMessage {
    *
    * @param msg The contents of the message
    */
-  explicit RegisteredMessage(std::string const& msg) noexcept
-      : RegisteredMessage{msg.c_str()} {}
+  explicit registered_message(std::string const& msg) noexcept
+      : registered_message{msg.c_str()} {}
 
   /**
-   * @brief Constructs a `RegisteredMessage` from the specified `msg` string.
+   * @brief Constructs a `registered_message` from the specified `msg` string.
    *
    * Registers `msg` with NVTX and associates a handle with the registered
    * message.
@@ -1159,11 +1159,11 @@ class RegisteredMessage {
    *
    * @param msg The contents of the message
    */
-  explicit RegisteredMessage(wchar_t const* msg) noexcept
+  explicit registered_message(wchar_t const* msg) noexcept
       : handle_{nvtxDomainRegisterStringW(Domain::get<D>(), msg)} {}
 
   /**
-   * @brief Constructs a `RegisteredMessage` from the specified `msg` string.
+   * @brief Constructs a `registered_message` from the specified `msg` string.
    *
    * Registers `msg` with NVTX and associates a handle with the registered
    * message.
@@ -1173,8 +1173,8 @@ class RegisteredMessage {
    *
    * @param msg The contents of the message
    */
-  explicit RegisteredMessage(std::wstring const& msg) noexcept
-      : RegisteredMessage{msg.c_str()} {}
+  explicit registered_message(std::wstring const& msg) noexcept
+      : registered_message{msg.c_str()} {}
 
   /**
    * @brief Returns the registered message's handle
@@ -1182,12 +1182,12 @@ class RegisteredMessage {
    */
   nvtxStringHandle_t get_handle() const noexcept { return handle_; }
 
-  RegisteredMessage() = delete;
-  ~RegisteredMessage() = default;
-  RegisteredMessage(RegisteredMessage const&) = default;
-  RegisteredMessage& operator=(RegisteredMessage const&) = default;
-  RegisteredMessage(RegisteredMessage&&) = default;
-  RegisteredMessage& operator=(RegisteredMessage&&) = default;
+  registered_message() = delete;
+  ~registered_message() = default;
+  registered_message(registered_message const&) = default;
+  registered_message& operator=(registered_message const&) = default;
+  registered_message(registered_message&&) = default;
+  registered_message& operator=(registered_message&&) = default;
 
  private:
   nvtxStringHandle_t const handle_{};  ///< The handle returned from
@@ -1204,7 +1204,7 @@ class RegisteredMessage {
  * Every time an NVTX event is created with an associated `Message`, the
  * contents of the message string must be copied.  This may cause non-trivial
  * overhead in highly performance sensitive sections of code. Use of a
- * `nvtx3::RegisteredMessage` is recommended in these situations.
+ * `nvtx3::registered_message` is recommended in these situations.
  *
  * Example:
  * \code{.cpp}
@@ -1290,15 +1290,15 @@ class Message {
   Message(std::wstring&&) = delete;
 
   /**
-   * @brief Construct a `Message` from a `RegisteredMessage`.
+   * @brief Construct a `Message` from a `registered_message`.
    *
    * @tparam D Type containing `name` member used to identify the `Domain`
-   * to which the `RegisteredMessage` belongs. Else, `Domain::global` to
+   * to which the `registered_message` belongs. Else, `Domain::global` to
    * indicate that the global NVTX domain should be used.
    * @param msg The message that has already been registered with NVTX.
    */
   template <typename D>
-  NVTX_RELAXED_CONSTEXPR Message(RegisteredMessage<D> const& msg) noexcept
+  NVTX_RELAXED_CONSTEXPR Message(registered_message<D> const& msg) noexcept
       : type_{NVTX_MESSAGE_TYPE_REGISTERED} {
     value_.registered = msg.get_handle();
   }
@@ -1802,7 +1802,7 @@ using process_range = domain_process_range<>;
  * the entry point of a function to its exit. It is intended to be the first
  * line of the function.
  *
- * Constructs a static `RegisteredMessage` using the name of the immediately
+ * Constructs a static `registered_message` using the name of the immediately
  * enclosing function returned by `__func__` and constructs a
  * `nvtx3::thread_range` using the registered function name as the range's
  * message.
@@ -1819,11 +1819,11 @@ using process_range = domain_process_range<>;
  * ```
  *
  * @param[in] D Type containing `name` member used to identify the
- * `Domain` to which the `RegisteredMessage` belongs. Else,
+ * `Domain` to which the `registered_message` belongs. Else,
  * `Domain::global` to  indicate that the global NVTX domain should be used.
  */
 #define NVTX3_FUNC_RANGE_IN(D)                                              \
-  static ::nvtx3::RegisteredMessage<D> const nvtx3_func_name__{__func__};    \
+  static ::nvtx3::registered_message<D> const nvtx3_func_name__{__func__};    \
   static ::nvtx3::EventAttributes const nvtx3_func_attr__{nvtx3_func_name__}; \
   ::nvtx3::domain_thread_range<D> const nvtx3_range__{nvtx3_func_attr__};
 
@@ -1835,7 +1835,7 @@ using process_range = domain_process_range<>;
  * the entry point of a function to its exit. It is intended to be the first
  * line of the function.
  *
- * Constructs a static `RegisteredMessage` using the name of the immediately
+ * Constructs a static `registered_message` using the name of the immediately
  * enclosing function returned by `__func__` and constructs a
  * `nvtx3::thread_range` using the registered function name as the range's
  * message.
