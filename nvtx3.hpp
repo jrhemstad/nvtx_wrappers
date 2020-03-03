@@ -1824,6 +1824,32 @@ class domain_process_range {
  */
 using process_range = domain_process_range<>;
 
+/**
+ * @brief Annotates an instantaneous point in time with the attributes specified
+ * by `attr`.
+ *
+ * Unlike a "range", a mark is an instantaneous event in an application, e.g.,
+ * locking/unlocking a mutex.
+ * 
+ * \code{.cpp}
+ * std::mutex global_lock;
+ * void lock_mutex(){
+ *    global_lock.lock();
+ *    nvtx3::mark("lock_mutex");
+ * }
+ * \endcode
+ *
+ * @tparam D Type containing `name` member used to identify the `domain`
+ * to which the `domain_process_range` belongs. Else, `domain::global` to
+ * indicate that the global NVTX domain should be used.
+ * @param[in] attr `event_attributes` that describes the desired attributes
+ * of the mark.
+ */
+template <typename D = nvtx3::domain::global>
+void mark(event_attributes const& attr) {
+  nvtxDomainMarkEx(domain::get<d>(), attr.get());
+}
+
 }  // namespace nvtx3
 
 /**
