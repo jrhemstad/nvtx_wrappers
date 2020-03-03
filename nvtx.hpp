@@ -41,17 +41,18 @@
  *    // Begins a NVTX range with the messsage "some_function"
  *    // The range ends when some_function() returns and `r` is destroyed
  *    nvtx::thread_range r{"some_function"};
- * 
+ *
  *    for(int i = 0; i < 6; ++i){
  *       nvtx::thread_range loop{"loop range"};
  *       std::this_thread::sleep_for(std::chrono::seconds{1});
  *    }
  * } // Range ends when `r` is destroyed
  * \endcode
- * 
- * The example code above generates the following timeline view in Nsight Systems:
- * 
- * \image html example_range.png 
+ *
+ * The example code above generates the following timeline view in Nsight
+ * Systems:
+ *
+ * \image html example_range.png
  *
  * Alternatively, use the \ref MACROS like `NVTX_FUNC_RANGE()` to add
  * ranges to your code that automatically use the name of the enclosing function
@@ -59,7 +60,8 @@
  *
  * \code{.cpp}
  * void some_function(){
- *    // Creates a range with a message "some_function" that ends when the enclosing
+ *    // Creates a range with a message "some_function" that ends when the
+ * enclosing
  *    // function returns
  *    NVTX_FUNC_RANGE();
  *    ...
@@ -992,7 +994,8 @@ class NamedCategory final : public Category {
    * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
    *
    * @tparam C Type containing a member `C::name` that resolves  to either a
-   * `char const*` or `wchar_t const*` and `C::id`.
+   * `char const*` or `wchar_t const*` and `C::id` that is convertible to
+   * `nvtx::Category::id_type`.
    */
   template <typename C>
   static NamedCategory<D> const& get() noexcept {
