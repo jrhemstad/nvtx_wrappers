@@ -459,7 +459,7 @@
  *
  * // Use registered message and named category
  * my_thread_range r3{msg, category, nvtx3::rgb{127, 255, 0},
- * nvtx3::payload{42}};
+ *                    nvtx3::payload{42}};
  *
  * // Any number of arguments in any order
  * my_thread_range r{nvtx3::rgb{127, 255,0}, msg};
