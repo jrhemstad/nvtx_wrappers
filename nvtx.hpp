@@ -928,10 +928,10 @@ class Category {
  * Example:
  * \code{.cpp}
  * // Explicitly constructed, static `NamedCategory`
- * static nvtx::NamedCategory static_category{42, "my category"};
+ * static nvtx::NamedCategory<my_domain> static_category{42, "my category"};
  *
  * // Range `r` associated with category id `42`
- * nvtx::thread_range r{static_category};
+ * nvtx::domain_thread_range<my_domain> r{static_category};
  *
  * // OR use construct on first use:
  *
@@ -946,7 +946,7 @@ class Category {
  * auto my_category = NamedCategory<my_domain>::get<my_category>();
  *
  * // Range `r` associated with category id `42`
- * nvtx::thread_range r{my_category};
+ * nvtx::domain_thread_range<my_domain> r{my_category};
  * \endcode
  *
  * `NamedCategory`'s association of a name to a category id is local to the
