@@ -304,12 +304,12 @@
  * To eliminate this overhead, NVTX allows registering a message string,
  * yielding a "handle" that is inexpensive to copy that may be used in place of
  * a message string. When visualizing the events, tools such as Nsight Systems
- * will take care of mapping the message handle to it's string.
+ * will take care of mapping the message handle to its string.
  *
  * A message should be registered once and the handle reused throughout the rest
  * of the application. This can be done by either explicitly creating static
  * `nvtx::RegisteredMessage` objects, or using the
- * `nvtx::RegisteredMessage::get` construct on first use helper (reccomended).
+ * `nvtx::RegisteredMessage::get` construct on first use helper (recommended).
  *
  * Similar to \ref DOMAINS, `nvtx::RegisteredMessage::get` requires defining a
  * custom tag type with a static `message` member whose value will be the
@@ -318,7 +318,7 @@
  * Example:
  * \code{.cpp}
  * // Explicitly constructed, static `RegisteredMessage`
- * static RegisteredMessage<my_domain> static_message{"message"};
+ * static RegisteredMessage<my_domain> static_message{"my message"};
  *
  * // Or use construct on first use:
  * // Define a tag type with a `message` member string to register
@@ -362,7 +362,7 @@
  * For any given category id `Id`, a `NamedCategory{Id, "name"}` should only
  * be constructed once and reused throughout an application. This can be done by
  * either explicitly creating static `nvtx::NamedCategory` objects, or using the
- * `nvtx::NamedCategory::get` construct on first use helper (reccomended).
+ * `nvtx::NamedCategory::get` construct on first use helper (recommended).
  *
  * Similar to \ref DOMAINS, `nvtx::NamedCategory::get` requires defining a
  * custom tag type with static `name` and `id` members.
@@ -640,7 +640,7 @@ class Domain {
    *
    * @param name A unique name identifying the domain
    */
-  explicit Domain(const char* name) noexcept
+  explicit Domain(char const* name) noexcept
       : _domain{nvtxDomainCreateA(name)} {}
 
   /**
@@ -651,7 +651,7 @@ class Domain {
    *
    * @param name A unique name identifying the domain
    */
-  explicit Domain(const wchar_t* name) noexcept
+  explicit Domain(wchar_t const* name) noexcept
       : _domain{nvtxDomainCreateW(name)} {}
 
   /**
@@ -885,7 +885,7 @@ class Category {
   /**
    * @brief Construct a `Category` with the specified `id`.
    *
-   * The `Category` will be unnamed and identified only by it's `id` value.
+   * The `Category` will be unnamed and identified only by its `id` value.
    *
    * All `Category` objects sharing the same `id` are equivalent.
    *
@@ -919,7 +919,7 @@ class Category {
  * For any given category id `Id`, a `NamedCategory(Id, "name")` should only
  * be constructed once and reused throughout an application. This can be done by
  * either explicitly creating static `NamedCategory` objects, or using the
- * `NamedCategory::get` construct on first use helper (reccomended).
+ * `NamedCategory::get` construct on first use helper (recommended).
  *
  * Creating two or more `NamedCategory` objects with the same value for `id` in
  * the same domain results in undefined behavior.
@@ -930,10 +930,10 @@ class Category {
  * Example:
  * \code{.cpp}
  * // Explicitly constructed, static `NamedCategory`
- * static nvtx::NamedCategory<my_domain> static_category{42, "my category"};
+ * static nvtx::NamedCategory static_category{42, "my category"};
  *
  * // Range `r` associated with category id `42`
- * nvtx::domain_thread_range<my_domain> r{static_category};
+ * nvtx::thread_range r{static_category};
  *
  * // OR use construct on first use:
  *
@@ -948,7 +948,7 @@ class Category {
  * auto my_category = NamedCategory<my_domain>::get<my_category>();
  *
  * // Range `r` associated with category id `42`
- * nvtx::domain_thread_range<my_domain> r{my_category};
+ * nvtx::thread_range r{my_category};
  * \endcode
  *
  * `NamedCategory`'s association of a name to a category id is local to the
@@ -994,8 +994,7 @@ class NamedCategory final : public Category {
    * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
    *
    * @tparam C Type containing a member `C::name` that resolves  to either a
-   * `char const*` or `wchar_t const*` and `C::id` that is convertible to
-   * `nvtx::Category::id_type`.
+   * `char const*` or `wchar_t const*` and `C::id`.
    */
   template <typename C>
   static NamedCategory<D> const& get() noexcept {
@@ -1014,7 +1013,7 @@ class NamedCategory final : public Category {
    * @param[in] id The category id to name
    * @param[in] name The name to associated with `id`
    */
-  NamedCategory(id_type id, const char* name) noexcept : Category{id} {
+  NamedCategory(id_type id, char const* name) noexcept : Category{id} {
     nvtxDomainNameCategoryA(Domain::get<D>(), get_id(), name);
   };
 
@@ -1028,7 +1027,7 @@ class NamedCategory final : public Category {
    * @param[in] id The category id to name
    * @param[in] name The name to associated with `id`
    */
-  NamedCategory(id_type id, const wchar_t* name) noexcept : Category{id} {
+  NamedCategory(id_type id, wchar_t const* name) noexcept : Category{id} {
     nvtxDomainNameCategoryW(Domain::get<D>(), get_id(), name);
   };
 };
@@ -1044,10 +1043,10 @@ class NamedCategory final : public Category {
  * a message with an NVTX event. Registering a message yields a handle that is
  * inexpensive to copy that may be used in place of a message string.
  *
- * A particular message should should only be registered once and the handle
+ * A particular message should only be registered once and the handle
  * reused throughout the rest of the application. This can be done by either
  * explicitly creating static `RegisteredMessage` objects, or using the
- * `RegisteredMessage::get` construct on first use helper (reccomended).
+ * `RegisteredMessage::get` construct on first use helper (recommended).
  *
  * Example:
  * \code{.cpp}
@@ -1167,7 +1166,7 @@ class RegisteredMessage {
    * Registers `msg` with NVTX and associates a handle with the registered
    * message.
    *
-   * A particular message should should only be registered once and the handle
+   * A particular message should only be registered once and the handle
    * reused throughout the rest of the application.
    *
    * @param msg The contents of the message
@@ -1195,7 +1194,7 @@ class RegisteredMessage {
 
 /**
  * @brief Allows associating a message string with an NVTX event via
- * it's `EventAttribute`s.
+ * its `EventAttribute`s.
  *
  * Associating a `Message` with an NVTX event through its `EventAttributes`
  * allows for naming events to easily differentiate them from other events.
@@ -1203,7 +1202,7 @@ class RegisteredMessage {
  * Every time an NVTX event is created with an associated `Message`, the
  * contents of the message string must be copied.  This may cause non-trivial
  * overhead in highly performance sensitive sections of code. Use of a
- * `nvtx::RegisteredMessage` is reccomended in these situations.
+ * `nvtx::RegisteredMessage` is recommended in these situations.
  *
  * Example:
  * \code{.cpp}

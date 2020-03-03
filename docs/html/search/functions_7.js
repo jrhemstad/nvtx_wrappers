@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['namedcategory',['NamedCategory',['../classnvtx_1_1NamedCategory.html#aae0ddac48179d77c6b7085ff1604adc8',1,'nvtx::NamedCategory::NamedCategory(id_type id, const char *name) noexcept'],['../classnvtx_1_1NamedCategory.html#a1512f9765badceeffb019382b1aa3449',1,'nvtx::NamedCategory::NamedCategory(id_type id, const wchar_t *name) noexcept']]]
+  ['namedcategory',['NamedCategory',['../classnvtx_1_1NamedCategory.html#a5bfede318336be897b33758ccddb4357',1,'nvtx::NamedCategory::NamedCategory(id_type id, char const *name) noexcept'],['../classnvtx_1_1NamedCategory.html#ae9e3ccc1110b4551f92a231f0aea9193',1,'nvtx::NamedCategory::NamedCategory(id_type id, wchar_t const *name) noexcept']]]
 ];
