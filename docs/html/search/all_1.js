@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['blue',['blue',['../structnvtx_1_1RGB.html#a0fd9806958f7a42940a6eec18dead13f',1,'nvtx::RGB']]]
+  ['blue',['blue',['../structnvtx3_1_1RGB.html#adce5b9d602f7dc8477f17096f47b214a',1,'nvtx3::RGB']]]
 ];

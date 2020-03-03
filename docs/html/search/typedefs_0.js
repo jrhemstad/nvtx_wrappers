@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['component_5ftype',['component_type',['../structnvtx_1_1RGB.html#a147cceb4782c1e9a4aff90a09ac0409c',1,'nvtx::RGB']]]
+  ['component_5ftype',['component_type',['../structnvtx3_1_1RGB.html#ac16ef2e35c5f4f0e05346b0508b7ca50',1,'nvtx3::RGB']]]
 ];

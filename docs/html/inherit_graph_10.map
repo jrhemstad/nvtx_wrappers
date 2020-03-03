@@ -1,4 +1,4 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$structnvtx_1_1RGB.html" title="Indicates the values of the red, green, blue color channels for a RGB color code. ..." alt="" coords="5,5,89,32"/>
-<area shape="rect" id="node2" href="$structnvtx_1_1ARGB.html" title="Indicates the value of the alpha, red, green, and blue color channels for an ARGB color code..." alt="" coords="137,5,231,32"/>
+<area shape="rect" id="node1" href="$structnvtx3_1_1RGB.html" title="Indicates the values of the red, green, blue color channels for a RGB color code. ..." alt="" coords="5,5,96,32"/>
+<area shape="rect" id="node2" href="$structnvtx3_1_1ARGB.html" title="Indicates the value of the alpha, red, green, and blue color channels for an ARGB color code..." alt="" coords="144,5,244,32"/>
 </map>

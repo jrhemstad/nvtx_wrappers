@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['red',['red',['../structnvtx_1_1RGB.html#a1c33ee08e59d1627ecc486323afbad2d',1,'nvtx::RGB']]],
-  ['registeredmessage',['RegisteredMessage',['../classnvtx_1_1RegisteredMessage.html#a6484e99d477cfb27016bc5cd7b7d8fa1',1,'nvtx::RegisteredMessage::RegisteredMessage(char const *msg) noexcept'],['../classnvtx_1_1RegisteredMessage.html#af29d2a2971d7b6c3cc626b697d4dd486',1,'nvtx::RegisteredMessage::RegisteredMessage(std::string const &amp;msg) noexcept'],['../classnvtx_1_1RegisteredMessage.html#a8edd12b26f1619343217b3b217c98ad6',1,'nvtx::RegisteredMessage::RegisteredMessage(wchar_t const *msg) noexcept'],['../classnvtx_1_1RegisteredMessage.html#a54a6a1d424942d703d51edea0b7254a9',1,'nvtx::RegisteredMessage::RegisteredMessage(std::wstring const &amp;msg) noexcept']]],
-  ['registeredmessage',['RegisteredMessage',['../classnvtx_1_1RegisteredMessage.html',1,'nvtx']]],
-  ['rgb',['RGB',['../structnvtx_1_1RGB.html',1,'nvtx']]],
-  ['rgb',['RGB',['../structnvtx_1_1RGB.html#a476c6fb82c2de666aeebd080c7294425',1,'nvtx::RGB']]]
+  ['red',['red',['../structnvtx3_1_1RGB.html#ad80a8ff7bf27a58709fc4eb786422f74',1,'nvtx3::RGB']]],
+  ['registeredmessage',['RegisteredMessage',['../classnvtx3_1_1RegisteredMessage.html#aa150a54aa2fada55283058720af79bae',1,'nvtx3::RegisteredMessage::RegisteredMessage(char const *msg) noexcept'],['../classnvtx3_1_1RegisteredMessage.html#af51b1f94c79f52f48a1274fe52416df8',1,'nvtx3::RegisteredMessage::RegisteredMessage(std::string const &amp;msg) noexcept'],['../classnvtx3_1_1RegisteredMessage.html#a42ad964365654d4cfefa0fa6e81f9940',1,'nvtx3::RegisteredMessage::RegisteredMessage(wchar_t const *msg) noexcept'],['../classnvtx3_1_1RegisteredMessage.html#a6aedcda34bf48177866e5d4111dae319',1,'nvtx3::RegisteredMessage::RegisteredMessage(std::wstring const &amp;msg) noexcept']]],
+  ['registeredmessage',['RegisteredMessage',['../classnvtx3_1_1RegisteredMessage.html',1,'nvtx3']]],
+  ['rgb',['RGB',['../structnvtx3_1_1RGB.html',1,'nvtx3']]],
+  ['rgb',['RGB',['../structnvtx3_1_1RGB.html#a7a6e1a27ad71c74da1a49efadfe671fe',1,'nvtx3::RGB']]]
 ];

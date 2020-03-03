@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['get',['get',['../classnvtx_1_1Domain.html#ab42ea71ed0303a899443aa7edfb1b320',1,'nvtx::Domain::get()'],['../classnvtx_1_1NamedCategory.html#af126f25675eaca24ba4a8c3599b08aa8',1,'nvtx::NamedCategory::get()'],['../classnvtx_1_1RegisteredMessage.html#af6758cf7f01741d0a8ed8b03d0de270e',1,'nvtx::RegisteredMessage::get()'],['../classnvtx_1_1EventAttributes.html#aef7f966718345929deffb2d5e9a8c513',1,'nvtx::EventAttributes::get()']]],
-  ['get_5fhandle',['get_handle',['../classnvtx_1_1RegisteredMessage.html#aa841c76f8f1ab25260e8c5f1b11a0f66',1,'nvtx::RegisteredMessage']]],
-  ['get_5fid',['get_id',['../classnvtx_1_1Category.html#a9ab86c5e2e220ab2d25e15cff95e7406',1,'nvtx::Category']]],
-  ['get_5ftype',['get_type',['../classnvtx_1_1Color.html#a61c2082f5163fc4ed67813bc3fae216e',1,'nvtx::Color::get_type()'],['../classnvtx_1_1Message.html#a8da2896bb938cf63113eae6695f7e102',1,'nvtx::Message::get_type()'],['../classnvtx_1_1Payload.html#a4553733838fcfbb1ef80ab34ad5259eb',1,'nvtx::Payload::get_type()']]],
-  ['get_5fvalue',['get_value',['../classnvtx_1_1Color.html#a30a438e5a004508dff453ab5e25ede4c',1,'nvtx::Color::get_value()'],['../classnvtx_1_1Message.html#a5e9202e26c6b3e01d9f988085606f3eb',1,'nvtx::Message::get_value()'],['../classnvtx_1_1Payload.html#aa0f0e78e7f63ded789a1bac15972781a',1,'nvtx::Payload::get_value()']]]
+  ['get',['get',['../classnvtx3_1_1Domain.html#a4fa9a66d6be99e5504b97615468a941b',1,'nvtx3::Domain::get()'],['../classnvtx3_1_1NamedCategory.html#ae9f9188d8288634eb570e59599a2a24a',1,'nvtx3::NamedCategory::get()'],['../classnvtx3_1_1RegisteredMessage.html#a711f7b3476bac7cd8b1ed9251c278d14',1,'nvtx3::RegisteredMessage::get()'],['../classnvtx3_1_1EventAttributes.html#aac88f058c0f6d65fbe9bc5cdc3b6deec',1,'nvtx3::EventAttributes::get()']]],
+  ['get_5fhandle',['get_handle',['../classnvtx3_1_1RegisteredMessage.html#ac573b9d9177247d470871061c521a0fa',1,'nvtx3::RegisteredMessage']]],
+  ['get_5fid',['get_id',['../classnvtx3_1_1Category.html#aed4ed149121f4cfcc0c0ddbc0c7ed401',1,'nvtx3::Category']]],
+  ['get_5ftype',['get_type',['../classnvtx3_1_1Color.html#a0062d67cacf46daa0a1b5e74b3aaeb33',1,'nvtx3::Color::get_type()'],['../classnvtx3_1_1Message.html#a18f470e0bf4ce5cb8fff91863fea1992',1,'nvtx3::Message::get_type()'],['../classnvtx3_1_1Payload.html#a8d8efcf5985ef56a096b3f8e2ed882fe',1,'nvtx3::Payload::get_type()']]],
+  ['get_5fvalue',['get_value',['../classnvtx3_1_1Color.html#af29ecf0ce598871c263be42a270e7996',1,'nvtx3::Color::get_value()'],['../classnvtx3_1_1Message.html#a201aaaa47e5c152957534267938c7c1c',1,'nvtx3::Message::get_value()'],['../classnvtx3_1_1Payload.html#a5aa89eecd1262a2b6556e99abb179712',1,'nvtx3::Payload::get_value()']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['process_5frange',['process_range',['../nvtx_8hpp.html#aec66a60f39c09f9890ce3f290ada3b54',1,'nvtx']]]
+  ['process_5frange',['process_range',['../nvtx3_8hpp.html#a871f1092efc96daa974cc4d4a6287a31',1,'nvtx3']]]
 ];
