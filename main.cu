@@ -14,7 +14,7 @@ struct my_message{
 using my_thread_range = nvtx3::domain_thread_range<my_domain>;
 
 int main(void){
-    NVTX_FUNC_RANGE();
+    NVTX3_FUNC_RANGE();
 
     /*
     nvtx3::domain_thread_range<my_domain> r{"msg", nvtx3::Color{nvtx3::RGB{255,255,255}}};
