@@ -15,7 +15,7 @@
  */
 #pragma once
 
-#if (defined(NVTX3_MAJOR_VERSION) && defined(NVTX3_MINOR_VERSION)) && \
+#if (defined(NVTX3_MAJOR_VERSION) and defined(NVTX3_MINOR_VERSION)) and \
     ((NVTX3_MAJOR_VERSION < 3) or                                     \
      ((NVTX3_MAJOR_VERSION == 3) and (NVTX3_MINOR_VERSION != 0)))
 #error \
