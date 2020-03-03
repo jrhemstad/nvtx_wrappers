@@ -17,7 +17,7 @@
 #include <gtest/gtest.h>
 
 #include <nvToolsExtSync.h>
-#include <nvtx.hpp>
+#include <nvtx3.hpp>
 
 #include <cupti.h>
 #include <generated_nvtx_meta.h>

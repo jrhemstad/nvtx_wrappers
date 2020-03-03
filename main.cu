@@ -1,5 +1,5 @@
 
-#include "nvtx.hpp"
+#include "nvtx3.hpp"
 
 
 // My custom domain name
@@ -11,27 +11,27 @@ struct my_message{
     static constexpr const char* message{"my message"};
 };
 
-using my_thread_range = nvtx::domain_thread_range<my_domain>;
+using my_thread_range = nvtx3::domain_thread_range<my_domain>;
 
 int main(void){
     NVTX_FUNC_RANGE();
 
     /*
-    nvtx::domain_thread_range<my_domain> r{"msg", nvtx::Color{nvtx::RGB{255,255,255}}};
+    nvtx3::domain_thread_range<my_domain> r{"msg", nvtx3::Color{nvtx3::RGB{255,255,255}}};
 
-    nvtx::thread_range r2{"msg", nvtx::Color{nvtx::ARGB{255,255,255,255}}};
+    nvtx3::thread_range r2{"msg", nvtx3::Color{nvtx3::ARGB{255,255,255,255}}};
 
-    my_thread_range my_range{"msg", nvtx::Color{0}};
+    my_thread_range my_range{"msg", nvtx3::Color{0}};
 
-    auto registered_msg = nvtx::get_registered_message<my_message, my_domain>();
+    auto registered_msg = nvtx3::get_registered_message<my_message, my_domain>();
     */
 
-    nvtx::EventAttributes attr{"msg", nvtx::Color{0}};
+    nvtx3::EventAttributes attr{"msg", nvtx3::Color{0}};
 
-    nvtx::domain_thread_range<my_domain> r2{attr};
+    nvtx3::domain_thread_range<my_domain> r2{attr};
 
-    nvtx::domain_thread_range<my_domain> r3{"msg", nvtx::Color{0}};
+    nvtx3::domain_thread_range<my_domain> r3{"msg", nvtx3::Color{0}};
 
-    nvtx::thread_range r4{attr};
+    nvtx3::thread_range r4{attr};
 
 }
