@@ -170,7 +170,7 @@
  * global NVTX domain. For more information about Domains, see \ref DOMAINS.
  *
  * Various attributes of a range can be configured constructing a
- * `nvtx3::domain_thread_range` with a `nvtx3::EventAttributes` object. For
+ * `nvtx3::domain_thread_range` with a `nvtx3::event_attributes` object. For
  * more information, see \ref ATTRIBUTES.
  *
  * Example:
@@ -249,7 +249,7 @@
  * NVTX events can be customized with various attributes to provide additional
  * information (such as a custom message) or to control visualization of the
  * event (such as the color used). These attributes can be specified per-event
- * via arguments to a `nvtx3::EventAttributes` object.
+ * via arguments to a `nvtx3::event_attributes` object.
  *
  * NVTX events can be customized via four "attributes":
  * - \ref COLOR : Color used to visualize the event in tools.
@@ -257,30 +257,30 @@
  * - \ref PAYLOAD :  User-defined numerical value.
  * - \ref CATEGORY : Intra-domain grouping.
  *
- * It is possible to construct a `nvtx3::EventAttributes` from any number of
+ * It is possible to construct a `nvtx3::event_attributes` from any number of
  * attribute objects (nvtx3::Color, nvtx3::Message, nvtx3::Payload, nvtx3::Category)
  * in any order. If an attribute is not specified, a tool specific default value
- * is used. See `nvtx3::EventAttributes` for more information.
+ * is used. See `nvtx3::event_attributes` for more information.
  *
  * \code{.cpp}
  * // Custom color, message
- * EventAttributes attr{nvtx3::rgb{127, 255, 0},
+ * event_attributes attr{nvtx3::rgb{127, 255, 0},
  *                      "message"};
  *
  * // Custom color, message, payload, category
- * EventAttributes attr{nvtx3::rgb{127, 255, 0},
+ * event_attributes attr{nvtx3::rgb{127, 255, 0},
  *                      nvtx3::Payload{42},
  *                      "message",
  *                      nvtx3::Category{1}};
  *
  * // Arguments can be in any order
- * EventAttributes attr{nvtx3::Payload{42},
+ * event_attributes attr{nvtx3::Payload{42},
  *                      nvtx3::Category{1},
  *                      "message",
  *                      nvtx3::rgb{127, 255, 0}};
  *
  * // "First wins" with multiple arguments of the same type
- * EventAttributes attr{ nvtx3::Payload{42}, nvtx3::Payload{7} }; // Payload is 42
+ * event_attributes attr{ nvtx3::Payload{42}, nvtx3::Payload{7} }; // Payload is 42
  * \endcode
  *
  * \subsection MESSAGES Message
@@ -290,11 +290,11 @@
  *
  * Example:
  * \code{.cpp}
- * // Create an `EventAttributes` with the custom message "my message"
- * nvtx3::EventAttributes attr{nvtx3::Mesage{"my message"}};
+ * // Create an `event_attributes` with the custom message "my message"
+ * nvtx3::event_attributes attr{nvtx3::Mesage{"my message"}};
  *
  * // strings and string literals implicitly assumed to be a `nvtx3::Message`
- * nvtx3::EventAttributes attr{"my message"};
+ * nvtx3::event_attributes attr{"my message"};
  * \endcode
  *
  * \subsubsection REGISTERED_MESSAGE Registered Messages
@@ -340,10 +340,10 @@
  * \code{.cpp}
  * // Define a color via rgb color values
  * nvtx3::Color c{nvtx3::rgb{127, 255, 0}};
- * nvtx3::EventAttributes attr{c};
+ * nvtx3::event_attributes attr{c};
  *
- * // rgb color values can be passed directly to an `EventAttributes`
- * nvtx3::EventAttributes attr1{nvtx3::rgb{127,255,0}};
+ * // rgb color values can be passed directly to an `event_attributes`
+ * nvtx3::event_attributes attr1{nvtx3::rgb{127,255,0}};
  * \endcode
  *
  * \subsection CATEGORY Category
@@ -353,7 +353,7 @@
  * IO, memory allocation, compute, etc.
  *
  * \code{.cpp}
- * nvtx3::EventAttributes{nvtx3::Category{1}};
+ * nvtx3::event_attributes{nvtx3::Category{1}};
  * \endcode
  *
  * \subsubsection NAMED_CATEGORIES Named Categories
@@ -386,7 +386,7 @@
  * NamedCategory<my_domain>::get<my_category>();
  *
  * // Range `r` associated with category id `42`
- * nvtx3::EventAttributes attr{my_category};
+ * nvtx3::event_attributes attr{my_category};
  * \endcode
  *
  * \subsection PAYLOAD Payload
@@ -394,7 +394,7 @@
  * Allows associating a user-defined numerical value with an event.
  *
  * ```
- * nvtx3:: EventAttributes attr{nvtx3::Payload{42}}; // Constructs a Payload from
+ * nvtx3:: event_attributes attr{nvtx3::Payload{42}}; // Constructs a Payload from
  *                                                 // the `int32_t` value 42
  * ```
  *
@@ -421,14 +421,14 @@
  * using my_named_category = nvtx3::NamedCategory<my_domain>;
  *
  * // Default values for all attributes
- * nvtx3::EventAttributes attr{};
+ * nvtx3::event_attributes attr{};
  * my_thread_range r0{attr};
  *
  * // Custom (unregistered) message, and unnamed Category
- * nvtx3::EventAttributes attr1{"message", nvtx3::Category{2}};
+ * nvtx3::event_attributes attr1{"message", nvtx3::Category{2}};
  * my_thread_range r1{attr1};
  *
- * // Alternatively, pass arguments of `EventAttributes` ctor directly to
+ * // Alternatively, pass arguments of `event_attributes` ctor directly to
  * // `my_thread_range` 
  * my_thread_range r2{"message", nvtx3::Category{2}};
  *
@@ -770,7 +770,7 @@ struct ARGB final : rgb {
 
 /**
  * @brief Represents a custom color that can be associated with an NVTX event
- * via it's `EventAttributes`.
+ * via it's `event_attributes`.
  *
  * Specifying colors for NVTX events is a convenient way to visually
  * differentiate among different events in a visualization tool such as Nsight
@@ -1198,7 +1198,7 @@ class registered_message {
  * @brief Allows associating a message string with an NVTX event via
  * its `EventAttribute`s.
  *
- * Associating a `Message` with an NVTX event through its `EventAttributes`
+ * Associating a `Message` with an NVTX event through its `event_attributes`
  * allows for naming events to easily differentiate them from other events.
  *
  * Every time an NVTX event is created with an associated `Message`, the
@@ -1208,16 +1208,16 @@ class registered_message {
  *
  * Example:
  * \code{.cpp}
- * // Creates an `EventAttributes` with message "message 0"
- * nvtx3::EventAttributes attr0{nvtx3::Message{"message 0"}};
+ * // Creates an `event_attributes` with message "message 0"
+ * nvtx3::event_attributes attr0{nvtx3::Message{"message 0"}};
  *
  * // `range0` contains message "message 0"
  * nvtx3::thread_range range0{attr0};
  *
  * // `std::string` and string literals are implicitly assumed to be
  * // the contents of an `nvtx3::Message`
- * // Creates an `EventAttributes` with message "message 1"
- * nvtx3::EventAttributes attr1{"message 1"};
+ * // Creates an `event_attributes` with message "message 1"
+ * nvtx3::event_attributes attr1{"message 1"};
  *
  * // `range1` contains message "message 1"
  * nvtx3::thread_range range1{attr1};
@@ -1326,11 +1326,11 @@ class Message {
 
 /**
  * @brief A numerical value that can be associated with an NVTX event via
- * its `EventAttributes`.
+ * its `event_attributes`.
  *
  * Example:
  * ```
- * nvtx3:: EventAttributes attr{nvtx3::Payload{42}}; // Constructs a Payload from
+ * nvtx3:: event_attributes attr{nvtx3::Payload{42}}; // Constructs a Payload from
  *                                                 // the `int32_t` value 42
  *
  * // `range0` will have an int32_t payload of 42
@@ -1436,63 +1436,63 @@ class Payload {
  * - payload:  User-defined numerical value. See `Payload`.
  * - category: Intra-domain grouping. See `Category`.
  *
- * These component attributes are specified via an `EventAttributes` object.
+ * These component attributes are specified via an `event_attributes` object.
  * See `nvtx3::Color`, `nvtx3::Message`, `nvtx3::Payload`, and `nvtx3::Category` for
  * how these individual attributes are constructed.
  *
  * While it is possible to specify all four attributes, it is common to want to
  * only specify a subset of attributes and use default values for the others.
- * For convenience, `EventAttributes` can be constructed from any number of
+ * For convenience, `event_attributes` can be constructed from any number of
  * attribute components in any order.
  *
  * Example:
  * \code{.cpp}
- * EventAttributes attr{}; // No arguments, use defaults for all attributes
+ * event_attributes attr{}; // No arguments, use defaults for all attributes
  *
- * EventAttributes attr{"message"}; // Custom message, rest defaulted
+ * event_attributes attr{"message"}; // Custom message, rest defaulted
  *
  * // Custom color & message
- * EventAttributes attr{"message", nvtx3::rgb{127, 255, 0}};
+ * event_attributes attr{"message", nvtx3::rgb{127, 255, 0}};
  *
  * /// Custom color & message, can use any order of arguments
- * EventAttributes attr{nvtx3::rgb{127, 255, 0}, "message"};
+ * event_attributes attr{nvtx3::rgb{127, 255, 0}, "message"};
  *
  *
  * // Custom color, message, payload, category
- * EventAttributes attr{nvtx3::rgb{127, 255, 0},
+ * event_attributes attr{nvtx3::rgb{127, 255, 0},
  *                      "message",
  *                      nvtx3::Payload{42},
  *                      nvtx3::Category{1}};
  *
  * // Custom color, message, payload, category, can use any order of arguments
- * EventAttributes attr{nvtx3::Payload{42},
+ * event_attributes attr{nvtx3::Payload{42},
  *                      nvtx3::Category{1},
  *                      "message",
  *                      nvtx3::rgb{127, 255, 0}};
  *
  * // Multiple arguments of the same type are allowed, but only the first is
  * // used. All others are ignored
- * EventAttributes attr{ nvtx3::Payload{42}, nvtx3::Payload{7} }; // Payload is 42
+ * event_attributes attr{ nvtx3::Payload{42}, nvtx3::Payload{7} }; // Payload is 42
  *
  * // Range `r` will be customized according the attributes in `attr`
  * nvtx3::thread_range r{attr};
  *
- * // For convenience, the arguments that can be passed to the `EventAttributes`
+ * // For convenience, the arguments that can be passed to the `event_attributes`
  * // constructor may be passed to the `domain_thread_range` contructor where
  * // they will be forwarded to the `EventAttribute`s constructor
  * nvtx3::thread_range r{nvtx3::Payload{42}, nvtx3::Category{1}, "message"};
  * \endcode
  *
  */
-class EventAttributes {
+class event_attributes {
  public:
   using value_type = nvtxEventAttributes_t;
 
   /**
-   * @brief Default constructor creates an `EventAttributes` with no category,
+   * @brief Default constructor creates an `event_attributes` with no category,
    * color, payload, nor message.
    */
-  constexpr EventAttributes() noexcept
+  constexpr event_attributes() noexcept
       : attributes_{
             NVTX_VERSION,                   // version
             sizeof(nvtxEventAttributes_t),  // size
@@ -1513,9 +1513,9 @@ class EventAttributes {
    *
    */
   template <typename... Args>
-  NVTX3_RELAXED_CONSTEXPR explicit EventAttributes(Category const& c,
+  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(Category const& c,
                                                   Args const&... args) noexcept
-      : EventAttributes(args...) {
+      : event_attributes(args...) {
     attributes_.category = c.get_id();
   }
 
@@ -1527,9 +1527,9 @@ class EventAttributes {
    *
    */
   template <typename... Args>
-  NVTX3_RELAXED_CONSTEXPR explicit EventAttributes(Color const& c,
+  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(Color const& c,
                                                   Args const&... args) noexcept
-      : EventAttributes(args...) {
+      : event_attributes(args...) {
     attributes_.color = c.get_value();
     attributes_.colorType = c.get_type();
   }
@@ -1542,9 +1542,9 @@ class EventAttributes {
    *
    */
   template <typename... Args>
-  NVTX3_RELAXED_CONSTEXPR explicit EventAttributes(Payload const& p,
+  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(Payload const& p,
                                                   Args const&... args) noexcept
-      : EventAttributes(args...) {
+      : event_attributes(args...) {
     attributes_.payload = p.get_value();
     attributes_.payloadType = p.get_type();
   }
@@ -1557,18 +1557,18 @@ class EventAttributes {
    *
    */
   template <typename... Args>
-  NVTX3_RELAXED_CONSTEXPR explicit EventAttributes(Message const& m,
+  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(Message const& m,
                                                   Args const&... args) noexcept
-      : EventAttributes(args...) {
+      : event_attributes(args...) {
     attributes_.message = m.get_value();
     attributes_.messageType = m.get_type();
   }
 
-  ~EventAttributes() = default;
-  EventAttributes(EventAttributes const&) = default;
-  EventAttributes& operator=(EventAttributes const&) = default;
-  EventAttributes(EventAttributes&&) = default;
-  EventAttributes& operator=(EventAttributes&&) = default;
+  ~event_attributes() = default;
+  event_attributes(event_attributes const&) = default;
+  event_attributes& operator=(event_attributes const&) = default;
+  event_attributes(event_attributes&&) = default;
+  event_attributes& operator=(event_attributes&&) = default;
 
   /**
    * @brief Get raw pointer to underlying NVTX attributes object.
@@ -1631,32 +1631,32 @@ class domain_thread_range {
  public:
   /**
    * @brief Construct a `domain_thread_range` with the specified
-   * `EventAttributes`
+   * `event_attributes`
    *
    * Example:
    * ```
-   * nvtx3::EventAttributes attr{"msg", nvtx3::rgb{127,255,0}};
+   * nvtx3::event_attributes attr{"msg", nvtx3::rgb{127,255,0}};
    * nvtx3::domain_thread_range<> range{attr}; // Creates a range with message
    * contents
    *                                    // "msg" and green color
    * ```
    *
-   * @param[in] attr `EventAttributes` that describes the desired attributes of
+   * @param[in] attr `event_attributes` that describes the desired attributes of
    * the range.
    */
-  explicit domain_thread_range(EventAttributes const& attr) noexcept {
+  explicit domain_thread_range(event_attributes const& attr) noexcept {
     nvtxDomainRangePushEx(domain::get<D>(), attr.get());
   }
 
   /**
    * @brief Constructs a `domain_thread_range` from the constructor arguments of
-   * an `EventAttributes`.
+   * an `event_attributes`.
    *
-   * Forwards the arguments `first, args...` to construct an `EventAttributes`
-   * object. The `EventAttributes` object is then associated with the
+   * Forwards the arguments `first, args...` to construct an `event_attributes`
+   * object. The `event_attributes` object is then associated with the
    * `domain_thread_range`.
    *
-   * For more detail, see `EventAttributes` documentation.
+   * For more detail, see `event_attributes` documentation.
    *
    * Example:
    * ```
@@ -1664,28 +1664,28 @@ class domain_thread_range {
    * nvtx3::domain_thread_range<> r{"message", nvtx3::rgb{127,255,0}};
    * ```
    *
-   * @note To prevent making needless copies of `EventAttributes` objects, this
-   * constructor is disabled when the first argument is an `EventAttributes`
+   * @note To prevent making needless copies of `event_attributes` objects, this
+   * constructor is disabled when the first argument is an `event_attributes`
    * object, instead preferring the explicit
-   * `domain_thread_range(EventAttributes const&)` constructor.
+   * `domain_thread_range(event_attributes const&)` constructor.
    *
-   * @param[in] first First argument to forward to the `EventAttributes`
+   * @param[in] first First argument to forward to the `event_attributes`
    * constructor.
    * @param[in] args Variadic parameter pack of additional arguments to forward.
    *
    */
   template <typename First, typename... Args,
             typename = typename std::enable_if<not std::is_same<
-                EventAttributes, typename std::decay<First>>::value>>
+                event_attributes, typename std::decay<First>>::value>>
   explicit domain_thread_range(First const& first, Args const&... args) noexcept
-      : domain_thread_range{EventAttributes{first, args...}} {}
+      : domain_thread_range{event_attributes{first, args...}} {}
 
   /**
    * @brief Default constructor creates a `domain_thread_range` with no message,
    * color, payload, nor category.
    *
    */
-  domain_thread_range() : domain_thread_range{EventAttributes{}} {}
+  domain_thread_range() : domain_thread_range{event_attributes{}} {}
 
   domain_thread_range(domain_thread_range const&) = delete;
   domain_thread_range& operator=(domain_thread_range const&) = delete;
@@ -1731,7 +1731,7 @@ class domain_process_range {
    *
    * @param attr
    */
-  explicit domain_process_range(EventAttributes const& attr) noexcept
+  explicit domain_process_range(event_attributes const& attr) noexcept
       : range_id_{nvtxDomainRangeStartEx(domain::get<D>(), attr.get())} {}
 
   /**
@@ -1742,17 +1742,17 @@ class domain_process_range {
    */
   template <typename First, typename... Args,
             typename = typename std::enable_if<not std::is_same<
-                EventAttributes, typename std::decay<First>>::value>>
+                event_attributes, typename std::decay<First>>::value>>
   explicit domain_process_range(First const& first,
                                 Args const&... args) noexcept
-      : domain_process_range{EventAttributes{first, args...}} {}
+      : domain_process_range{event_attributes{first, args...}} {}
 
   /**
    * @brief Construct a new domain process range object
    *
    */
   constexpr domain_process_range() noexcept
-      : domain_process_range{EventAttributes{}} {}
+      : domain_process_range{event_attributes{}} {}
 
   /**
    * @brief Destroy the `domain_process_range` ending the range.
@@ -1824,7 +1824,7 @@ using process_range = domain_process_range<>;
  */
 #define NVTX3_FUNC_RANGE_IN(D)                                              \
   static ::nvtx3::registered_message<D> const nvtx3_func_name__{__func__};    \
-  static ::nvtx3::EventAttributes const nvtx3_func_attr__{nvtx3_func_name__}; \
+  static ::nvtx3::event_attributes const nvtx3_func_attr__{nvtx3_func_name__}; \
   ::nvtx3::domain_thread_range<D> const nvtx3_range__{nvtx3_func_attr__};
 
 /**
