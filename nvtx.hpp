@@ -41,14 +41,17 @@
  *    // Begins a NVTX range with the messsage "some_function"
  *    // The range ends when some_function() returns and `r` is destroyed
  *    nvtx::thread_range r{"some_function"};
- *
- *    while(true){
- *       // Creates a NVTX range for every loop iteration
- *       // `loop_range` is nested inside `r`
- *       nvtx::thread_range loop_range{"loop iteration"};
+ * 
+ *    for(int i = 0; i < 6; ++i){
+ *       nvtx::thread_range loop{"loop range"};
+ *       std::this_thread::sleep_for(std::chrono::seconds{1});
  *    }
  * } // Range ends when `r` is destroyed
  * \endcode
+ * 
+ * The example code above generates the following timeline view in Nsight Systems:
+ * 
+ * \image html example_range.png 
  *
  * Alternatively, use the \ref MACROS like `NVTX_FUNC_RANGE()` to add
  * ranges to your code that automatically use the name of the enclosing function
