@@ -26,7 +26,7 @@
  * Major version number is hardcoded into the "nvtx3" namespace/prefix.
  *
  * If this value is incremented, the above version include guard needs to be
- * update.
+ * updated.
  *
  */
 #define NVTX3_MINOR_VERSION 0
