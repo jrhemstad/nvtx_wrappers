@@ -745,12 +745,12 @@ struct rgb {
 
 /**
  * @brief Indicates the value of the alpha, red, green, and blue color channels
- * for an ARGB color code.
+ * for an argb color code.
  *
  */
-struct ARGB final : rgb {
+struct argb final : rgb {
   /**
-   * @brief Construct an ARGB with alpha, red, green, and blue channels
+   * @brief Construct an argb with alpha, red, green, and blue channels
    * specified by `alpha_`, `red_`, `green_`, and `blue_`, respectively.
    *
    * Valid values are in the range `[0,255]`.
@@ -761,7 +761,7 @@ struct ARGB final : rgb {
    * @param blue_  Value of the blue channel
    *
    */
-  constexpr ARGB(component_type alpha_, component_type red_,
+  constexpr argb(component_type alpha_, component_type red_,
                  component_type green_, component_type blue_) noexcept
       : rgb{red_, green_, blue_}, alpha{alpha_} {}
 
@@ -785,7 +785,7 @@ class Color {
   /**
    * @brief Constructs a `Color` using the value provided by `hex_code`.
    *
-   * `hex_code` is expected to be a 4 byte ARGB hex code.
+   * `hex_code` is expected to be a 4 byte argb hex code.
    *
    * The most significant byte indicates the value of the alpha channel
    * (opacity) (0-255)
@@ -806,7 +806,7 @@ class Color {
    *
    * @param argb The alpha, red, green, blue components of the desired `Color`
    */
-  constexpr Color(ARGB argb) noexcept
+  constexpr Color(argb argb) noexcept
       : Color{from_bytes_msb_to_lsb(argb.alpha, argb.red, argb.green,
                                     argb.blue)} {}
 
@@ -822,7 +822,7 @@ class Color {
       : Color{from_bytes_msb_to_lsb(0xFF, rgb.red, rgb.green, rgb.blue)} {}
 
   /**
-   * @brief Returns the `Color`s ARGB hex code
+   * @brief Returns the `Color`s argb hex code
    *
    */
   constexpr value_type get_value() const noexcept { return _value; }
@@ -854,7 +854,7 @@ class Color {
            uint32_t{byte1} << 8 | uint32_t{byte0};
   }
 
-  value_type const _value{};                     ///< Color's ARGB color code
+  value_type const _value{};                     ///< Color's argb color code
   nvtxColorType_t const _type{NVTX_COLOR_ARGB};  ///< NVTX color type code
 };
 
