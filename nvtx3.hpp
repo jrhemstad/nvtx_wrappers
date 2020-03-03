@@ -475,9 +475,9 @@
  *
  */
 #if __cpp_constexpr >= 201304L
-#define NVTX_RELAXED_CONSTEXPR constexpr
+#define NVTX3_RELAXED_CONSTEXPR constexpr
 #else
-#define NVTX_RELAXED_CONSTEXPR
+#define NVTX3_RELAXED_CONSTEXPR
 #endif
 
 namespace nvtx3 {
@@ -1240,7 +1240,7 @@ class Message {
    *
    * @param msg The contents of the message
    */
-  NVTX_RELAXED_CONSTEXPR Message(char const* msg) noexcept
+  NVTX3_RELAXED_CONSTEXPR Message(char const* msg) noexcept
       : type_{NVTX_MESSAGE_TYPE_ASCII} {
     value_.ascii = msg;
   }
@@ -1267,7 +1267,7 @@ class Message {
    *
    * @param msg The contents of the message
    */
-  NVTX_RELAXED_CONSTEXPR Message(wchar_t const* msg) noexcept
+  NVTX3_RELAXED_CONSTEXPR Message(wchar_t const* msg) noexcept
       : type_{NVTX_MESSAGE_TYPE_UNICODE} {
     value_.unicode = msg;
   }
@@ -1298,7 +1298,7 @@ class Message {
    * @param msg The message that has already been registered with NVTX.
    */
   template <typename D>
-  NVTX_RELAXED_CONSTEXPR Message(registered_message<D> const& msg) noexcept
+  NVTX3_RELAXED_CONSTEXPR Message(registered_message<D> const& msg) noexcept
       : type_{NVTX_MESSAGE_TYPE_REGISTERED} {
     value_.registered = msg.get_handle();
   }
@@ -1307,7 +1307,7 @@ class Message {
    * @brief Return the union holding the value of the message.
    *
    */
-  NVTX_RELAXED_CONSTEXPR value_type get_value() const noexcept {
+  NVTX3_RELAXED_CONSTEXPR value_type get_value() const noexcept {
     return value_;
   }
 
@@ -1315,7 +1315,7 @@ class Message {
    * @brief Return the type information about the value the union holds.
    *
    */
-  NVTX_RELAXED_CONSTEXPR nvtxMessageType_t get_type() const noexcept {
+  NVTX3_RELAXED_CONSTEXPR nvtxMessageType_t get_type() const noexcept {
     return type_;
   }
 
@@ -1349,7 +1349,7 @@ class Payload {
    *
    * @param value Value to use as contents of the payload
    */
-  NVTX_RELAXED_CONSTEXPR explicit Payload(int64_t value) noexcept
+  NVTX3_RELAXED_CONSTEXPR explicit Payload(int64_t value) noexcept
       : type_{NVTX_PAYLOAD_TYPE_INT64}, value_{} {
     value_.llValue = value;
   }
@@ -1359,7 +1359,7 @@ class Payload {
    *
    * @param value Value to use as contents of the payload
    */
-  NVTX_RELAXED_CONSTEXPR explicit Payload(int32_t value) noexcept
+  NVTX3_RELAXED_CONSTEXPR explicit Payload(int32_t value) noexcept
       : type_{NVTX_PAYLOAD_TYPE_INT32}, value_{} {
     value_.iValue = value;
   }
@@ -1369,7 +1369,7 @@ class Payload {
    *
    * @param value Value to use as contents of the payload
    */
-  NVTX_RELAXED_CONSTEXPR explicit Payload(uint64_t value) noexcept
+  NVTX3_RELAXED_CONSTEXPR explicit Payload(uint64_t value) noexcept
       : type_{NVTX_PAYLOAD_TYPE_UNSIGNED_INT64}, value_{} {
     value_.ullValue = value;
   }
@@ -1379,7 +1379,7 @@ class Payload {
    *
    * @param value Value to use as contents of the payload
    */
-  NVTX_RELAXED_CONSTEXPR explicit Payload(uint32_t value) noexcept
+  NVTX3_RELAXED_CONSTEXPR explicit Payload(uint32_t value) noexcept
       : type_{NVTX_PAYLOAD_TYPE_UNSIGNED_INT32}, value_{} {
     value_.uiValue = value;
   }
@@ -1389,7 +1389,7 @@ class Payload {
    *
    * @param value Value to use as contents of the payload
    */
-  NVTX_RELAXED_CONSTEXPR explicit Payload(float value) noexcept
+  NVTX3_RELAXED_CONSTEXPR explicit Payload(float value) noexcept
       : type_{NVTX_PAYLOAD_TYPE_FLOAT}, value_{} {
     value_.fValue = value;
   }
@@ -1399,7 +1399,7 @@ class Payload {
    *
    * @param value Value to use as contents of the payload
    */
-  NVTX_RELAXED_CONSTEXPR explicit Payload(double value) noexcept
+  NVTX3_RELAXED_CONSTEXPR explicit Payload(double value) noexcept
       : type_{NVTX_PAYLOAD_TYPE_DOUBLE}, value_{} {
     value_.dValue = value;
   }
@@ -1408,7 +1408,7 @@ class Payload {
    * @brief Return the union holding the value of the payload
    *
    */
-  NVTX_RELAXED_CONSTEXPR value_type get_value() const noexcept {
+  NVTX3_RELAXED_CONSTEXPR value_type get_value() const noexcept {
     return value_;
   }
 
@@ -1416,7 +1416,7 @@ class Payload {
    * @brief Return the information about the type the union holds.
    *
    */
-  NVTX_RELAXED_CONSTEXPR nvtxPayloadType_t get_type() const noexcept {
+  NVTX3_RELAXED_CONSTEXPR nvtxPayloadType_t get_type() const noexcept {
     return type_;
   }
 
@@ -1513,7 +1513,7 @@ class EventAttributes {
    *
    */
   template <typename... Args>
-  NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Category const& c,
+  NVTX3_RELAXED_CONSTEXPR explicit EventAttributes(Category const& c,
                                                   Args const&... args) noexcept
       : EventAttributes(args...) {
     attributes_.category = c.get_id();
@@ -1527,7 +1527,7 @@ class EventAttributes {
    *
    */
   template <typename... Args>
-  NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Color const& c,
+  NVTX3_RELAXED_CONSTEXPR explicit EventAttributes(Color const& c,
                                                   Args const&... args) noexcept
       : EventAttributes(args...) {
     attributes_.color = c.get_value();
@@ -1542,7 +1542,7 @@ class EventAttributes {
    *
    */
   template <typename... Args>
-  NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Payload const& p,
+  NVTX3_RELAXED_CONSTEXPR explicit EventAttributes(Payload const& p,
                                                   Args const&... args) noexcept
       : EventAttributes(args...) {
     attributes_.payload = p.get_value();
@@ -1557,7 +1557,7 @@ class EventAttributes {
    *
    */
   template <typename... Args>
-  NVTX_RELAXED_CONSTEXPR explicit EventAttributes(Message const& m,
+  NVTX3_RELAXED_CONSTEXPR explicit EventAttributes(Message const& m,
                                                   Args const&... args) noexcept
       : EventAttributes(args...) {
     attributes_.message = m.get_value();
