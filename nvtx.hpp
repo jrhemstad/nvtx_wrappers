@@ -52,7 +52,7 @@
  * The example code above generates the following timeline view in Nsight
  * Systems:
  *
- * \image html example_range.png
+ * \image html https://raw.githubusercontent.com/jrhemstad/nvtx_wrappers/master/docs/example_range.png
  *
  * Alternatively, use the \ref MACROS like `NVTX_FUNC_RANGE()` to add
  * ranges to your code that automatically use the name of the enclosing function
