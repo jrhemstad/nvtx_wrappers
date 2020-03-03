@@ -420,9 +420,8 @@
  * using my_registered_message = nvtx::RegisteredMessage<my_domain>;
  * using my_named_category = nvtx::NamedCategory<my_domain>;
  *
- *
  * // Default values for all attributes
- * nvtx::EventAttributes attr{}
+ * nvtx::EventAttributes attr{};
  * my_thread_range r0{attr};
  *
  * // Custom (unregistered) message, and unnamed Category
@@ -430,7 +429,8 @@
  * my_thread_range r1{attr1};
  *
  * // Alternatively, pass arguments of `EventAttributes` ctor directly to
- * `my_thread_range` my_thread_range r2{"message", nvtx::Category{2}};
+ * // `my_thread_range` 
+ * my_thread_range r2{"message", nvtx::Category{2}};
  *
  * // construct on first use a registered message
  * auto msg = my_registered_message::get<my_message>();
