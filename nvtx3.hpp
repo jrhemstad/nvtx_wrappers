@@ -258,7 +258,7 @@
  * - \ref CATEGORY : Intra-domain grouping.
  *
  * It is possible to construct a `nvtx3::event_attributes` from any number of
- * attribute objects (nvtx3::Color, nvtx3::Message, nvtx3::Payload, nvtx3::category)
+ * attribute objects (nvtx3::Color, nvtx3::message, nvtx3::Payload, nvtx3::category)
  * in any order. If an attribute is not specified, a tool specific default value
  * is used. See `nvtx3::event_attributes` for more information.
  *
@@ -283,9 +283,9 @@
  * event_attributes attr{ nvtx3::Payload{42}, nvtx3::Payload{7} }; // Payload is 42
  * \endcode
  *
- * \subsection MESSAGES Message
+ * \subsection MESSAGES message
  *
- * A `nvtx3::Message` allows associating a custom message string with an NVTX
+ * A `nvtx3::message` allows associating a custom message string with an NVTX
  * event.
  *
  * Example:
@@ -293,13 +293,13 @@
  * // Create an `event_attributes` with the custom message "my message"
  * nvtx3::event_attributes attr{nvtx3::Mesage{"my message"}};
  *
- * // strings and string literals implicitly assumed to be a `nvtx3::Message`
+ * // strings and string literals implicitly assumed to be a `nvtx3::message`
  * nvtx3::event_attributes attr{"my message"};
  * \endcode
  *
  * \subsubsection REGISTERED_MESSAGE Registered Messages
  *
- * Associating a `nvtx3::Message` with an event requires copying the contents of
+ * Associating a `nvtx3::message` with an event requires copying the contents of
  * the message every time the message is used, i.e., copying the entire message
  * string. This may cause non-trivial overhead in performance sensitive code.
  *
@@ -1037,11 +1037,11 @@ class named_category final : public category {
 /**
  * @brief A message registered with NVTX.
  *
- * Normally, associating a `Message` with an NVTX event requires copying the
+ * Normally, associating a `message` with an NVTX event requires copying the
  * contents of the message string. This may cause non-trivial overhead in highly
  * performance sensitive regions of code.
  *
- * Message registration is an optimization to lower the overhead of associating
+ * message registration is an optimization to lower the overhead of associating
  * a message with an NVTX event. Registering a message yields a handle that is
  * inexpensive to copy that may be used in place of a message string.
  *
@@ -1090,7 +1090,7 @@ class registered_message {
    * explicitly register the message.
    *
    * Upon first invocation, constructs a `registered_message` whose contents are
-   * specified by `Message::message`.
+   * specified by `message::message`.
    *
    * All future invocations will return a reference to the object constructed in
    * the first invocation.
@@ -1198,10 +1198,10 @@ class registered_message {
  * @brief Allows associating a message string with an NVTX event via
  * its `EventAttribute`s.
  *
- * Associating a `Message` with an NVTX event through its `event_attributes`
+ * Associating a `message` with an NVTX event through its `event_attributes`
  * allows for naming events to easily differentiate them from other events.
  *
- * Every time an NVTX event is created with an associated `Message`, the
+ * Every time an NVTX event is created with an associated `message`, the
  * contents of the message string must be copied.  This may cause non-trivial
  * overhead in highly performance sensitive sections of code. Use of a
  * `nvtx3::registered_message` is recommended in these situations.
@@ -1209,13 +1209,13 @@ class registered_message {
  * Example:
  * \code{.cpp}
  * // Creates an `event_attributes` with message "message 0"
- * nvtx3::event_attributes attr0{nvtx3::Message{"message 0"}};
+ * nvtx3::event_attributes attr0{nvtx3::message{"message 0"}};
  *
  * // `range0` contains message "message 0"
  * nvtx3::thread_range range0{attr0};
  *
  * // `std::string` and string literals are implicitly assumed to be
- * // the contents of an `nvtx3::Message`
+ * // the contents of an `nvtx3::message`
  * // Creates an `event_attributes` with message "message 1"
  * nvtx3::event_attributes attr1{"message 1"};
  *
@@ -1226,71 +1226,71 @@ class registered_message {
  * nvtx3::thread_range range2{nvtx3::Mesage{"message 2"}};
  *
  * // `std::string` and string literals are implicitly assumed to be
- * // the contents of an `nvtx3::Message`
+ * // the contents of an `nvtx3::message`
  * // `range3` contains message "message 3"
  * nvtx3::thread_range range3{"message 3"};
  * \endcode
  */
-class Message {
+class message {
  public:
   using value_type = nvtxMessageValue_t;
 
   /**
-   * @brief Construct a `Message` whose contents are specified by `msg`.
+   * @brief Construct a `message` whose contents are specified by `msg`.
    *
    * @param msg The contents of the message
    */
-  NVTX3_RELAXED_CONSTEXPR Message(char const* msg) noexcept
+  NVTX3_RELAXED_CONSTEXPR message(char const* msg) noexcept
       : type_{NVTX_MESSAGE_TYPE_ASCII} {
     value_.ascii = msg;
   }
 
   /**
-   * @brief Construct a `Message` whose contents are specified by `msg`.
+   * @brief Construct a `message` whose contents are specified by `msg`.
    *
    * @param msg The contents of the message
    */
-  Message(std::string const& msg) noexcept : Message{msg.c_str()} {}
+  message(std::string const& msg) noexcept : message{msg.c_str()} {}
 
   /**
    * @brief Disallow construction for `std::string` r-value
    *
-   * `Message` is a non-owning type and therefore cannot take ownership of an
+   * `message` is a non-owning type and therefore cannot take ownership of an
    * r-value. Therefore, constructing from an r-value is disallowed to prevent a
    * dangling pointer.
    *
    */
-  Message(std::string&&) = delete;
+  message(std::string&&) = delete;
 
   /**
-   * @brief Construct a `Message` whose contents are specified by `msg`.
+   * @brief Construct a `message` whose contents are specified by `msg`.
    *
    * @param msg The contents of the message
    */
-  NVTX3_RELAXED_CONSTEXPR Message(wchar_t const* msg) noexcept
+  NVTX3_RELAXED_CONSTEXPR message(wchar_t const* msg) noexcept
       : type_{NVTX_MESSAGE_TYPE_UNICODE} {
     value_.unicode = msg;
   }
 
   /**
-   * @brief Construct a `Message` whose contents are specified by `msg`.
+   * @brief Construct a `message` whose contents are specified by `msg`.
    *
    * @param msg The contents of the message
    */
-  Message(std::wstring const& msg) noexcept : Message{msg.c_str()} {}
+  message(std::wstring const& msg) noexcept : message{msg.c_str()} {}
 
   /**
    * @brief Disallow construction for `std::wstring` r-value
    *
-   * `Message` is a non-owning type and therefore cannot take ownership of an
+   * `message` is a non-owning type and therefore cannot take ownership of an
    * r-value. Therefore, constructing from an r-value is disallowed to prevent a
    * dangling pointer.
    *
    */
-  Message(std::wstring&&) = delete;
+  message(std::wstring&&) = delete;
 
   /**
-   * @brief Construct a `Message` from a `registered_message`.
+   * @brief Construct a `message` from a `registered_message`.
    *
    * @tparam D Type containing `name` member used to identify the `domain`
    * to which the `registered_message` belongs. Else, `domain::global` to
@@ -1298,7 +1298,7 @@ class Message {
    * @param msg The message that has already been registered with NVTX.
    */
   template <typename D>
-  NVTX3_RELAXED_CONSTEXPR Message(registered_message<D> const& msg) noexcept
+  NVTX3_RELAXED_CONSTEXPR message(registered_message<D> const& msg) noexcept
       : type_{NVTX_MESSAGE_TYPE_REGISTERED} {
     value_.registered = msg.get_handle();
   }
@@ -1320,8 +1320,8 @@ class Message {
   }
 
  private:
-  nvtxMessageType_t const type_{};  ///< Message type
-  nvtxMessageValue_t value_{};      ///< Message contents
+  nvtxMessageType_t const type_{};  ///< message type
+  nvtxMessageValue_t value_{};      ///< message contents
 };
 
 /**
@@ -1432,12 +1432,12 @@ class Payload {
  *
  * - color:    Color used to visualize the event in tools such as Nsight
  *             Systems. See `Color`.
- * - message:  Custom message string. See `Message`.
+ * - message:  Custom message string. See `message`.
  * - payload:  User-defined numerical value. See `Payload`.
  * - category: Intra-domain grouping. See `category`.
  *
  * These component attributes are specified via an `event_attributes` object.
- * See `nvtx3::Color`, `nvtx3::Message`, `nvtx3::Payload`, and `nvtx3::category` for
+ * See `nvtx3::Color`, `nvtx3::message`, `nvtx3::Payload`, and `nvtx3::category` for
  * how these individual attributes are constructed.
  *
  * While it is possible to specify all four attributes, it is common to want to
@@ -1550,14 +1550,14 @@ class event_attributes {
   }
 
   /**
-   * @brief Variadic constructor where the first argument is a `Message`.
+   * @brief Variadic constructor where the first argument is a `message`.
    *
    * Sets the value of the `EventAttribute`s message based on `m` and forwards
    * the remaining variadic parameter pack to the next constructor.
    *
    */
   template <typename... Args>
-  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(Message const& m,
+  NVTX3_RELAXED_CONSTEXPR explicit event_attributes(message const& m,
                                                   Args const&... args) noexcept
       : event_attributes(args...) {
     attributes_.message = m.get_value();
