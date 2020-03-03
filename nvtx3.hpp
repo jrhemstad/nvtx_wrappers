@@ -215,6 +215,20 @@
  * `nvtx3::domain_thread_range`s should be preferred unless one needs the
  * ability to begin and end a range on different threads.
  *
+ * \section MARKS Marks
+ *
+ * `nvtx3::mark` allows annotating an instantaneous event in an application's
+ * timeline. For example, indicating when a mutex is locked or unlocked.
+ * 
+ * \code{.cpp}
+ * std::mutex global_lock;
+ * void lock_mutex(){
+ *    global_lock.lock();
+ *    // Marks an event immediately after the mutex is locked
+ *    nvtx3::mark<my_domain>("lock_mutex");
+ * }
+ * \endcode
+ *
  * \section DOMAINS Domains
  *
  * Similar to C++ namespaces, Domains allow for scoping NVTX events. By default,
@@ -1830,7 +1844,7 @@ using process_range = domain_process_range<>;
  *
  * Unlike a "range", a mark is an instantaneous event in an application, e.g.,
  * locking/unlocking a mutex.
- * 
+ *
  * \code{.cpp}
  * std::mutex global_lock;
  * void lock_mutex(){
