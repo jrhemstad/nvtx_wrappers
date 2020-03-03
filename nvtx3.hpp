@@ -15,14 +15,20 @@
  */
 #pragma once
 
-#if (defined(NVTX3_MAJOR_VERSION) and defined(NVTX3_MINOR_VERSION)) and \
-    ((NVTX3_MAJOR_VERSION < 3) or                                     \
-     ((NVTX3_MAJOR_VERSION == 3) and (NVTX3_MINOR_VERSION != 0)))
+#if defined(NVTX3_MINOR_VERSION) and NVTX3_MINOR_VERSION < 0
 #error \
     "Trying to #include NVTX version 3 in a source file where an older NVTX version has already been included.  If you are not directly using NVTX (the NVIDIA Tools Extension library), you are getting this error because libraries you are using have included different versions of NVTX.  Suggested solutions are: (1) reorder #includes so the newest NVTX version is included first, (2) avoid using the conflicting libraries in the same .c/.cpp file, or (3) update the library using the older NVTX version to use the newer version instead."
 #endif
 
-#define NVTX3_MAJOR_VERSION 3
+/**
+ * @brief Semantic minor version number.
+ *
+ * Major version number is hardcoded into the "nvtx3" namespace/prefix.
+ *
+ * If this value is incremented, the above version include guard needs to be
+ * updated.
+ *
+ */
 #define NVTX3_MINOR_VERSION 0
 
 #include <nvToolsExt.h>
@@ -208,6 +214,20 @@
  *
  * `nvtx3::domain_thread_range`s should be preferred unless one needs the
  * ability to begin and end a range on different threads.
+ *
+ * \section MARKS Marks
+ *
+ * `nvtx3::mark` allows annotating an instantaneous event in an application's
+ * timeline. For example, indicating when a mutex is locked or unlocked.
+ * 
+ * \code{.cpp}
+ * std::mutex global_lock;
+ * void lock_mutex(){
+ *    global_lock.lock();
+ *    // Marks an event immediately after the mutex is locked
+ *    nvtx3::mark<my_domain>("lock_mutex");
+ * }
+ * \endcode
  *
  * \section DOMAINS Domains
  *
@@ -453,7 +473,7 @@
  *
  * // Use registered message and named category
  * my_thread_range r3{msg, category, nvtx3::rgb{127, 255, 0},
- * nvtx3::payload{42}};
+ *                    nvtx3::payload{42}};
  *
  * // Any number of arguments in any order
  * my_thread_range r{nvtx3::rgb{127, 255,0}, msg};
@@ -524,29 +544,31 @@ constexpr auto has_name_member() noexcept -> decltype(T::name, bool()) {
  * application's NVTX events from other events.
  *
  * `domain`s are expected to be long-lived and unique to a library or
- * application. As such, it is assumed a domain's name is known at compile time.
- * Therefore, all NVTX constructs that can be associated with a domain require
- * the domain to be specified via a *type* `DomainName` passed as an explicit
- * template parameter.
+ * application. As such, it is assumed a domain's name is known at compile
+ * time. Therefore, all NVTX constructs that can be associated with a domain
+ * require the domain to be specified via a *type* `DomainName` passed as an
+ * explicit template parameter.
  *
- * The type `domain::global` may be used to indicate that the global NVTX domain
- * should be used.
+ * The type `domain::global` may be used to indicate that the global NVTX
+ * domain should be used.
  *
  * None of the C++ NVTX constructs require the user to manually construct a
- * `domain` object. Instead, if a custom domain is desired, the user is expected
- * to define a type `DomainName` that contains a member `DomainName::name` which
- * resolves to either a `char const*` or `wchar_t const*`. The value of
- * `DomainName::name` is used to name and uniquely identify the custom domain.
+ * `domain` object. Instead, if a custom domain is desired, the user is
+ * expected to define a type `DomainName` that contains a member
+ * `DomainName::name` which resolves to either a `char const*` or `wchar_t
+ * const*`. The value of `DomainName::name` is used to name and uniquely
+ * identify the custom domain.
  *
  * Upon the first use of an NVTX construct associated with the type
  * `DomainName`, the "construct on first use" pattern is used to construct a
- * function local static `domain` object. All future NVTX constructs associated
- * with `DomainType` will use a reference to the previously constructed `domain`
- * object. See `domain::get`.
+ * function local static `domain` object. All future NVTX constructs
+ * associated with `DomainType` will use a reference to the previously
+ * constructed `domain` object. See `domain::get`.
  *
  * Example:
  * ```
- * // The type `my_domain` defines a `name` member used to name and identify the
+ * // The type `my_domain` defines a `name` member used to name and identify
+ * the
  * // `domain` object identified by `my_domain`.
  * struct my_domain{ static constexpr char const* name{"my_domain"}; };
  *
@@ -574,8 +596,8 @@ class domain {
   domain& operator=(domain&&) = delete;
 
   /**
-   * @brief Returns reference to an instance of a function local static `domain`
-   * object.
+   * @brief Returns reference to an instance of a function local static
+   * `domain` object.
    *
    * Uses the "construct on first use" idiom to safely ensure the `domain`
    * object is initialized exactly once upon first invocation of
@@ -584,15 +606,15 @@ class domain {
    * https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
    *
    * None of the constructs in this header require the user to directly invoke
-   * `domain::get`. It is automatically invoked when constructing objects like a
-   * `domain_thread_range` or `category`. Advanced users may wish to use
+   * `domain::get`. It is automatically invoked when constructing objects like
+   * a `domain_thread_range` or `category`. Advanced users may wish to use
    * `domain::get` for the convenience of the "construct on first use" idiom
    * when using domains with their own use of the NVTX C API.
    *
    * This function is threadsafe as of C++11. If two or more threads call
    * `domain::get<DomainName>` concurrently, exactly one of them is guaranteed
-   * to construct the `domain` object and the other(s) will receive a reference
-   * to the object after it is fully constructed.
+   * to construct the `domain` object and the other(s) will receive a
+   * reference to the object after it is fully constructed.
    *
    * The domain's name is specified via the type `DomainName` pass as an
    * explicit template parameter. `DomainName` is required to contain a
@@ -629,8 +651,8 @@ class domain {
   /**
    * @brief Conversion operator to `nvtxDomainHandle_t`.
    *
-   * Allows transparently passing a domain object into an API expecting a native
-   * `nvtxDomainHandle_t` object.
+   * Allows transparently passing a domain object into an API expecting a
+   * native `nvtxDomainHandle_t` object.
    */
   operator nvtxDomainHandle_t() const noexcept { return _domain; }
 
@@ -641,8 +663,8 @@ class domain {
    * expecting a type to identify a domain to indicate that the global domain
    * should be used.
    *
-   * All NVTX events in the global domain across all libraries and applications
-   * will be grouped together.
+   * All NVTX events in the global domain across all libraries and
+   * applications will be grouped together.
    *
    */
   struct global {};
@@ -651,8 +673,8 @@ class domain {
   /**
    * @brief Construct a new domain with the specified `name`.
    *
-   * This constructor is private as it is intended that `domain` objects only be
-   * created through the `domain::get` function.
+   * This constructor is private as it is intended that `domain` objects only
+   * be created through the `domain::get` function.
    *
    * @param name A unique name identifying the domain
    */
@@ -662,8 +684,8 @@ class domain {
   /**
    * @brief Construct a new domain with the specified `name`.
    *
-   * This constructor is private as it is intended that `domain` objects only be
-   * created through the `domain::get` function.
+   * This constructor is private as it is intended that `domain` objects only
+   * be created through the `domain::get` function.
    *
    * @param name A unique name identifying the domain
    */
@@ -673,8 +695,8 @@ class domain {
   /**
    * @brief Construct a new domain with the specified `name`.
    *
-   * This constructor is private as it is intended that `domain` objects only be
-   * created through the `domain::get` function.
+   * This constructor is private as it is intended that `domain` objects only
+   * be created through the `domain::get` function.
    *
    * @param name A unique name identifying the domain
    */
@@ -683,8 +705,8 @@ class domain {
   /**
    * @brief Construct a new domain with the specified `name`.
    *
-   * This constructor is private as it is intended that `domain` objects only be
-   * created through the `domain::get` function.
+   * This constructor is private as it is intended that `domain` objects only
+   * be created through the `domain::get` function.
    *
    * @param name A unique name identifying the domain
    */
@@ -758,8 +780,8 @@ struct rgb {
 };
 
 /**
- * @brief Indicates the value of the alpha, red, green, and blue color channels
- * for an argb color code.
+ * @brief Indicates the value of the alpha, red, green, and blue color
+ * channels for an argb color code.
  *
  */
 struct argb final : rgb {
@@ -808,15 +830,16 @@ class Color {
    *
    * The next byte indicates the value of the green channel (0-255)
    *
-   * The least significant byte indicates the value of the blue channel (0-255)
+   * The least significant byte indicates the value of the blue channel
+   * (0-255)
    *
    * @param hex_code The hex code used to construct the `Color`
    */
   constexpr explicit Color(value_type hex_code) noexcept : _value{hex_code} {}
 
   /**
-   * @brief Construct a `Color` using the alpha, red, green, blue components in
-   * `argb`.
+   * @brief Construct a `Color` using the alpha, red, green, blue components
+   * in `argb`.
    *
    * @param argb The alpha, red, green, blue components of the desired `Color`
    */
@@ -856,8 +879,8 @@ class Color {
 
  private:
   /**
-   * @brief Constructs an unsigned, 4B integer from the component bytes in most
-   * to least significant byte order.
+   * @brief Constructs an unsigned, 4B integer from the component bytes in
+   * most to least significant byte order.
    *
    */
   constexpr static value_type from_bytes_msb_to_lsb(uint8_t byte3,
@@ -933,12 +956,12 @@ class category {
  * categories.
  *
  * For any given category id `Id`, a `named_category(Id, "name")` should only
- * be constructed once and reused throughout an application. This can be done by
- * either explicitly creating static `named_category` objects, or using the
+ * be constructed once and reused throughout an application. This can be done
+ * by either explicitly creating static `named_category` objects, or using the
  * `named_category::get` construct on first use helper (recommended).
  *
- * Creating two or more `named_category` objects with the same value for `id` in
- * the same domain results in undefined behavior.
+ * Creating two or more `named_category` objects with the same value for `id`
+ * in the same domain results in undefined behavior.
  *
  * Similarly, behavior is undefined when a `named_category` and `category`
  * share the same value of `id`.
@@ -968,23 +991,23 @@ class category {
  * \endcode
  *
  * `named_category`'s association of a name to a category id is local to the
- * domain specified by the type `D`. An id may have a different name in another
- * domain.
+ * domain specified by the type `D`. An id may have a different name in
+ * another domain.
  *
  * @tparam D Type containing `name` member used to identify the `domain` to
- * which the `named_category` belongs. Else, `domain::global` to  indicate that
- * the global NVTX domain should be used.
+ * which the `named_category` belongs. Else, `domain::global` to  indicate
+ * that the global NVTX domain should be used.
  */
 template <typename D = domain::global>
 class named_category final : public category {
  public:
   /**
-   * @brief Returns a global instance of a `named_category` as a function-local
-   * static.
+   * @brief Returns a global instance of a `named_category` as a
+   * function-local static.
    *
-   * Creates a `named_category` with name and id specified by the contents of a
-   * type `C`. `C::name` determines the name and `C::id` determines the category
-   * id.
+   * Creates a `named_category` with name and id specified by the contents of
+   * a type `C`. `C::name` determines the name and `C::id` determines the
+   * category id.
    *
    * This function is useful for constructing a named `category` exactly once
    * and reusing the same instance throughout an application.
@@ -1052,12 +1075,13 @@ class named_category final : public category {
  * @brief A message registered with NVTX.
  *
  * Normally, associating a `message` with an NVTX event requires copying the
- * contents of the message string. This may cause non-trivial overhead in highly
- * performance sensitive regions of code.
+ * contents of the message string. This may cause non-trivial overhead in
+ * highly performance sensitive regions of code.
  *
- * message registration is an optimization to lower the overhead of associating
- * a message with an NVTX event. Registering a message yields a handle that is
- * inexpensive to copy that may be used in place of a message string.
+ * message registration is an optimization to lower the overhead of
+ * associating a message with an NVTX event. Registering a message yields a
+ * handle that is inexpensive to copy that may be used in place of a message
+ * string.
  *
  * A particular message should only be registered once and the handle
  * reused throughout the rest of the application. This can be done by either
@@ -1100,20 +1124,21 @@ class registered_message {
    * @brief Returns a global instance of a `registered_message` as a function
    * local static.
    *
-   * Provides a convenient way to register a message with NVTX without having to
-   * explicitly register the message.
+   * Provides a convenient way to register a message with NVTX without having
+   * to explicitly register the message.
    *
-   * Upon first invocation, constructs a `registered_message` whose contents are
-   * specified by `message::message`.
+   * Upon first invocation, constructs a `registered_message` whose contents
+   * are specified by `message::message`.
    *
-   * All future invocations will return a reference to the object constructed in
-   * the first invocation.
+   * All future invocations will return a reference to the object constructed
+   * in the first invocation.
    *
    * Example:
    * \code{.cpp}
    * // Define a type with a `message` member that defines the contents of the
    * // registered message
-   * struct my_message{ static constexpr char const* message{ "my message" }; };
+   * struct my_message{ static constexpr char const* message{ "my message" };
+   * };
    *
    * // Uses construct on first use to register the contents of
    * // `my_message::message`
@@ -1270,8 +1295,8 @@ class message {
    * @brief Disallow construction for `std::string` r-value
    *
    * `message` is a non-owning type and therefore cannot take ownership of an
-   * r-value. Therefore, constructing from an r-value is disallowed to prevent a
-   * dangling pointer.
+   * r-value. Therefore, constructing from an r-value is disallowed to prevent
+   * a dangling pointer.
    *
    */
   message(std::string&&) = delete;
@@ -1297,8 +1322,8 @@ class message {
    * @brief Disallow construction for `std::wstring` r-value
    *
    * `message` is a non-owning type and therefore cannot take ownership of an
-   * r-value. Therefore, constructing from an r-value is disallowed to prevent a
-   * dangling pointer.
+   * r-value. Therefore, constructing from an r-value is disallowed to prevent
+   * a dangling pointer.
    *
    */
   message(std::wstring&&) = delete;
@@ -1400,7 +1425,8 @@ class payload {
   }
 
   /**
-   * @brief Construct a `payload` from a single-precision floating point value.
+   * @brief Construct a `payload` from a single-precision floating point
+   * value.
    *
    * @param value Value to use as contents of the payload
    */
@@ -1410,7 +1436,8 @@ class payload {
   }
 
   /**
-   * @brief Construct a `payload` from a double-precision floating point value.
+   * @brief Construct a `payload` from a double-precision floating point
+   * value.
    *
    * @param value Value to use as contents of the payload
    */
@@ -1452,13 +1479,13 @@ class payload {
  * - category: Intra-domain grouping. See `category`.
  *
  * These component attributes are specified via an `event_attributes` object.
- * See `nvtx3::Color`, `nvtx3::message`, `nvtx3::payload`, and `nvtx3::category`
- * for how these individual attributes are constructed.
+ * See `nvtx3::Color`, `nvtx3::message`, `nvtx3::payload`, and
+ * `nvtx3::category` for how these individual attributes are constructed.
  *
- * While it is possible to specify all four attributes, it is common to want to
- * only specify a subset of attributes and use default values for the others.
- * For convenience, `event_attributes` can be constructed from any number of
- * attribute components in any order.
+ * While it is possible to specify all four attributes, it is common to want
+ * to only specify a subset of attributes and use default values for the
+ * others. For convenience, `event_attributes` can be constructed from any
+ * number of attribute components in any order.
  *
  * Example:
  * \code{.cpp}
@@ -1487,8 +1514,8 @@ class payload {
  *
  * // Multiple arguments of the same type are allowed, but only the first is
  * // used. All others are ignored
- * event_attributes attr{ nvtx3::payload{42}, nvtx3::payload{7} }; // payload is
- * 42
+ * event_attributes attr{ nvtx3::payload{42}, nvtx3::payload{7} }; // payload
+ * is 42
  *
  * // Range `r` will be customized according the attributes in `attr`
  * nvtx3::thread_range r{attr};
@@ -1506,8 +1533,8 @@ class event_attributes {
   using value_type = nvtxEventAttributes_t;
 
   /**
-   * @brief Default constructor creates an `event_attributes` with no category,
-   * color, payload, nor message.
+   * @brief Default constructor creates an `event_attributes` with no
+   * category, color, payload, nor message.
    */
   constexpr event_attributes() noexcept
       : attributes_{
@@ -1525,8 +1552,8 @@ class event_attributes {
   /**
    * @brief Variadic constructor where the first argument is a `category`.
    *
-   * Sets the value of the `EventAttribute`s category based on `c` and forwards
-   * the remaining variadic parameter pack to the next constructor.
+   * Sets the value of the `EventAttribute`s category based on `c` and
+   * forwards the remaining variadic parameter pack to the next constructor.
    *
    */
   template <typename... Args>
@@ -1539,8 +1566,8 @@ class event_attributes {
   /**
    * @brief Variadic constructor where the first argument is a `Color`.
    *
-   * Sets the value of the `EventAttribute`s color based on `c` and forwards the
-   * remaining variadic parameter pack to the next constructor.
+   * Sets the value of the `EventAttribute`s color based on `c` and forwards
+   * the remaining variadic parameter pack to the next constructor.
    *
    */
   template <typename... Args>
@@ -1604,8 +1631,8 @@ class event_attributes {
  * When constructed, begins a nested NVTX range on the calling thread in the
  * specified domain. Upon destruction, ends the NVTX range.
  *
- * Behavior is undefined if a `domain_thread_range` object is created/destroyed
- * on different threads.
+ * Behavior is undefined if a `domain_thread_range` object is
+ * created/destroyed on different threads.
  *
  * `domain_thread_range` is neither moveable nor copyable.
  *
@@ -1616,9 +1643,9 @@ class event_attributes {
  * global NVTX domain. The convenience alias `thread_range` is provided for
  * ranges scoped to the global domain.
  *
- * A custom domain can be defined by creating a type, `D`, with a static member
- * `D::name` whose value is used to name the domain associated with `D`.
- * `D::name` must resolve to either `char const*` or `wchar_t const*`
+ * A custom domain can be defined by creating a type, `D`, with a static
+ * member `D::name` whose value is used to name the domain associated with
+ * `D`. `D::name` must resolve to either `char const*` or `wchar_t const*`
  *
  * Example:
  * ```
@@ -1659,20 +1686,20 @@ class domain_thread_range {
    *                                    // "msg" and green color
    * ```
    *
-   * @param[in] attr `event_attributes` that describes the desired attributes of
-   * the range.
+   * @param[in] attr `event_attributes` that describes the desired attributes
+   * of the range.
    */
   explicit domain_thread_range(event_attributes const& attr) noexcept {
     nvtxDomainRangePushEx(domain::get<D>(), attr.get());
   }
 
   /**
-   * @brief Constructs a `domain_thread_range` from the constructor arguments of
-   * an `event_attributes`.
+   * @brief Constructs a `domain_thread_range` from the constructor arguments
+   * of an `event_attributes`.
    *
-   * Forwards the arguments `first, args...` to construct an `event_attributes`
-   * object. The `event_attributes` object is then associated with the
-   * `domain_thread_range`.
+   * Forwards the arguments `first, args...` to construct an
+   * `event_attributes` object. The `event_attributes` object is then
+   * associated with the `domain_thread_range`.
    *
    * For more detail, see `event_attributes` documentation.
    *
@@ -1682,14 +1709,15 @@ class domain_thread_range {
    * nvtx3::domain_thread_range<> r{"message", nvtx3::rgb{127,255,0}};
    * ```
    *
-   * @note To prevent making needless copies of `event_attributes` objects, this
-   * constructor is disabled when the first argument is an `event_attributes`
-   * object, instead preferring the explicit
+   * @note To prevent making needless copies of `event_attributes` objects,
+   * this constructor is disabled when the first argument is an
+   * `event_attributes` object, instead preferring the explicit
    * `domain_thread_range(event_attributes const&)` constructor.
    *
    * @param[in] first First argument to forward to the `event_attributes`
    * constructor.
-   * @param[in] args Variadic parameter pack of additional arguments to forward.
+   * @param[in] args Variadic parameter pack of additional arguments to
+   * forward.
    *
    */
   template <typename First, typename... Args,
@@ -1699,8 +1727,8 @@ class domain_thread_range {
       : domain_thread_range{event_attributes{first, args...}} {}
 
   /**
-   * @brief Default constructor creates a `domain_thread_range` with no message,
-   * color, payload, nor category.
+   * @brief Default constructor creates a `domain_thread_range` with no
+   * message, color, payload, nor category.
    *
    */
   domain_thread_range() : domain_thread_range{event_attributes{}} {}
@@ -1732,8 +1760,8 @@ using thread_range = domain_thread_range<>;
  * Similar to `nvtx3::domain_thread_range`, the only difference being that
  * `domain_process_range` can start and end on different threads.
  *
- * Use of `nvtx3::domain_thread_range` should be preferred unless one needs the
- * ability to start and end a range on different threads.
+ * Use of `nvtx3::domain_thread_range` should be preferred unless one needs
+ * the ability to start and end a range on different threads.
  *
  * `domain_process_range` is moveable, but not copyable.
  *
@@ -1809,6 +1837,32 @@ class domain_process_range {
  *
  */
 using process_range = domain_process_range<>;
+
+/**
+ * @brief Annotates an instantaneous point in time with the attributes specified
+ * by `attr`.
+ *
+ * Unlike a "range", a mark is an instantaneous event in an application, e.g.,
+ * locking/unlocking a mutex.
+ *
+ * \code{.cpp}
+ * std::mutex global_lock;
+ * void lock_mutex(){
+ *    global_lock.lock();
+ *    nvtx3::mark("lock_mutex");
+ * }
+ * \endcode
+ *
+ * @tparam D Type containing `name` member used to identify the `domain`
+ * to which the `domain_process_range` belongs. Else, `domain::global` to
+ * indicate that the global NVTX domain should be used.
+ * @param[in] attr `event_attributes` that describes the desired attributes
+ * of the mark.
+ */
+template <typename D = nvtx3::domain::global>
+void mark(event_attributes const& attr) {
+  nvtxDomainMarkEx(domain::get<d>(), attr.get());
+}
 
 }  // namespace nvtx3
 
