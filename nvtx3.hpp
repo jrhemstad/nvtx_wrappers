@@ -264,11 +264,11 @@
  *
  * \code{.cpp}
  * // Custom color, message
- * EventAttributes attr{nvtx3::RGB{127, 255, 0},
+ * EventAttributes attr{nvtx3::rgb{127, 255, 0},
  *                      "message"};
  *
  * // Custom color, message, payload, category
- * EventAttributes attr{nvtx3::RGB{127, 255, 0},
+ * EventAttributes attr{nvtx3::rgb{127, 255, 0},
  *                      nvtx3::Payload{42},
  *                      "message",
  *                      nvtx3::Category{1}};
@@ -277,7 +277,7 @@
  * EventAttributes attr{nvtx3::Payload{42},
  *                      nvtx3::Category{1},
  *                      "message",
- *                      nvtx3::RGB{127, 255, 0}};
+ *                      nvtx3::rgb{127, 255, 0}};
  *
  * // "First wins" with multiple arguments of the same type
  * EventAttributes attr{ nvtx3::Payload{42}, nvtx3::Payload{7} }; // Payload is 42
@@ -338,12 +338,12 @@
  * visually differentiate among different events.
  *
  * \code{.cpp}
- * // Define a color via RGB color values
- * nvtx3::Color c{nvtx3::RGB{127, 255, 0}};
+ * // Define a color via rgb color values
+ * nvtx3::Color c{nvtx3::rgb{127, 255, 0}};
  * nvtx3::EventAttributes attr{c};
  *
- * // RGB color values can be passed directly to an `EventAttributes`
- * nvtx3::EventAttributes attr1{nvtx3::RGB{127,255,0}};
+ * // rgb color values can be passed directly to an `EventAttributes`
+ * nvtx3::EventAttributes attr1{nvtx3::rgb{127,255,0}};
  * \endcode
  *
  * \subsection CATEGORY Category
@@ -439,10 +439,10 @@
  * auto category = my_named_category::get<my_category>();
  *
  * // Use registered message and named category
- * my_thread_range r3{msg, category, nvtx3::RGB{127, 255, 0}, nvtx3::Payload{42}};
+ * my_thread_range r3{msg, category, nvtx3::rgb{127, 255, 0}, nvtx3::Payload{42}};
  *
  * // Any number of arguments in any order
- * my_thread_range r{nvtx3::RGB{127, 255,0}, msg};
+ * my_thread_range r{nvtx3::rgb{127, 255,0}, msg};
  *
  * \endcode
  * \section MACROS Convenience Macros
@@ -717,15 +717,15 @@ domain const& domain::get<domain::global>() {
 
 /**
  * @brief Indicates the values of the red, green, blue color channels for
- * a RGB color code.
+ * a rgb color code.
  *
  */
-struct RGB {
+struct rgb {
   /// Type used for component values
   using component_type = uint8_t;
 
   /**
-   * @brief Construct a RGB with red, green, and blue channels
+   * @brief Construct a rgb with red, green, and blue channels
    * specified by `red_`, `green_`, and `blue_`, respectively.
    *
    * Valid values are in the range `[0,255]`.
@@ -734,7 +734,7 @@ struct RGB {
    * @param green_ Value of the green channel
    * @param blue_ Value of the blue channel
    */
-  constexpr RGB(component_type red_, component_type green_,
+  constexpr rgb(component_type red_, component_type green_,
                 component_type blue_) noexcept
       : red{red_}, green{green_}, blue{blue_} {}
 
@@ -748,7 +748,7 @@ struct RGB {
  * for an ARGB color code.
  *
  */
-struct ARGB final : RGB {
+struct ARGB final : rgb {
   /**
    * @brief Construct an ARGB with alpha, red, green, and blue channels
    * specified by `alpha_`, `red_`, `green_`, and `blue_`, respectively.
@@ -763,7 +763,7 @@ struct ARGB final : RGB {
    */
   constexpr ARGB(component_type alpha_, component_type red_,
                  component_type green_, component_type blue_) noexcept
-      : RGB{red_, green_, blue_}, alpha{alpha_} {}
+      : rgb{red_, green_, blue_}, alpha{alpha_} {}
 
   component_type const alpha{};  ///< Alpha channel value
 };
@@ -818,7 +818,7 @@ class Color {
    *
    * @param rgb The red, green, blue components of the desired `Color`
    */
-  constexpr Color(RGB rgb) noexcept
+  constexpr Color(rgb rgb) noexcept
       : Color{from_bytes_msb_to_lsb(0xFF, rgb.red, rgb.green, rgb.blue)} {}
 
   /**
@@ -1452,14 +1452,14 @@ class Payload {
  * EventAttributes attr{"message"}; // Custom message, rest defaulted
  *
  * // Custom color & message
- * EventAttributes attr{"message", nvtx3::RGB{127, 255, 0}};
+ * EventAttributes attr{"message", nvtx3::rgb{127, 255, 0}};
  *
  * /// Custom color & message, can use any order of arguments
- * EventAttributes attr{nvtx3::RGB{127, 255, 0}, "message"};
+ * EventAttributes attr{nvtx3::rgb{127, 255, 0}, "message"};
  *
  *
  * // Custom color, message, payload, category
- * EventAttributes attr{nvtx3::RGB{127, 255, 0},
+ * EventAttributes attr{nvtx3::rgb{127, 255, 0},
  *                      "message",
  *                      nvtx3::Payload{42},
  *                      nvtx3::Category{1}};
@@ -1468,7 +1468,7 @@ class Payload {
  * EventAttributes attr{nvtx3::Payload{42},
  *                      nvtx3::Category{1},
  *                      "message",
- *                      nvtx3::RGB{127, 255, 0}};
+ *                      nvtx3::rgb{127, 255, 0}};
  *
  * // Multiple arguments of the same type are allowed, but only the first is
  * // used. All others are ignored
@@ -1635,7 +1635,7 @@ class domain_thread_range {
    *
    * Example:
    * ```
-   * nvtx3::EventAttributes attr{"msg", nvtx3::RGB{127,255,0}};
+   * nvtx3::EventAttributes attr{"msg", nvtx3::rgb{127,255,0}};
    * nvtx3::domain_thread_range<> range{attr}; // Creates a range with message
    * contents
    *                                    // "msg" and green color
@@ -1661,7 +1661,7 @@ class domain_thread_range {
    * Example:
    * ```
    * // Creates a range with message "message" and green color
-   * nvtx3::domain_thread_range<> r{"message", nvtx3::RGB{127,255,0}};
+   * nvtx3::domain_thread_range<> r{"message", nvtx3::rgb{127,255,0}};
    * ```
    *
    * @note To prevent making needless copies of `EventAttributes` objects, this
