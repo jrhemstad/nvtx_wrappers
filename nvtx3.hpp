@@ -20,7 +20,7 @@
 #include <string>
 
 /**
- * @file nvtx.hpp
+ * @file nvtx3.hpp
  *
  * @brief Provides C++ constructs making the NVTX library safer and easier to
  * use with zero overhead.
@@ -37,7 +37,7 @@
  * destroyed.
  *
  * \code{.cpp}
- * #include "nvtx.hpp"
+ * #include "nvtx3.hpp"
  * void some_function(){
  *    // Begins a NVTX range with the messsage "some_function"
  *    // The range ends when some_function() returns and `r` is destroyed
@@ -60,7 +60,7 @@
  * as the range's message.
  *
  * \code{.cpp}
- * #include "nvtx.hpp"
+ * #include "nvtx3.hpp"
  * void some_function(){
  *    // Creates a range with a message "some_function" that ends when the
  * enclosing
