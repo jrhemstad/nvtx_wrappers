@@ -11,6 +11,7 @@ See https://jrhemstad.github.io/nvtx_wrappers/html/index.html for Doxygen docume
   destroyed.
  
   ```c++
+  #include "nvtx.hpp"
   void some_function(){
      // Begins a NVTX range with the messsage "some_function"
      // The range ends when some_function() returns and `r` is destroyed
@@ -32,6 +33,7 @@ See https://jrhemstad.github.io/nvtx_wrappers/html/index.html for Doxygen docume
   as the range's message.
  
  ```c++
+ #include "nvtx.hpp"
   void some_function(){
      // Creates a range with a message "some_function" that ends when the enclosing
      // function returns
