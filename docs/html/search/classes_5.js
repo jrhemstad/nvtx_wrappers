@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['message',['Message',['../classnvtx_1_1Message.html',1,'nvtx']]]
+  ['message',['message',['../classnvtx3_1_1message.html',1,'nvtx3']]]
 ];

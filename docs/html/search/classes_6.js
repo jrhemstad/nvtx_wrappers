@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['namedcategory',['NamedCategory',['../classnvtx_1_1NamedCategory.html',1,'nvtx']]]
+  ['named_5fcategory',['named_category',['../classnvtx3_1_1named__category.html',1,'nvtx3']]]
 ];

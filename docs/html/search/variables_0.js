@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['alpha',['alpha',['../structnvtx_1_1ARGB.html#a287dc8f228508a48d1918f78b70db1b1',1,'nvtx::ARGB']]]
+  ['alpha',['alpha',['../structnvtx3_1_1argb.html#a948b758a9647ef95be1d12fc215c0957',1,'nvtx3::argb']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['nvtx_2ehpp',['nvtx.hpp',['../nvtx_8hpp.html',1,'']]]
+  ['nvtx3_2ehpp',['nvtx3.hpp',['../nvtx3_8hpp.html',1,'']]]
 ];

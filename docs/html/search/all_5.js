@@ -1,10 +1,10 @@
 var searchData=
 [
-  ['get',['get',['../classnvtx_1_1Domain.html#ab42ea71ed0303a899443aa7edfb1b320',1,'nvtx::Domain::get()'],['../classnvtx_1_1NamedCategory.html#af126f25675eaca24ba4a8c3599b08aa8',1,'nvtx::NamedCategory::get()'],['../classnvtx_1_1RegisteredMessage.html#af6758cf7f01741d0a8ed8b03d0de270e',1,'nvtx::RegisteredMessage::get()'],['../classnvtx_1_1EventAttributes.html#aef7f966718345929deffb2d5e9a8c513',1,'nvtx::EventAttributes::get()']]],
-  ['get_5fhandle',['get_handle',['../classnvtx_1_1RegisteredMessage.html#ab387647cf974a88f17722fc1b7898017',1,'nvtx::RegisteredMessage']]],
-  ['get_5fid',['get_id',['../classnvtx_1_1Category.html#a9ab86c5e2e220ab2d25e15cff95e7406',1,'nvtx::Category']]],
-  ['get_5ftype',['get_type',['../classnvtx_1_1Color.html#a61c2082f5163fc4ed67813bc3fae216e',1,'nvtx::Color::get_type()'],['../classnvtx_1_1Message.html#a8da2896bb938cf63113eae6695f7e102',1,'nvtx::Message::get_type()'],['../classnvtx_1_1Payload.html#a4553733838fcfbb1ef80ab34ad5259eb',1,'nvtx::Payload::get_type()']]],
-  ['get_5fvalue',['get_value',['../classnvtx_1_1Color.html#a30a438e5a004508dff453ab5e25ede4c',1,'nvtx::Color::get_value()'],['../classnvtx_1_1Message.html#a5e9202e26c6b3e01d9f988085606f3eb',1,'nvtx::Message::get_value()'],['../classnvtx_1_1Payload.html#aa0f0e78e7f63ded789a1bac15972781a',1,'nvtx::Payload::get_value()']]],
-  ['global',['global',['../structnvtx_1_1Domain_1_1global.html',1,'nvtx::Domain']]],
-  ['green',['green',['../structnvtx_1_1RGB.html#a06ffb4a1cf1bbff21a22fd0f54f82d28',1,'nvtx::RGB']]]
+  ['get',['get',['../classnvtx3_1_1domain.html#a7996bdef2eaa1531254abb2a998597ab',1,'nvtx3::domain::get()'],['../classnvtx3_1_1named__category.html#aac79ed8fab4d5c8fcb0a3c75496e153e',1,'nvtx3::named_category::get()'],['../classnvtx3_1_1registered__message.html#a0b65d5af514a6edaca04dade07c72928',1,'nvtx3::registered_message::get()'],['../classnvtx3_1_1event__attributes.html#a71a428abe2969f6dd18a606ea2c0fec0',1,'nvtx3::event_attributes::get()']]],
+  ['get_5fhandle',['get_handle',['../classnvtx3_1_1registered__message.html#a11f64f090cf96e51a5ab1b2379cbd5b2',1,'nvtx3::registered_message']]],
+  ['get_5fid',['get_id',['../classnvtx3_1_1category.html#ab5b1043bb1c42808b04a515e10a464c6',1,'nvtx3::category']]],
+  ['get_5ftype',['get_type',['../classnvtx3_1_1Color.html#a0062d67cacf46daa0a1b5e74b3aaeb33',1,'nvtx3::Color::get_type()'],['../classnvtx3_1_1message.html#a3d63030b7827a7cd6becdf69a23d1932',1,'nvtx3::message::get_type()'],['../classnvtx3_1_1Payload.html#aa67e4f25b6d75555725739bfe0d7a2e6',1,'nvtx3::Payload::get_type()']]],
+  ['get_5fvalue',['get_value',['../classnvtx3_1_1Color.html#af29ecf0ce598871c263be42a270e7996',1,'nvtx3::Color::get_value()'],['../classnvtx3_1_1message.html#a913bd3c4b92d87e3438a9b1b26c378f2',1,'nvtx3::message::get_value()'],['../classnvtx3_1_1Payload.html#a0b114678d6ca94fb8522414c4f745f7f',1,'nvtx3::Payload::get_value()']]],
+  ['global',['global',['../structnvtx3_1_1domain_1_1global.html',1,'nvtx3::domain']]],
+  ['green',['green',['../structnvtx3_1_1rgb.html#a864fe5a02d432e8fdb9e436cb94dc9cf',1,'nvtx3::rgb']]]
 ];

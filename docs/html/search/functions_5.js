@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['has_5fname_5fmember',['has_name_member',['../nvtx_8hpp.html#ae2e7a6c25286877193627fff0043883a',1,'nvtx::detail']]]
+  ['has_5fname_5fmember',['has_name_member',['../nvtx3_8hpp.html#a52cdd999697a8669e22992dc391c34bf',1,'nvtx3::detail']]]
 ];
