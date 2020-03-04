@@ -1860,8 +1860,8 @@ using process_range = domain_process_range<>;
  * of the mark.
  */
 template <typename D = nvtx3::domain::global>
-void mark(event_attributes const& attr) {
-  nvtxDomainMarkEx(domain::get<d>(), attr.get());
+inline void mark(event_attributes const& attr) noexcept {
+  nvtxDomainMarkEx(domain::get<D>(), attr.get());
 }
 
 }  // namespace nvtx3
