@@ -118,8 +118,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnvtx3_1_1argb.html">nvtx3::argb</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates the value of the alpha, red, green, and blue color channels for an argb color code.  <a href="structnvtx3_1_1argb.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnvtx3_1_1Color.html">nvtx3::Color</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a custom color that can be associated with an NVTX event via it's <code><a class="el" href="classnvtx3_1_1event__attributes.html" title="Describes the attributes of a NVTX event. ">event_attributes</a></code>.  <a href="classnvtx3_1_1Color.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnvtx3_1_1color.html">nvtx3::color</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a custom color that can be associated with an NVTX event via it's <code><a class="el" href="classnvtx3_1_1event__attributes.html" title="Describes the attributes of a NVTX event. ">event_attributes</a></code>.  <a href="classnvtx3_1_1color.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnvtx3_1_1category.html">nvtx3::category</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Object for intra-domain grouping of NVTX events.  <a href="classnvtx3_1_1category.html#details">More...</a><br /></td></tr>
@@ -273,6 +273,9 @@ Functions</h2></td></tr>
 <div class="memproto">
 <div class="memtemplate">
 template&lt;&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">domain const&amp; <a class="el" href="classnvtx3_1_1domain.html#a7996bdef2eaa1531254abb2a998597ab">nvtx3::domain::get</a>&lt; domain::global &gt; </td>
@@ -281,6 +284,11 @@ template&lt;&gt; </div>
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Returns reference to the <code>domain</code> object that represents the global NVTX domain. </p>
