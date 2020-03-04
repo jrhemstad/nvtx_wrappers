@@ -746,7 +746,7 @@ class domain {
  *
  */
 template <>
-domain const& domain::get<domain::global>() {
+inline domain const& domain::get<domain::global>() {
   static domain const d{};
   return d;
 }
