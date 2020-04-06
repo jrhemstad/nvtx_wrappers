@@ -1751,8 +1751,112 @@ class domain_thread_range {
 using thread_range = domain_thread_range<>;
 
 /**
- * @brief A RAII object for creating a NVTX range within a domain that can be
- * created and destroyed on different threads.
+ * @brief Handle used for correlating explicit range start and end events.
+ *
+ */
+struct range_handle {
+  /// Type used for the handle's value
+  using value_type = nvtxRangeId_t;
+
+  /**
+   * @brief Construct a `range_handle` from the given id.
+   *
+   */
+  constexpr range_handle(value_type id) noexcept : _range_id{id} {}
+
+  /**
+   * @brief Returns the `range_handle`'s value
+   *
+   * @return value_type The handle's value
+   */
+  constexpr value_type get_value() const noexcept { return _range_id; }
+
+private:
+  value_type _range_id{}; ///< The underlying NVTX range id
+};
+
+/**
+ * @brief Manually begin an NVTX range.
+ *
+ * Explicitly begins an NVTX range and returns a unique handle. To end the
+ * range, pass the handle to `end_range()`.
+ *
+ * `start_range/end_range` are the most explicit and lowest level APIs provided
+ * for creating ranges.  Use of `nvtx3::domain_process_range` should be
+ * preferred unless one is unable to tie the range to the lifetime of an object.
+ *
+ * Example:
+ * ```
+ * nvtx3::event_attributes attr{"msg", nvtx3::rgb{127,255,0}};
+ * nvtx3::range_handle h = nvxt3::start_range(attr); // Manually begins a range
+ * ...
+ * nvtx3::end_range(h); // Ends the range
+ * ```
+ *
+ * @tparam D Type containing `name` member used to identify the `domain`
+ * to which the range belongs. Else, `domain::global` to indicate that the
+ * global NVTX domain should be used.
+ * @param[in] attr `event_attributes` that describes the desired attributes
+ * of the range.
+ * @return Unique handle to be passed to `end_range` to end the range.
+ */
+template <typename D = domain::global>
+range_handle start_range(event_attributes const &attr) noexcept {
+  return range_handle{nvtxDomainRangeStartEx(domain::get<D>(), attr.get())};
+}
+
+/**
+ * @brief Manually begin an NVTX range.
+ *
+ * Explicitly begins an NVTX range and returns a unique handle. To end the
+ * range, pass the handle to `end_range()`.
+ *
+ * Forwards the arguments `first, args...` to construct an  `event_attributes`
+ * object. The `event_attributes` object is then  associated with the range.
+ *
+ * For more detail, see `event_attributes` documentation.
+ *
+ * Example:
+ * ```
+ * nvtx3::range_handle h = nvxt3::start_range("msg", nvtx3::rgb{127,255,0}); //
+ * Begin range
+ * ...
+ * nvtx3::end_range(h); // Ends the range
+ * ```
+ *
+ * `start_range/end_range` are the most explicit and lowest level APIs provided
+ * for creating ranges.  Use of `nvtx3::domain_process_range` should be
+ * preferred unless one is unable to tie the range to the lifetime of an object.
+ *
+ * @param first[in] First argument to pass to an `event_attributes`
+ * @param args[in] Variadiac parameter pack of the rest of the arguments for an
+ * `event_attributes`.
+ * @return Unique handle to be passed to `end_range` to end the range.
+ */
+template <typename First, typename... Args,
+          typename = typename std::enable_if<not std::is_same<
+              event_attributes, typename std::decay<First>>::value>>
+range_handle start_range(First const &first, Args const &... args) noexcept {
+  return start_range(event_attributes{first, args...});
+}
+
+/**
+ * @brief Manually end the range associated with the handle `r`.
+ *
+ * Explicitly ends the NVTX range indicated by the handle `r` returned from a
+ * prior call to `start_range`. The range may end on a different thread from
+ * where it began.
+ *
+ * This function does not have a Domain tag type template parameter as the
+ * handle `r` already indicates the domain to which the range belongs.
+ *
+ * @param r Handle to a range started by a prior call to `start_range`.
+ */
+void end_range(range_handle r) { nvtxRangeEnd(r.get_value()); }
+
+/**
+ * @brief A RAII object for creating a NVTX range within a domain that can
+ * be created and destroyed on different threads.
  *
  * When constructed, begins a NVTX range in the specified domain. Upon
  * destruction, ends the NVTX range.
@@ -1769,16 +1873,15 @@ using thread_range = domain_thread_range<>;
  * to which the `domain_process_range` belongs. Else, `domain::global` to
  * indicate that the global NVTX domain should be used.
  */
-template <typename D = domain::global>
-class domain_process_range {
+template <typename D = domain::global> class domain_process_range {
  public:
   /**
    * @brief Construct a new domain process range object
    *
    * @param attr
    */
-  explicit domain_process_range(event_attributes const& attr) noexcept
-      : range_id_{nvtxDomainRangeStartEx(domain::get<D>(), attr.get())} {}
+  explicit domain_process_range(event_attributes const &attr) noexcept
+      : handle_{start_range(attr)} {}
 
   /**
    * @brief Construct a new domain process range object
@@ -1789,8 +1892,8 @@ class domain_process_range {
   template <typename First, typename... Args,
             typename = typename std::enable_if<not std::is_same<
                 event_attributes, typename std::decay<First>>::value>>
-  explicit domain_process_range(First const& first,
-                                Args const&... args) noexcept
+  explicit domain_process_range(First const &first,
+                                Args const &... args) noexcept
       : domain_process_range{event_attributes{first, args...}} {}
 
   /**
@@ -1806,27 +1909,45 @@ class domain_process_range {
    */
   ~domain_process_range() noexcept {
     if (not moved_from_) {
-      nvtxRangeEnd(range_id_);
+      end_range(handle_);
     }
   }
 
-  domain_process_range(domain_process_range const&) = delete;
-  domain_process_range& operator=(domain_process_range const&) = delete;
-
-  domain_process_range(domain_process_range&& other) noexcept
-      : range_id_{other.range_id_} {
+  /**
+   * @brief Move constructor allows taking ownership of the NVTX range from
+   * another `domain_process_range`.
+   *
+   * @param other
+   */
+  domain_process_range(domain_process_range &&other) noexcept
+      : handle_{other.handle_} {
     other.moved_from_ = true;
   }
 
-  domain_process_range& operator=(domain_process_range&& other) noexcept {
-    range_id_ = other.range_id_;
+  /**
+   * @brief Move assignment operator allows taking ownership of an NVTX range
+   * from another `domain_process_range`.
+   *
+   * @param other
+   * @return domain_process_range&
+   */
+  domain_process_range &operator=(domain_process_range &&other) noexcept {
+    handle_ = other.handle_;
     other.moved_from_ = true;
   }
+
+  /// Copy construction is not allowed to prevent multiple objects from owning
+  /// the same range handle
+  domain_process_range(domain_process_range const &) = delete;
+
+  /// Copy assignment is not allowed to prevent multiple objects from owning the
+  /// same range handle
+  domain_process_range &operator=(domain_process_range const &) = delete;
 
  private:
-  nvtxRangeId_t range_id_;  ///< Range id used to correlate
+  range_handle handle_;    ///< Range handle used to correlate
                             ///< the start/end of the range
-  bool moved_from_{false};  ///< Indicates if the object has had
+  bool moved_from_{false}; ///< Indicates if the object has had
                             ///< it's contents moved from it,
                             ///< indicating it should not attempt
                             ///< to end the NVTX range.
