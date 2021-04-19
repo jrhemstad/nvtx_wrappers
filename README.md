@@ -1,3 +1,5 @@
+Notice: This repository is deprecated and the code has moved to the official NVIDIA NVTX github repository: https://github.com/NVIDIA/NVTX/tree/dev/cpp
+
 # NVTX++
 
 Provides C++ convenience wrappers for NVIDIA Tool Extension (NVTX) C APIs. 
